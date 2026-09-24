@@ -17,7 +17,7 @@ import { Footer } from "@/components/layout/Footer";
 export const metadata: Metadata = {
   title: "Ugrahak | Turn First-Time Customers Into Repeat Customers",
   description:
-    "Ugrahak helps local retail stores capture customers, reward first visits with digital scratch cards, and bring them back with push notification offers.",
+    "Ugrahak helps local retail stores capture customers, reward first visits with digital scratch cards, and bring them back with Send Offer broadcasts.",
 };
 
 export default async function HomePage() {
@@ -173,7 +173,7 @@ export default async function HomePage() {
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-semibold text-slate-800">
-                Instant Push Notifications
+                Instant Offer Broadcasts
               </span>
             </div>
             <div className="flex items-center gap-3">

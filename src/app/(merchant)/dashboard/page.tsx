@@ -166,7 +166,7 @@ export default async function DashboardPage() {
             Bring customers back to your shop
           </h2>
           <p className="text-xs text-indigo-100/90 max-w-md">
-            Broadcast an instant push notification with a weekend discount or festival deal to all your enrolled customers.
+            Send an instant offer with a weekend discount or festival deal to all your enrolled customers.
           </p>
         </div>
 

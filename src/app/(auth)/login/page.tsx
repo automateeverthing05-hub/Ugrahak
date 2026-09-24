@@ -118,7 +118,7 @@ export default function LoginPage() {
                       Bring Them Back
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Send offers and nearby notifications to bring customers back again.
+                      Send offers and nearby alerts to bring customers back again.
                     </p>
                   </div>
                 </div>

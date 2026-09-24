@@ -239,7 +239,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
         setPermissionState("denied");
         setIsScratchCardUnlocked(false);
         setPermissionError(
-          "Notifications are blocked in your browser settings. Please allow notifications for this site to unlock your scratch card."
+          "Offers are blocked in your browser settings. Please allow offers/notifications for this site to unlock your scratch card."
         );
       } else {
         // Permission is 'default': Trigger native browser permission prompt NOW
@@ -258,14 +258,14 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           setPermissionState("denied");
           setIsScratchCardUnlocked(false);
           setPermissionError(
-            "Notification permission was denied. You must allow notifications to receive your offer and unlock the scratch card."
+            "Offer permission was not allowed. You must enable offers to receive discounts and unlock the scratch card."
           );
         } else {
           // Dismissed / default
           setPermissionState("default");
           setIsScratchCardUnlocked(false);
           setPermissionError(
-            "Notification permission is required to unlock your scratch card."
+            "Permission is required to receive offers and unlock your scratch card."
           );
         }
       }
@@ -318,13 +318,13 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
         setPermissionState("denied");
         setIsScratchCardUnlocked(false);
         setPermissionError(
-          "Notifications are blocked in your browser. Click the lock icon in your browser address bar to allow notifications, then tap Check Again."
+          "Offers are blocked in your browser. Click the lock icon in your browser address bar to allow notifications/offers, then tap Check Again."
         );
       } else {
         setPermissionState("default");
         setIsScratchCardUnlocked(false);
         setPermissionError(
-          "Notification permission is required to receive this offer and unlock your scratch card."
+          "Permission is required to receive this offer and unlock your scratch card."
         );
       }
     } catch (err: unknown) {
@@ -432,7 +432,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
               Almost there, {checkinData.customer.name}!
             </h2>
             <p className="text-xs text-slate-600 mt-1 max-w-xs mx-auto">
-              Allow browser notifications to receive store discounts and unlock your exclusive scratch card.
+              Enable offers to receive store discounts and unlock your exclusive scratch card.
             </p>
           </div>
 
@@ -443,7 +443,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
               Offer & Scratch Card Locked
             </span>
             <span className="text-[10px] text-slate-500 mt-0.5">
-              Requires Notification Permission
+              Enable Offers to Unlock
             </span>
           </div>
 
@@ -452,7 +452,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left flex items-start gap-2.5 text-xs text-amber-950">
               <ShieldAlert className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold">Notification Permission Required</p>
+                <p className="font-bold">Permission Required to Receive Offers</p>
                 <p className="text-[11px] text-amber-900 mt-0.5">{permissionError}</p>
               </div>
             </div>
@@ -470,7 +470,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
               <span>
                 {permissionState === "denied"
                   ? "Check Permission & Unlock"
-                  : "Allow Notifications to Unlock"}
+                  : "Enable Offers to Unlock"}
               </span>
             </Button>
 
@@ -478,12 +478,12 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 text-left space-y-1">
                 <p className="font-semibold text-slate-800 flex items-center gap-1">
                   <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>How to unblock notifications:</span>
+                  <span>How to allow offers in your browser:</span>
                 </p>
                 <ol className="list-decimal list-inside space-y-0.5 pl-1 text-[10px] text-slate-500">
                   <li>Tap the 🔒 lock icon near the address bar at the top.</li>
                   <li>Tap <strong>Permissions</strong> / <strong>Site settings</strong>.</li>
-                  <li>Change <strong>Notifications</strong> to <strong>Allow</strong>.</li>
+                  <li>Change <strong>Notifications / Offers</strong> to <strong>Allow</strong>.</li>
                   <li>Tap &quot;Check Permission &amp; Unlock&quot; above.</li>
                 </ol>
               </div>
@@ -578,7 +578,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
         {/* Feature 1: Push Notification Status Badge */}
         <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center flex items-center justify-center gap-2 text-xs font-semibold text-emerald-800 shadow-xs">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-          <span>Store Notifications Active • You will receive exclusive discounts</span>
+          <span>Store Offers Active • You will receive exclusive discounts</span>
         </div>
 
         {/* Feature 2: Nearby Offers (100–200m) Card */}
@@ -748,7 +748,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
 
         <p className="text-[10px] text-center text-slate-400 flex items-center justify-center gap-1">
           <Bell className="w-3 h-3 text-slate-400" />
-          <span>Notification permission required to receive offer &amp; scratch card</span>
+          <span>Enable offers to receive your reward &amp; scratch card</span>
         </p>
       </form>
     </div>

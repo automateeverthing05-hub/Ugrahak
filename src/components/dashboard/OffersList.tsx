@@ -182,7 +182,7 @@ export const OffersList: React.FC<OffersListProps> = ({
 
     if (subscriberCount === 0) {
       alert(
-        "You currently have 0 subscribed customers. When customers scan your QR code and allow notifications, they are enrolled to receive your offers."
+        "You currently have 0 customers enabled to receive offers. When customers scan your QR code and enable offers, they are enrolled to receive your offers."
       );
       setConfirmSendOffer(null);
       return;
@@ -258,7 +258,7 @@ export const OffersList: React.FC<OffersListProps> = ({
 
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center sm:text-left">
             <span className="text-[11px] text-indigo-200 block uppercase font-bold">
-              Push Subscribers
+              Customers Receiving Offers
             </span>
             <span className="text-xl sm:text-2xl font-black">
               {subscriberCount}
@@ -396,7 +396,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                       )}
                       <span className="flex items-center gap-1 font-semibold text-slate-500">
                         <Users className="w-3 h-3 text-indigo-500" />
-                        {subscriberCount} Subscriber(s)
+                        {subscriberCount} Receiving Offers
                       </span>
                     </div>
                   </div>
@@ -450,7 +450,7 @@ export const OffersList: React.FC<OffersListProps> = ({
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600">
-              Send this offer to all your customers? This will broadcast the personalized push notification to{" "}
+              Send this offer to all your customers? This will send the personalized offer to{" "}
               <strong>{subscriberCount}</strong> registered customer device(s).
             </p>
 
@@ -458,7 +458,7 @@ export const OffersList: React.FC<OffersListProps> = ({
               <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong>0 Subscribed Devices:</strong> Customers must first scan your shop QR code and allow notifications to receive push broadcasts.
+                  <strong>0 Customers Receiving Offers:</strong> Customers must first scan your shop QR code and enable offers to receive your messages.
                 </div>
               </div>
             )}
@@ -468,7 +468,7 @@ export const OffersList: React.FC<OffersListProps> = ({
               <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
                 <span className="flex items-center gap-1">
                   <Smartphone className="w-3.5 h-3.5 text-indigo-600" />
-                  Personalized Customer Notification Preview
+                  Personalized Customer Offer Preview
                 </span>
                 <span className="text-[10px] text-slate-400 font-normal">Lockscreen View</span>
               </div>
@@ -533,7 +533,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                   {editingOffer ? "Edit Offer" : "Create New Offer"}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Compose your promotional message and preview the personalized notification.
+                  Compose your promotional message and preview your offer.
                 </p>
               </div>
               <button
@@ -634,7 +634,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                       <span>PREVIEW: Customer Smartphone View</span>
                     </div>
 
-                    {/* Smartphone Push Notification Card Simulation */}
+                    {/* Smartphone Offer Card Simulation */}
                     <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3.5 shadow-md border border-slate-200 space-y-2">
                       <div className="flex items-center justify-between text-[11px] text-slate-400">
                         <div className="flex items-center gap-1.5">
@@ -664,7 +664,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                   </div>
 
                   <p className="text-[10px] text-slate-400 text-center">
-                    Personalized notification preview with your shop details
+                    Personalized offer preview with your shop details
                   </p>
                 </div>
               </div>

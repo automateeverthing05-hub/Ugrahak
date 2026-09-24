@@ -158,8 +158,8 @@ export const GoogleReviewsSettings: React.FC<GoogleReviewsSettingsProps> = ({
           </p>
           <ul className="list-disc list-inside space-y-1 text-amber-800 text-[11px]">
             <li>When a new customer completes their 1st QR scan, a review request is scheduled for <strong>+30 minutes</strong>.</li>
-            <li>After 30 minutes, an automatic push notification arrives: <em>&ldquo;How was your experience? ⭐&rdquo;</em></li>
-            <li>Tapping the notification opens your Google Maps review page directly (no app login or extra steps).</li>
+            <li>After 30 minutes, an automatic review reminder arrives: <em>&ldquo;How was your experience? ⭐&rdquo;</em></li>
+            <li>Tapping the message opens your Google Maps review page directly (no app login or extra steps).</li>
             <li>Repeat visits do <strong>not</strong> trigger duplicate review requests.</li>
           </ul>
         </div>

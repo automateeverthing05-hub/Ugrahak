@@ -65,7 +65,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       "Google review integration",
       "Customer retention tracking",
       "Nearby Offers (100–200m radius)",
-      "Priority push notifications",
+      "Priority offer delivery",
     ],
   },
   PRO: {

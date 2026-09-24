@@ -132,12 +132,12 @@ export default async function OfferDetailPage({ params }: OfferDetailPageProps) 
 
       {/* Delivery Log Table */}
       <Card
-        title="Push Notification Broadcast Logs"
+        title="Offer Delivery Logs"
         description="Delivery log for each broadcast attempt of this offer."
       >
         {typedLogs.length === 0 ? (
           <div className="py-8 text-center text-xs text-slate-400">
-            No broadcast runs recorded for this offer yet. Click &ldquo;Send Push Offer&rdquo; on the Offers page to broadcast.
+            No broadcast runs recorded for this offer yet. Click &ldquo;SEND TO ALL CUSTOMERS&rdquo; on the Offers page to send.
           </div>
         ) : (
           <div className="overflow-x-auto">

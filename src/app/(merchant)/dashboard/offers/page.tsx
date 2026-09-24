@@ -85,7 +85,7 @@ export default async function OffersPage() {
               SEND OFFER TO YOUR CUSTOMERS
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Broadcast promotional offers and instant push alerts directly to your customers.
+              Broadcast promotional offers directly to your customers.
             </p>
           </div>
         </div>
@@ -95,7 +95,7 @@ export default async function OffersPage() {
             YOUR CUSTOMERS: <span className="text-indigo-600 font-extrabold">{totalCustomers}</span>
           </div>
           <div className="text-xs font-semibold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
-            {subscriberCount} Subscribed Device(s)
+            Receiving Offers: <span className="font-bold text-slate-900">{subscriberCount}</span>
           </div>
         </div>
       </div>

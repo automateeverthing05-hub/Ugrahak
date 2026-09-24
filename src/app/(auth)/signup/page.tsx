@@ -113,7 +113,7 @@ export default function SignupPage() {
                       Bring Them Back
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Send offers and notifications to bring customers back again.
+                      Send offers and nearby alerts to bring customers back again.
                     </p>
                   </div>
                 </div>
@@ -137,7 +137,7 @@ export default function SignupPage() {
               <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs flex items-center gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span className="text-xs font-bold text-slate-800">
-                  Direct Push Notifications
+                  Instant Offer Broadcasts
                 </span>
               </div>
               <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs flex items-center gap-2.5">

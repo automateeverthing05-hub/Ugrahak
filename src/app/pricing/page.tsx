@@ -55,7 +55,7 @@ export default function PricingPage() {
             Simple Plans Built for Retail Store Growth
           </h1>
           <p className="text-sm sm:text-base text-slate-600 mt-2">
-            Turn every walk-in shopper into a repeat loyal customer with QR rewards, push notifications, and nearby offers.
+            Turn every walk-in shopper into a repeat loyal customer with QR rewards, Send Offer broadcasts, and nearby alerts.
           </p>
         </div>
 

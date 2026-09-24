@@ -222,7 +222,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </div>
       </Card>
 
-      {/* Grid 2: Push Notifications & Reward Funnel */}
+      {/* Grid 2: Send Offers & Reward Funnel */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Left: Reward Funnel */}
         <Card
@@ -272,7 +272,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
         {/* Right: Notification Delivery Stats */}
         <Card
-          title="Push Notification Broadcasts"
+          title="Send Offer Campaigns"
           description="Delivery success rates across your customer audience."
         >
           <div className="space-y-4 py-2">
@@ -297,7 +297,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             </div>
 
             <div className="text-xs text-slate-500 pt-2 border-t border-slate-100 flex items-center justify-between">
-              <span>Unreachable Tokens:</span>
+              <span>Undelivered Offers:</span>
               <span className="font-semibold text-rose-600">
                 {metrics.totalNotificationsFailed}
               </span>
