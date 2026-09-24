@@ -53,7 +53,7 @@ export const LoginForm: React.FC = () => {
           const confirmRes = await fetch("/api/auth/confirm-user", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: normalizedEmail }),
+            body: JSON.stringify({ email: normalizedEmail, password }),
           });
 
           if (confirmRes.ok) {

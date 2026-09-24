@@ -35,16 +35,16 @@ export async function POST(request: NextRequest) {
     const { slug, name, phone } = body;
 
     // 1. Input Validation
-    if (!slug || typeof slug !== "string" || !slug.trim()) {
+    if (!slug || typeof slug !== "string" || !slug.trim() || slug.trim().length > 100) {
       return NextResponse.json(
         { error: "Shop identifier (slug) is required." },
         { status: 400 }
       );
     }
 
-    if (!name || typeof name !== "string" || !name.trim()) {
+    if (!name || typeof name !== "string" || !name.trim() || name.trim().length > 100) {
       return NextResponse.json(
-        { error: "Please enter your name." },
+        { error: "Please enter your name (maximum 100 characters)." },
         { status: 400 }
       );
     }

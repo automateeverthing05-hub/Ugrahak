@@ -53,16 +53,23 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, description, value, is_enabled } = body;
 
-    if (!name || typeof name !== "string" || !name.trim()) {
+    if (!name || typeof name !== "string" || !name.trim() || name.trim().length > 100) {
       return NextResponse.json(
-        { error: "Reward name is required (e.g. 10% OFF, ₹50 OFF)." },
+        { error: "Reward name is required (maximum 100 characters)." },
         { status: 400 }
       );
     }
 
-    if (!value || typeof value !== "string" || !value.trim()) {
+    if (!value || typeof value !== "string" || !value.trim() || value.trim().length > 50) {
       return NextResponse.json(
-        { error: "Reward value is required (e.g. 10%, ₹50, Free Gift)." },
+        { error: "Reward value is required (maximum 50 characters, e.g. 10%, ₹50)." },
+        { status: 400 }
+      );
+    }
+
+    if (description && (typeof description !== "string" || description.trim().length > 250)) {
+      return NextResponse.json(
+        { error: "Reward description cannot exceed 250 characters." },
         { status: 400 }
       );
     }

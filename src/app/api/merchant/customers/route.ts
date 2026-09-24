@@ -59,9 +59,12 @@ export async function GET(request: NextRequest) {
       query = query.gt("visit_count", 1);
     }
 
-    // Apply Search Filter (Name or Phone ILIKE)
+    // Apply Search Filter (Name or Phone ILIKE with safe sanitized token)
     if (search) {
-      query = query.or(`name.ilike.%${search}%,phone.ilike.%${search}%`);
+      const sanitizedSearch = search.replace(/[;,()%"\\]/g, "").slice(0, 50).trim();
+      if (sanitizedSearch) {
+        query = query.or(`name.ilike.%${sanitizedSearch}%,phone.ilike.%${sanitizedSearch}%`);
+      }
     }
 
     // Apply Pagination and Sorting

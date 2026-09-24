@@ -3,23 +3,36 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidEmail, isValidPassword, isValidPhone, isValidGoogleMapsUrl } from "@/lib/utils/validation";
 import { generateSlug } from "@/lib/utils/slugify";
 import { normalizePhone } from "@/lib/utils/referenceCode";
+import { rateLimitAuth } from "@/lib/redis/rateLimiter";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      request.headers.get("x-real-ip") ||
+      "anonymous";
+    const rateLimit = await rateLimitAuth(ip);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Too many signup attempts. Please wait a minute and try again." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.reset) } }
+      );
+    }
+
     const body = await request.json();
     const { owner_name, shop_name, phone, email, google_maps_url, password } = body;
 
     // 1. Validations
-    if (!owner_name || typeof owner_name !== "string" || !owner_name.trim()) {
+    if (!owner_name || typeof owner_name !== "string" || !owner_name.trim() || owner_name.trim().length > 100) {
       return NextResponse.json(
-        { error: "Please enter your name." },
+        { error: "Please enter your name (maximum 100 characters)." },
         { status: 400 }
       );
     }
 
-    if (!shop_name || typeof shop_name !== "string" || !shop_name.trim()) {
+    if (!shop_name || typeof shop_name !== "string" || !shop_name.trim() || shop_name.trim().length > 100) {
       return NextResponse.json(
-        { error: "Please enter your shop or business name." },
+        { error: "Please enter your shop or business name (maximum 100 characters)." },
         { status: 400 }
       );
     }
@@ -32,9 +45,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!email || !isValidEmail(email)) {
+    if (!email || typeof email !== "string" || email.length > 255 || !isValidEmail(email)) {
       return NextResponse.json(
         { error: "Please provide a valid email address." },
+        { status: 400 }
+      );
+    }
+
+    if (!password || typeof password !== "string" || password.length > 72) {
+      return NextResponse.json(
+        { error: "Password must be between 6 and 72 characters." },
         { status: 400 }
       );
     }
@@ -48,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (google_maps_url && typeof google_maps_url === "string" && google_maps_url.trim()) {
-      if (!isValidGoogleMapsUrl(google_maps_url.trim())) {
+      if (google_maps_url.trim().length > 1000 || !isValidGoogleMapsUrl(google_maps_url.trim())) {
         return NextResponse.json(
           { error: "Please enter a valid Google Maps review link." },
           { status: 400 }

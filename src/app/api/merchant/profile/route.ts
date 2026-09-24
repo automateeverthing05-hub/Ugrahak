@@ -78,14 +78,21 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // 1. Validation
-    if (!shop_name || typeof shop_name !== "string" || !shop_name.trim()) {
+    if (!shop_name || typeof shop_name !== "string" || !shop_name.trim() || shop_name.trim().length > 100) {
       return NextResponse.json(
-        { error: "Shop name is required." },
+        { error: "Shop name is required (maximum 100 characters)." },
         { status: 400 }
       );
     }
 
-    if (!phone || typeof phone !== "string" || !isValidPhone(phone)) {
+    if (owner_name && (typeof owner_name !== "string" || owner_name.trim().length > 100)) {
+      return NextResponse.json(
+        { error: "Owner name cannot exceed 100 characters." },
+        { status: 400 }
+      );
+    }
+
+    if (!phone || typeof phone !== "string" || phone.length > 15 || !isValidPhone(phone)) {
       return NextResponse.json(
         { error: "A valid phone number is required." },
         { status: 400 }
@@ -95,14 +102,14 @@ export async function POST(request: NextRequest) {
     const rawSlug = slug && typeof slug === "string" ? slug : generateSlug(shop_name);
     const finalSlug = sanitizeSlug(rawSlug);
 
-    if (!finalSlug) {
+    if (!finalSlug || finalSlug.length > 100) {
       return NextResponse.json(
         { error: "Invalid shop slug generated." },
         { status: 400 }
       );
     }
 
-    if (google_maps_url && !isValidGoogleMapsUrl(google_maps_url)) {
+    if (google_maps_url && (typeof google_maps_url !== "string" || google_maps_url.length > 1000 || !isValidGoogleMapsUrl(google_maps_url))) {
       return NextResponse.json(
         { error: "Invalid Google Maps URL format." },
         { status: 400 }

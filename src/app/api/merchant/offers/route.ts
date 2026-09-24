@@ -95,18 +95,30 @@ export async function POST(request: NextRequest) {
     const { title, message, image_url, status = "ACTIVE", start_at, end_at } = body;
 
     // Validation
-    if (!title || typeof title !== "string" || !title.trim()) {
+    if (!title || typeof title !== "string" || !title.trim() || title.trim().length > 150) {
       return NextResponse.json(
-        { error: "Offer title is required." },
+        { error: "Offer title is required (maximum 150 characters)." },
         { status: 400 }
       );
     }
 
-    if (!message || typeof message !== "string" || !message.trim()) {
+    if (!message || typeof message !== "string" || !message.trim() || message.trim().length > 1000) {
       return NextResponse.json(
-        { error: "Offer message is required." },
+        { error: "Offer message is required (maximum 1000 characters)." },
         { status: 400 }
       );
+    }
+
+    let sanitizedImageUrl: string | null = null;
+    if (image_url && typeof image_url === "string" && image_url.trim()) {
+      const trimmedUrl = image_url.trim();
+      if (trimmedUrl.length > 2000 || (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://"))) {
+        return NextResponse.json(
+          { error: "Image URL must be a valid http or https link under 2000 characters." },
+          { status: 400 }
+        );
+      }
+      sanitizedImageUrl = trimmedUrl;
     }
 
     const admin = createAdminClient();
@@ -114,7 +126,7 @@ export async function POST(request: NextRequest) {
       merchant_id: user.id, // Strictly derived from session
       title: title.trim(),
       message: message.trim(),
-      image_url: image_url && typeof image_url === "string" && image_url.trim() ? image_url.trim() : null,
+      image_url: sanitizedImageUrl,
       status: ["ACTIVE", "INACTIVE", "ARCHIVED"].includes(status) ? status : "ACTIVE",
       start_at: start_at ? new Date(start_at).toISOString() : null,
       end_at: end_at ? new Date(end_at).toISOString() : null,

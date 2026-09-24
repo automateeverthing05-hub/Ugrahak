@@ -105,9 +105,41 @@ export async function PUT(request: NextRequest, { params }: Params) {
       updated_at: new Date().toISOString(),
     };
 
-    if (title && typeof title === "string") payload.title = title.trim();
-    if (message && typeof message === "string") payload.message = message.trim();
-    if (image_url !== undefined) payload.image_url = image_url?.trim() || null;
+    if (title !== undefined) {
+      if (typeof title !== "string" || !title.trim() || title.trim().length > 150) {
+        return NextResponse.json(
+          { error: "Offer title cannot exceed 150 characters." },
+          { status: 400 }
+        );
+      }
+      payload.title = title.trim();
+    }
+
+    if (message !== undefined) {
+      if (typeof message !== "string" || !message.trim() || message.trim().length > 1000) {
+        return NextResponse.json(
+          { error: "Offer message cannot exceed 1000 characters." },
+          { status: 400 }
+        );
+      }
+      payload.message = message.trim();
+    }
+
+    if (image_url !== undefined) {
+      if (image_url && typeof image_url === "string" && image_url.trim()) {
+        const trimmedUrl = image_url.trim();
+        if (trimmedUrl.length > 2000 || (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://"))) {
+          return NextResponse.json(
+            { error: "Image URL must be a valid http or https link under 2000 characters." },
+            { status: 400 }
+          );
+        }
+        payload.image_url = trimmedUrl;
+      } else {
+        payload.image_url = null;
+      }
+    }
+
     if (status && ["ACTIVE", "INACTIVE", "ARCHIVED"].includes(status)) payload.status = status;
     if (start_at !== undefined) payload.start_at = start_at ? new Date(start_at).toISOString() : null;
     if (end_at !== undefined) payload.end_at = end_at ? new Date(end_at).toISOString() : null;

@@ -25,26 +25,30 @@ export async function POST(request: NextRequest) {
     const { slug, customer_id, token, platform = "web" } = body;
 
     // 1. Validation
-    if (!slug || typeof slug !== "string" || !slug.trim()) {
+    if (!slug || typeof slug !== "string" || !slug.trim() || slug.trim().length > 100) {
       return NextResponse.json(
         { error: "Shop slug is required." },
         { status: 400 }
       );
     }
 
-    if (!customer_id || typeof customer_id !== "string") {
+    if (!customer_id || typeof customer_id !== "string" || customer_id.length > 50) {
       return NextResponse.json(
         { error: "Customer ID is required." },
         { status: 400 }
       );
     }
 
-    if (!token || typeof token !== "string" || token.length < 20) {
+    if (!token || typeof token !== "string" || token.length < 20 || token.length > 500) {
       return NextResponse.json(
         { error: "A valid FCM registration token is required." },
         { status: 400 }
       );
     }
+
+    const validPlatform = typeof platform === "string" && ["web", "android", "ios"].includes(platform.toLowerCase())
+      ? platform.toLowerCase()
+      : "web";
 
     const admin = createAdminClient();
 
@@ -86,7 +90,7 @@ export async function POST(request: NextRequest) {
           merchant_id: merchant.id,
           customer_id: customer.id,
           token: token.trim(),
-          platform: typeof platform === "string" ? platform : "web",
+          platform: validPlatform,
           is_valid: true,
           updated_at: now,
           last_seen_at: now,
