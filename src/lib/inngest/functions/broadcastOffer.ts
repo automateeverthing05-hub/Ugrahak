@@ -1,6 +1,6 @@
 import { inngest } from "@/lib/inngest/client";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendMulticastPushNotification } from "@/lib/firebase/admin";
+import { sendPersonalizedPushNotifications, type IndividualPushItem } from "@/lib/firebase/admin";
 import { logger } from "@/lib/observability/logger";
 import { chunkArray } from "@/lib/queue/batchWorker";
 import type { Offer, Merchant, PushToken, NotificationLogInsert } from "@/lib/types/database";
@@ -36,7 +36,7 @@ export const broadcastOfferFunction = inngest.createFunction(
           .maybeSingle<Offer>(),
         admin
           .from("merchants")
-          .select("shop_name, slug")
+          .select("shop_name, phone, slug")
           .eq("id", merchantId)
           .maybeSingle<Merchant>(),
       ]);
@@ -67,11 +67,37 @@ export const broadcastOfferFunction = inngest.createFunction(
       return { status: "SKIPPED", message: "No subscribers found." };
     }
 
-    // Step 3: Chunk tokens into batches of 500 (FCM limit)
+    // Step 3: Fetch customer names for tokens with customer_id
+    const customerNameMap = (await step.run("fetch-customer-names", async () => {
+      const customerIds = Array.from(
+        new Set(tokens.map((t) => t.customer_id).filter(Boolean))
+      );
+      const nameMap: Record<string, string> = {};
+
+      if (customerIds.length > 0) {
+        const { data: customers } = await admin
+          .from("customers")
+          .select("id, name")
+          .in("id", customerIds);
+
+        if (customers) {
+          customers.forEach((c) => {
+            if (c.id && c.name) {
+              nameMap[c.id] = c.name.trim();
+            }
+          });
+        }
+      }
+
+      return nameMap;
+    })) as Record<string, string>;
+
+    // Step 4: Chunk tokens into batches of 500 (FCM limit)
     const tokenChunks: PushToken[][] = chunkArray(tokens, 500);
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const shopSlug = merchant?.slug || "";
     const shopName = merchant?.shop_name || "Ugrahak Store";
+    const shopPhone = merchant?.phone || "";
     const clickUrl = shopSlug ? `${baseUrl}/shop/${shopSlug}` : baseUrl;
 
     let totalSent = 0;
@@ -80,19 +106,35 @@ export const broadcastOfferFunction = inngest.createFunction(
     for (let i = 0; i < tokenChunks.length; i++) {
       const chunk: PushToken[] = tokenChunks[i];
       const batchResult = (await step.run(`send-fcm-batch-${i + 1}`, async () => {
-        const rawTokens = chunk.map((t: PushToken) => t.token.trim());
-        const pushRes = await sendMulticastPushNotification({
-          tokens: rawTokens,
-          title: `${shopName}: ${offer.title}`,
-          body: offer.message,
-          imageUrl: offer.image_url,
-          linkUrl: clickUrl,
-          data: {
-            offer_id: offer.id,
-            shop_slug: shopSlug,
-            url: clickUrl,
-          },
+        const pushItems: IndividualPushItem[] = chunk.map((t: PushToken) => {
+          const customerName = (t.customer_id && customerNameMap[t.customer_id]) || "Customer";
+          const personalizedBody = [
+            `Hi ${customerName},`,
+            "",
+            offer.message,
+            "",
+            `Shop: ${shopName}`,
+            shopPhone ? `Contact: ${shopPhone}` : "",
+          ]
+            .filter((line, idx) => idx !== 5 || shopPhone)
+            .join("\n");
+
+          return {
+            token: t.token.trim(),
+            title: offer.title,
+            body: personalizedBody,
+            imageUrl: offer.image_url,
+            linkUrl: clickUrl,
+            data: {
+              offer_id: offer.id,
+              shop_slug: shopSlug,
+              url: clickUrl,
+              customer_id: t.customer_id || "",
+            },
+          };
         });
+
+        const pushRes = await sendPersonalizedPushNotifications(pushItems);
 
         const now = new Date().toISOString();
 

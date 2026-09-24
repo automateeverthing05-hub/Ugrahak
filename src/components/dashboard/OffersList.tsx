@@ -13,7 +13,6 @@ import {
   Edit2,
   Trash2,
   Calendar,
-  Bell,
   X,
   Smartphone,
   CheckCircle2,
@@ -22,6 +21,8 @@ import {
   AlertCircle,
   Clock,
   Sparkles,
+  Phone,
+  Store,
 } from "lucide-react";
 import type { Offer } from "@/lib/types/database";
 
@@ -31,15 +32,25 @@ interface OfferStats {
   invalidCount: number;
 }
 
+interface MerchantInfo {
+  shopName: string;
+  phone: string;
+  slug: string;
+}
+
 interface OffersListProps {
   initialOffers: Offer[];
   subscriberCount: number;
+  customerCount: number;
+  merchantInfo: MerchantInfo;
   initialStats?: Record<string, OfferStats>;
 }
 
 export const OffersList: React.FC<OffersListProps> = ({
   initialOffers,
   subscriberCount,
+  customerCount,
+  merchantInfo,
   initialStats = {},
 }) => {
   const router = useRouter();
@@ -60,8 +71,9 @@ export const OffersList: React.FC<OffersListProps> = ({
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Broadcast sending state
-  const [sendingOfferId, setSendingOfferId] = useState<string | null>(null);
+  // Broadcast confirmation & sending state
+  const [confirmSendOffer, setConfirmSendOffer] = useState<Offer | null>(null);
+  const [isSending, setIsSending] = useState(false);
   const [broadcastResultModal, setBroadcastResultModal] = useState<{
     offerTitle: string;
     totalTargeted: number;
@@ -164,23 +176,19 @@ export const OffersList: React.FC<OffersListProps> = ({
     }
   };
 
-  const handleSendBroadcast = async (offer: Offer) => {
+  const handleTriggerSendBroadcast = async () => {
+    if (!confirmSendOffer) return;
+    const offer = confirmSendOffer;
+
     if (subscriberCount === 0) {
       alert(
-        "You currently have 0 subscribed customers. When customers scan your QR code and tap 'Allow Notifications', they are enrolled to receive your offers."
+        "You currently have 0 subscribed customers. When customers scan your QR code and allow notifications, they are enrolled to receive your offers."
       );
+      setConfirmSendOffer(null);
       return;
     }
 
-    if (
-      !confirm(
-        `Are you sure you want to send "${offer.title}" to all ${subscriberCount} subscribed customer devices?`
-      )
-    ) {
-      return;
-    }
-
-    setSendingOfferId(offer.id);
+    setIsSending(true);
 
     try {
       const res = await fetch(`/api/merchant/offers/${offer.id}/send`, {
@@ -203,44 +211,54 @@ export const OffersList: React.FC<OffersListProps> = ({
           },
         }));
 
+        setConfirmSendOffer(null);
         setBroadcastResultModal({
           offerTitle: offer.title,
-          totalTargeted: subscriberCount,
+          totalTargeted: data.targetedCount || subscriberCount,
           totalSent: data.totalSent || 0,
           totalFailed: data.totalFailed || 0,
           invalidCount: data.invalidTokensCount || 0,
           message: data.message || "Offer sent successfully to customers!",
         });
       }
-      setSendingOfferId(null);
+      setIsSending(false);
       router.refresh();
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Broadcast error.");
-      setSendingOfferId(null);
+      setIsSending(false);
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Step Banner: Send Offer Flow */}
+      {/* Main Action Banner */}
       <div className="bg-gradient-to-r from-indigo-700 via-indigo-600 to-purple-700 rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="space-y-1.5 max-w-xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
             <Send className="w-3.5 h-3.5" />
-            <span>Send An Offer To Your Customers</span>
+            <span>SEND OFFER TO YOUR CUSTOMERS</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-            Broadcast Deals & Festivals to Shoppers
+            Broadcast Deals & Offers with 1 Tap
           </h2>
           <p className="text-xs sm:text-sm text-indigo-100">
-            Create an offer → preview how it looks on smartphone lock screens → broadcast with 1 tap.
+            Select any offer below and click <strong>&quot;SEND TO ALL CUSTOMERS&quot;</strong> to deliver personalized notifications to your customers.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center sm:text-left">
             <span className="text-[11px] text-indigo-200 block uppercase font-bold">
-              Subscribed Devices
+              Your Customers
+            </span>
+            <span className="text-xl sm:text-2xl font-black">
+              {customerCount}
+            </span>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center sm:text-left">
+            <span className="text-[11px] text-indigo-200 block uppercase font-bold">
+              Push Subscribers
             </span>
             <span className="text-xl sm:text-2xl font-black">
               {subscriberCount}
@@ -250,7 +268,7 @@ export const OffersList: React.FC<OffersListProps> = ({
           <Button
             onClick={openCreateModal}
             size="md"
-            className="gap-2 bg-white text-indigo-700 hover:bg-indigo-50 font-bold min-h-[46px] shadow-md"
+            className="gap-2 bg-white text-indigo-700 hover:bg-indigo-50 font-bold min-h-[46px] shadow-md self-stretch sm:self-auto"
           >
             <Plus className="w-4 h-4 text-indigo-600" />
             <span>+ Create New Offer</span>
@@ -258,45 +276,47 @@ export const OffersList: React.FC<OffersListProps> = ({
         </div>
       </div>
 
-      {/* Offer History Section */}
+      {/* Your Offers Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <History className="w-5 h-5 text-indigo-600" />
+            <Tag className="w-5 h-5 text-indigo-600" />
             <h3 className="text-base sm:text-lg font-bold text-slate-900">
-              Offer History & Campaigns
+              Your Offers
             </h3>
           </div>
           <span className="text-xs text-slate-500 font-semibold">
-            {offers.length} total offer(s)
+            {offers.length} {offers.length === 1 ? "offer" : "offers"} available
           </span>
         </div>
 
         {offers.length === 0 ? (
+          /* Clean Empty State: Single Create CTA */
           <div className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 text-center shadow-xs space-y-4">
             <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
-              <Tag className="w-7 h-7" />
+              <Sparkles className="w-7 h-7" />
             </div>
             <div className="space-y-1">
               <h4 className="text-base font-bold text-slate-900">
-                No Promotional Offers Created Yet
+                No Offers Created Yet
               </h4>
               <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-                Tap <strong>&quot;Create New Offer&quot;</strong> above to draft your first promotional blast (e.g. Festival Specials, Weekend 20% Off).
+                Create an offer first, then send it to all your customers.
               </p>
             </div>
             <div>
               <Button
                 onClick={openCreateModal}
                 size="md"
-                className="gap-2 min-h-[42px] bg-indigo-600 hover:bg-indigo-700"
+                className="gap-2 min-h-[42px] bg-indigo-600 hover:bg-indigo-700 font-bold"
               >
                 <Plus className="w-4 h-4" />
-                <span>Create First Offer</span>
+                <span>+ Create New Offer</span>
               </Button>
             </div>
           </div>
         ) : (
+          /* Grid of Existing Offers */
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {offers.map((offer) => {
               const offerStat = stats[offer.id] || {
@@ -312,7 +332,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span
                           className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
                             offer.status === "ACTIVE"
@@ -326,7 +346,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                         {offerStat.totalSent > 0 && (
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
                             <CheckCircle2 className="w-3 h-3 text-indigo-600" />
-                            <span>Sent to {offerStat.totalSent}</span>
+                            <span>Delivered to {offerStat.totalSent}</span>
                           </span>
                         )}
                       </div>
@@ -336,6 +356,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                           onClick={() => openEditModal(offer)}
                           className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                           title="Edit Offer"
+                          aria-label="Edit Offer"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
@@ -343,6 +364,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                           onClick={() => handleDeleteOffer(offer.id)}
                           className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                           title="Delete Offer"
+                          aria-label="Delete Offer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -353,7 +375,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                       <h4 className="text-base font-bold text-slate-900 leading-snug">
                         {offer.title}
                       </h4>
-                      <p className="text-xs text-slate-600 mt-1 line-clamp-3">
+                      <p className="text-xs text-slate-600 mt-1 line-clamp-3 leading-relaxed">
                         {offer.message}
                       </p>
                     </div>
@@ -372,6 +394,10 @@ export const OffersList: React.FC<OffersListProps> = ({
                             : ""}
                         </span>
                       )}
+                      <span className="flex items-center gap-1 font-semibold text-slate-500">
+                        <Users className="w-3 h-3 text-indigo-500" />
+                        {subscriberCount} Subscriber(s)
+                      </span>
                     </div>
                   </div>
 
@@ -386,13 +412,12 @@ export const OffersList: React.FC<OffersListProps> = ({
 
                     <Button
                       size="sm"
-                      onClick={() => handleSendBroadcast(offer)}
-                      isLoading={sendingOfferId === offer.id}
-                      disabled={offer.status !== "ACTIVE"}
-                      className="gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 min-h-[40px] px-4"
+                      onClick={() => setConfirmSendOffer(offer)}
+                      disabled={offer.status !== "ACTIVE" || isSending}
+                      className="gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 min-h-[40px] px-4 font-bold shadow-xs"
                     >
                       <Send className="w-3.5 h-3.5" />
-                      <span>Send Offer</span>
+                      <span>SEND TO ALL CUSTOMERS</span>
                     </Button>
                   </div>
                 </div>
@@ -402,17 +427,113 @@ export const OffersList: React.FC<OffersListProps> = ({
         )}
       </div>
 
-      {/* Create / Edit Offer Modal with Smartphone Push Live Preview */}
+      {/* Confirmation Modal Before Sending to All Customers */}
+      {confirmSendOffer && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <Send className="w-4 h-4" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                  Send Offer to All Customers
+                </h3>
+              </div>
+              <button
+                onClick={() => !isSending && setConfirmSendOffer(null)}
+                disabled={isSending}
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg min-h-[36px] min-w-[36px] flex items-center justify-center"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-600">
+              Send this offer to all your customers? This will broadcast the personalized push notification to{" "}
+              <strong>{subscriberCount}</strong> registered customer device(s).
+            </p>
+
+            {subscriberCount === 0 && (
+              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>0 Subscribed Devices:</strong> Customers must first scan your shop QR code and allow notifications to receive push broadcasts.
+                </div>
+              </div>
+            )}
+
+            {/* Live Personalized Notification Preview */}
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
+                <span className="flex items-center gap-1">
+                  <Smartphone className="w-3.5 h-3.5 text-indigo-600" />
+                  Personalized Customer Notification Preview
+                </span>
+                <span className="text-[10px] text-slate-400 font-normal">Lockscreen View</span>
+              </div>
+
+              <div className="bg-white rounded-xl p-3 shadow-xs border border-slate-200 space-y-2 text-xs">
+                <div className="flex items-center justify-between text-[10px] text-slate-400">
+                  <span className="font-bold text-indigo-600">Ugrahak</span>
+                  <span>Just now</span>
+                </div>
+
+                <div className="font-bold text-slate-900 text-sm">
+                  {confirmSendOffer.title}
+                </div>
+
+                <div className="text-slate-700 whitespace-pre-line leading-relaxed font-normal bg-slate-50/70 p-2.5 rounded-lg border border-slate-100 text-xs">
+                  <span className="text-indigo-600 font-medium">Hi [Customer Name],</span>
+                  {"\n\n"}
+                  {confirmSendOffer.message}
+                  {"\n\n"}
+                  <span className="text-slate-500 font-medium">
+                    Shop: {merchantInfo.shopName}
+                    {merchantInfo.phone ? `\nContact: ${merchantInfo.phone}` : ""}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setConfirmSendOffer(null)}
+                disabled={isSending}
+                className="min-h-[40px]"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleTriggerSendBroadcast}
+                isLoading={isSending}
+                disabled={subscriberCount === 0 || isSending}
+                className="min-h-[40px] bg-indigo-600 hover:bg-indigo-700 font-bold px-5 gap-1.5 shadow-sm"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>Confirm & Send to All Customers</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create / Edit Offer Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                  {editingOffer ? "Edit Promotional Offer" : "Create New Promotional Offer"}
+                  {editingOffer ? "Edit Offer" : "Create New Offer"}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Compose your offer and check the live smartphone notification preview before sending.
+                  Compose your promotional message and preview the personalized notification.
                 </p>
               </div>
               <button
@@ -514,7 +635,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                     </div>
 
                     {/* Smartphone Push Notification Card Simulation */}
-                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3.5 shadow-md border border-slate-200 space-y-1.5">
+                    <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3.5 shadow-md border border-slate-200 space-y-2">
                       <div className="flex items-center justify-between text-[11px] text-slate-400">
                         <div className="flex items-center gap-1.5">
                           <div className="w-4 h-4 rounded-md bg-indigo-600 flex items-center justify-center text-white text-[9px] font-black">
@@ -528,14 +649,22 @@ export const OffersList: React.FC<OffersListProps> = ({
                       <p className="text-xs font-bold text-slate-900 leading-snug">
                         {title || "Offer Title will appear here"}
                       </p>
-                      <p className="text-[11px] text-slate-600 leading-relaxed line-clamp-3">
+
+                      <div className="text-[11px] text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50/70 p-2.5 rounded-lg border border-slate-100">
+                        <span className="text-indigo-600 font-medium">Hi [Customer Name],</span>
+                        {"\n\n"}
                         {message || "Type your offer message on the left to see live preview."}
-                      </p>
+                        {"\n\n"}
+                        <span className="text-slate-500 font-medium">
+                          Shop: {merchantInfo.shopName}
+                          {merchantInfo.phone ? `\nContact: ${merchantInfo.phone}` : ""}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
                   <p className="text-[10px] text-slate-400 text-center">
-                    Simulated lockscreen push notification preview
+                    Personalized notification preview with your shop details
                   </p>
                 </div>
               </div>
@@ -564,7 +693,7 @@ export const OffersList: React.FC<OffersListProps> = ({
         </div>
       )}
 
-      {/* Broadcast Result Confirmation Modal */}
+      {/* Broadcast Result Modal */}
       {broadcastResultModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 text-center space-y-4">
@@ -577,7 +706,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                 Offer Sent Successfully!
               </h3>
               <p className="text-xs text-slate-500 mt-1 font-medium">
-                &ldquo;{broadcastResultModal.offerTitle}&rdquo; has been dispatched.
+                &ldquo;{broadcastResultModal.offerTitle}&rdquo; has been sent to your customers.
               </p>
             </div>
 
@@ -606,7 +735,7 @@ export const OffersList: React.FC<OffersListProps> = ({
             <Button
               size="md"
               onClick={() => setBroadcastResultModal(null)}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 min-h-[42px]"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 min-h-[42px] font-bold"
             >
               Done
             </Button>

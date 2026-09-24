@@ -1,10 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendMulticastPushNotification } from "@/lib/firebase/admin";
+import { sendPersonalizedPushNotifications, type IndividualPushItem } from "@/lib/firebase/admin";
 import { logger } from "@/lib/observability/logger";
 import { rateLimitOfferSend } from "@/lib/redis/rateLimiter";
-import { inngest } from "@/lib/inngest/client";
 import type { Offer, Merchant, PushToken, NotificationLogInsert } from "@/lib/types/database";
 
 interface Params {
@@ -14,7 +13,7 @@ interface Params {
 }
 
 /**
- * POST: Send/Broadcast an offer via FCM Push Notifications immediately or via Inngest background queue
+ * POST: Send/Broadcast an offer via FCM Push Notifications with personalized customer names
  */
 export async function POST(request: NextRequest, { params }: Params) {
   const startTime = Date.now();
@@ -63,11 +62,12 @@ export async function POST(request: NextRequest, { params }: Params) {
     // 2. Fetch Merchant details
     const { data: merchant } = await admin
       .from("merchants")
-      .select("shop_name, slug")
+      .select("shop_name, phone, slug")
       .eq("id", user.id)
       .maybeSingle<Merchant>();
 
     const shopName = merchant?.shop_name || "Ugrahak Store";
+    const shopPhone = merchant?.phone || "";
     const shopSlug = merchant?.slug || "";
 
     // 3. Fetch all active, valid push tokens for this merchant
@@ -101,24 +101,60 @@ export async function POST(request: NextRequest, { params }: Params) {
       });
     }
 
-    const rawTokenList = typedTokens.map((t) => t.token.trim());
+    // 4. Fetch customer names for personalization
+    const customerIds = Array.from(
+      new Set(typedTokens.map((t) => t.customer_id).filter(Boolean))
+    );
+    const customerNameMap = new Map<string, string>();
 
-    // 4. Construct high-priority Immediate Web Push Payload
+    if (customerIds.length > 0) {
+      const { data: customers } = await admin
+        .from("customers")
+        .select("id, name")
+        .in("id", customerIds);
+
+      if (customers) {
+        customers.forEach((c) => {
+          if (c.id && c.name) {
+            customerNameMap.set(c.id, c.name.trim());
+          }
+        });
+      }
+    }
+
+    // 5. Construct personalized push items
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const clickUrl = shopSlug ? `${baseUrl}/shop/${shopSlug}` : baseUrl;
 
-    const pushResult = await sendMulticastPushNotification({
-      tokens: rawTokenList,
-      title: `${shopName}: ${offer.title}`,
-      body: offer.message,
-      imageUrl: offer.image_url,
-      linkUrl: clickUrl,
-      data: {
-        offer_id: offer.id,
-        shop_slug: shopSlug,
-        url: clickUrl,
-      },
+    const pushItems: IndividualPushItem[] = typedTokens.map((t) => {
+      const customerName = (t.customer_id && customerNameMap.get(t.customer_id)) || "Customer";
+      const personalizedBody = [
+        `Hi ${customerName},`,
+        "",
+        offer.message,
+        "",
+        `Shop: ${shopName}`,
+        shopPhone ? `Contact: ${shopPhone}` : "",
+      ]
+        .filter((line, idx, arr) => idx !== 5 || shopPhone)
+        .join("\n");
+
+      return {
+        token: t.token.trim(),
+        title: offer.title,
+        body: personalizedBody,
+        imageUrl: offer.image_url,
+        linkUrl: clickUrl,
+        data: {
+          offer_id: offer.id,
+          shop_slug: shopSlug,
+          url: clickUrl,
+          customer_id: t.customer_id || "",
+        },
+      };
     });
+
+    const pushResult = await sendPersonalizedPushNotifications(pushItems);
 
     const now = new Date().toISOString();
 
@@ -191,7 +227,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       offerId: offer.id,
       durationMs,
       metadata: {
-        targetedCount: rawTokenList.length,
+        targetedCount: typedTokens.length,
         totalSent: pushResult.totalSent,
         totalFailed: pushResult.totalFailed,
         invalidTokensCount: pushResult.invalidTokens.length,
@@ -200,7 +236,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
     return NextResponse.json({
       success: true,
-      targetedCount: rawTokenList.length,
+      targetedCount: typedTokens.length,
       totalSent: pushResult.totalSent,
       totalFailed: pushResult.totalFailed,
       invalidTokensCount: pushResult.invalidTokens.length,
