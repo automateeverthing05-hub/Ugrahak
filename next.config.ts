@@ -3,6 +3,16 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
+  compress: true,
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "date-fns",
+      "@supabase/ssr",
+      "@supabase/supabase-js",
+    ],
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

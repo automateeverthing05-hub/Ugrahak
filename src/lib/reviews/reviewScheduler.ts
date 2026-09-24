@@ -27,7 +27,7 @@ export async function scheduleReviewRequest(
     // Prevent duplicate review request creation if already scheduled/processed
     const { data: existing } = await admin
       .from("review_requests")
-      .select("*")
+      .select("id, status")
       .eq("merchant_id", merchantId)
       .eq("customer_id", customerId)
       .maybeSingle<ReviewRequest>();

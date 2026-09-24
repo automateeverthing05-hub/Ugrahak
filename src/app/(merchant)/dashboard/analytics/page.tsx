@@ -15,7 +15,7 @@ export default async function AnalyticsPage() {
     redirect("/login");
   }
 
-  // Query all records strictly for this merchant
+  // Query required metrics columns strictly for this merchant
   const [
     { data: customers },
     { data: visits },
@@ -23,11 +23,26 @@ export default async function AnalyticsPage() {
     { data: offers },
     { data: notificationLogs },
   ] = await Promise.all([
-    supabase.from("customers").select("*").eq("merchant_id", user.id),
-    supabase.from("customer_visits").select("*").eq("merchant_id", user.id),
-    supabase.from("rewards").select("*").eq("merchant_id", user.id),
-    supabase.from("offers").select("*").eq("merchant_id", user.id),
-    supabase.from("notification_logs").select("*").eq("merchant_id", user.id),
+    supabase
+      .from("customers")
+      .select("id, first_visit_at, visit_count")
+      .eq("merchant_id", user.id),
+    supabase
+      .from("customer_visits")
+      .select("id, visited_at, visit_type")
+      .eq("merchant_id", user.id),
+    supabase
+      .from("rewards")
+      .select("id, issued_at, status")
+      .eq("merchant_id", user.id),
+    supabase
+      .from("offers")
+      .select("id, status")
+      .eq("merchant_id", user.id),
+    supabase
+      .from("notification_logs")
+      .select("id, sent_at, status")
+      .eq("merchant_id", user.id),
   ]);
 
   return (

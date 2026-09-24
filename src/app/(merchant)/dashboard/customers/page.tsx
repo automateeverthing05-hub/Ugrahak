@@ -18,7 +18,10 @@ export default async function CustomersPage() {
   // Fetch initial batch of customers with rewards and exact count
   const { data: customers, count } = await supabase
     .from("customers")
-    .select("*, rewards(*)", { count: "exact" })
+    .select(
+      "id, merchant_id, name, phone, visit_count, first_visit_at, last_visit_at, created_at, updated_at, rewards(id, title, status, reference_code, expires_at)",
+      { count: "exact" }
+    )
     .eq("merchant_id", user.id)
     .order("created_at", { ascending: false })
     .range(0, 49);

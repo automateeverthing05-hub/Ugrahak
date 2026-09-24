@@ -287,7 +287,7 @@ export async function POST(request: NextRequest) {
     // 9. Find Active Offer for this Merchant
     const { data: activeOffer } = await admin
       .from("offers")
-      .select("*")
+      .select("id, title, message, image_url")
       .eq("merchant_id", merchant.id)
       .eq("status", "ACTIVE")
       .order("created_at", { ascending: false })

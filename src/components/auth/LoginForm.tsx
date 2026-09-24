@@ -77,8 +77,7 @@ export const LoginForm: React.FC = () => {
       }
 
       if (data.user) {
-        router.push(redirectTo);
-        router.refresh();
+        window.location.href = redirectTo;
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred during login.");

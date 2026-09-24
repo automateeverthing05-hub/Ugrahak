@@ -46,7 +46,10 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from("customers")
-      .select("*, rewards(*)", { count: "exact" })
+      .select(
+        "id, merchant_id, name, phone, visit_count, first_visit_at, last_visit_at, created_at, updated_at, rewards(id, title, status, reference_code, expires_at)",
+        { count: "exact" }
+      )
       .eq("merchant_id", user.id);
 
     // Apply Filter (FIRST vs REPEAT)

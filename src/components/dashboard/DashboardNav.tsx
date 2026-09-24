@@ -35,8 +35,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
     try {
       const supabase = createClient();
       await supabase.auth.signOut();
-      router.push("/login");
-      router.refresh();
+      window.location.href = "/login";
     } catch {
       setIsLoggingOut(false);
     }
@@ -92,6 +91,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
               <nav className="hidden md:flex items-center gap-1.5">
                 <Link
                   href="/dashboard"
+                  prefetch={true}
                   className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 ${
                     pathname === "/dashboard"
                       ? "bg-slate-100 text-slate-900 font-bold"
@@ -108,6 +108,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                     <Link
                       key={item.href}
                       href={item.href}
+                      prefetch={true}
                       className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 ${
                         item.active
                           ? "bg-indigo-50 text-indigo-700 font-bold"
@@ -315,6 +316,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-1 flex items-center justify-around shadow-lg safe-area-bottom">
         <Link
           href="/dashboard/customers"
+          prefetch={true}
           className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition-colors min-h-[48px] ${
             pathname.startsWith("/dashboard/customers")
               ? "text-indigo-600 font-extrabold"
@@ -327,6 +329,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
 
         <Link
           href="/dashboard/offers"
+          prefetch={true}
           className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition-colors min-h-[48px] ${
             pathname.startsWith("/dashboard/offers")
               ? "text-indigo-600 font-extrabold"
@@ -341,6 +344,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
 
         <Link
           href="/dashboard/settings"
+          prefetch={true}
           className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition-colors min-h-[48px] ${
             pathname === "/dashboard/settings" || pathname === "/dashboard/profile" || pathname === "/dashboard/billing"
               ? "text-indigo-600 font-extrabold"

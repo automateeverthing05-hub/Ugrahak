@@ -23,12 +23,45 @@ export async function updateSession(request: NextRequest) {
   supabaseResponse.headers.set("X-XSS-Protection", "1; mode=block");
   supabaseResponse.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
+  const pathname = request.nextUrl.pathname;
+
+  // Fast-path for public static / marketing / customer routes (Zero Auth Network Overhead)
+  const isPublicRoute =
+    pathname === "/" ||
+    pathname.startsWith("/shop/") ||
+    pathname.startsWith("/nearby") ||
+    pathname.startsWith("/pricing") ||
+    pathname.startsWith("/contact") ||
+    pathname.startsWith("/terms") ||
+    pathname.startsWith("/privacy-policy") ||
+    pathname.startsWith("/refund-policy") ||
+    pathname.startsWith("/api/shop/") ||
+    pathname.startsWith("/api/cron/") ||
+    pathname.startsWith("/api/inngest");
+
+  if (isPublicRoute) {
+    return supabaseResponse;
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
+    return supabaseResponse;
+  }
+
+  // Protected merchant routes
+  const isMerchantRoute =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/profile");
+
+  // Auth pages (login, signup)
+  const isAuthRoute =
+    pathname === "/login" || pathname === "/signup";
+
+  // If request is neither a merchant route nor auth route, skip auth token refresh
+  if (!isMerchantRoute && !isAuthRoute && !pathname.startsWith("/api/merchant/")) {
     return supabaseResponse;
   }
 
@@ -57,20 +90,10 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Refresh auth token
+  // Refresh auth token only for merchant/auth routes
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
-
-  // Protected merchant routes
-  const isMerchantRoute =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/profile");
-
-  // Auth pages (login, signup)
-  const isAuthRoute =
-    pathname === "/login" || pathname === "/signup";
 
   // If unauthenticated user tries to access dashboard/profile, redirect to /login
   if (!user && isMerchantRoute) {

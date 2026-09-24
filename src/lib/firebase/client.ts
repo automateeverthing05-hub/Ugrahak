@@ -1,6 +1,3 @@
-import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getMessaging, getToken, isSupported, type Messaging } from "firebase/messaging";
-
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -10,23 +7,29 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase Client App (singleton)
-export function getFirebaseApp(): FirebaseApp {
+// Initialize Firebase Client App on demand (singleton with dynamic import)
+export async function getFirebaseApp() {
+  const { initializeApp, getApps, getApp } = await import("firebase/app");
   if (getApps().length > 0) {
     return getApp();
   }
   return initializeApp(firebaseConfig);
 }
 
-// Get FCM Messaging instance if supported in current browser
-export async function getFirebaseMessaging(): Promise<Messaging | null> {
+// Get FCM Messaging instance on demand if supported in current browser
+export async function getFirebaseMessaging() {
   if (typeof window === "undefined") return null;
 
-  const supported = await isSupported();
-  if (!supported) return null;
+  try {
+    const { getMessaging, isSupported } = await import("firebase/messaging");
+    const supported = await isSupported();
+    if (!supported) return null;
 
-  const app = getFirebaseApp();
-  return getMessaging(app);
+    const app = await getFirebaseApp();
+    return getMessaging(app);
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -67,6 +70,7 @@ export async function requestNotificationPermissionAndToken(): Promise<{
     }
 
     try {
+      const { getToken } = await import("firebase/messaging");
       const token = await getToken(messaging, {
         vapidKey,
         serviceWorkerRegistration: registration,

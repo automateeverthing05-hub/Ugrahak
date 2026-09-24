@@ -30,11 +30,49 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const { data: merchant } = await supabase
-    .from("merchants")
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle();
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  // Fetch merchant profile, counts, and recent 5 customers concurrently in 1 round-trip
+  const [
+    { data: merchant },
+    { count: totalCustomersCount },
+    { count: repeatCustomersCount },
+    { count: activeOffersCount },
+    { count: thisMonthVisitsCount },
+    { data: recentCustomersData },
+  ] = await Promise.all([
+    supabase
+      .from("merchants")
+      .select("id, shop_name, owner_name, phone, google_maps_url, slug, plan")
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("customers")
+      .select("*", { count: "exact", head: true })
+      .eq("merchant_id", user.id),
+    supabase
+      .from("customers")
+      .select("*", { count: "exact", head: true })
+      .eq("merchant_id", user.id)
+      .gt("visit_count", 1),
+    supabase
+      .from("offers")
+      .select("*", { count: "exact", head: true })
+      .eq("merchant_id", user.id)
+      .eq("status", "ACTIVE"),
+    supabase
+      .from("customer_visits")
+      .select("*", { count: "exact", head: true })
+      .eq("merchant_id", user.id)
+      .gte("visited_at", startOfMonth),
+    supabase
+      .from("customers")
+      .select("id, name, phone, visit_count, created_at")
+      .eq("merchant_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(5),
+  ]);
 
   // If merchant profile is not created yet, show onboarding setup
   if (!merchant) {
@@ -55,39 +93,11 @@ export default async function DashboardPage() {
   }
 
   const typedMerchant = merchant as Merchant;
-
-  // Query customers, offers, and visits concurrently
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-
-  const [{ data: customers }, { data: offers }, { data: visits }] = await Promise.all([
-    supabase
-      .from("customers")
-      .select("*")
-      .eq("merchant_id", user.id)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("offers")
-      .select("id, status")
-      .eq("merchant_id", user.id)
-      .eq("status", "ACTIVE"),
-    supabase
-      .from("customer_visits")
-      .select("id, visited_at")
-      .eq("merchant_id", user.id)
-      .gte("visited_at", startOfMonth),
-  ]);
-
-  const typedCustomers = (customers || []) as Customer[];
-  const typedOffers = (offers || []) as Offer[];
-  const typedVisits = (visits || []) as CustomerVisit[];
-
-  const totalCustomers = typedCustomers.length;
-  const repeatCustomers = typedCustomers.filter((c) => c.visit_count > 1).length;
-  const activeOffersCount = typedOffers.length;
-  const thisMonthVisits = typedVisits.length;
-
-  const recentCustomers = typedCustomers.slice(0, 5);
+  const totalCustomers = totalCustomersCount || 0;
+  const repeatCustomers = repeatCustomersCount || 0;
+  const activeOffers = activeOffersCount || 0;
+  const thisMonthVisits = thisMonthVisitsCount || 0;
+  const recentCustomers = (recentCustomersData || []) as Customer[];
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -142,7 +152,7 @@ export default async function DashboardPage() {
       <StatCards
         totalCustomers={totalCustomers}
         repeatCustomers={repeatCustomers}
-        activeOffers={activeOffersCount}
+        activeOffers={activeOffers}
         thisMonthVisits={thisMonthVisits}
       />
 

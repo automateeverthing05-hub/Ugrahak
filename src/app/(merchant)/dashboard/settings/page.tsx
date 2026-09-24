@@ -14,18 +14,18 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
-  // Fetch Merchant data
-  const { data: merchant } = await supabase
-    .from("merchants")
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle<Merchant & { latitude?: number | null; longitude?: number | null; plan?: string; trial_ends_at?: string }>();
-
-  // Count total customers for billing usage
-  const { count: customerCount } = await supabase
-    .from("customers")
-    .select("*", { count: "exact", head: true })
-    .eq("merchant_id", user.id);
+  // Fetch Merchant data and customer count concurrently
+  const [{ data: merchant }, { count: customerCount }] = await Promise.all([
+    supabase
+      .from("merchants")
+      .select("id, shop_name, owner_name, phone, google_maps_url, slug, latitude, longitude, plan, trial_ends_at, subscription_status")
+      .eq("id", user.id)
+      .maybeSingle<Merchant & { latitude?: number | null; longitude?: number | null; plan?: string; trial_ends_at?: string }>(),
+    supabase
+      .from("customers")
+      .select("*", { count: "exact", head: true })
+      .eq("merchant_id", user.id),
+  ]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
