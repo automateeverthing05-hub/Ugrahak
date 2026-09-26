@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { maskPhone } from "@/lib/utils/referenceCode";
 import {
   Users,
   Search,
@@ -11,7 +10,6 @@ import {
   ChevronRight,
   UserPlus,
   Sparkles,
-  Phone,
   Ticket,
   X,
   CheckCircle2,
@@ -42,7 +40,7 @@ interface RedemptionResult {
   };
   customer: {
     name: string;
-    phone: string;
+    phone?: string | null;
   } | null;
 }
 
@@ -73,7 +71,7 @@ export const CustomersList: React.FC<CustomersListProps> = ({
       if (!search.trim()) return true;
       const q = search.toLowerCase().trim();
       const matchName = cust.name.toLowerCase().includes(q);
-      const matchPhone = cust.phone.includes(q);
+      const matchPhone = cust.phone ? cust.phone.includes(q) : false;
       return matchName || matchPhone;
     });
   }, [initialCustomers, search, filter]);
@@ -151,10 +149,10 @@ export const CustomersList: React.FC<CustomersListProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
         <div>
           <h2 className="text-base font-bold text-slate-900">
-            Customer Directory
+            Customer List
           </h2>
           <p className="text-xs text-slate-500">
-            {initialCustomers.length} total enrolled customer(s)
+            {initialCustomers.length} total customer(s)
           </p>
         </div>
 
@@ -176,7 +174,7 @@ export const CustomersList: React.FC<CustomersListProps> = ({
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search name or phone..."
+            placeholder="Search customer name..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-colors"
@@ -223,7 +221,7 @@ export const CustomersList: React.FC<CustomersListProps> = ({
             <Users className="w-7 h-7 sm:w-8 sm:h-8" />
           </div>
           <h3 className="text-base sm:text-lg font-bold text-slate-900">
-            No Customers Enrolled Yet
+            No Customers in List Yet
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mt-1.5">
             Display your store QR code at your billing counter. When customers scan and enter their details, they will automatically appear here.
@@ -264,9 +262,8 @@ export const CustomersList: React.FC<CustomersListProps> = ({
                         <h4 className="font-bold text-sm text-slate-900">
                           {cust.name}
                         </h4>
-                        <span className="text-xs font-mono text-slate-500 flex items-center gap-1">
-                          <Phone className="w-3 h-3 text-slate-400" />
-                          {maskPhone(cust.phone)}
+                        <span className="text-xs text-slate-500">
+                          First visited {new Date(cust.first_visit_at).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
@@ -283,12 +280,14 @@ export const CustomersList: React.FC<CustomersListProps> = ({
                   </div>
 
                   <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
-                    <span>Joined: {new Date(cust.first_visit_at).toLocaleDateString()}</span>
-                    {hasActiveReward && (
+                    <span>Last visit: {new Date(cust.last_visit_at).toLocaleDateString()}</span>
+                    {hasActiveReward ? (
                       <span className="inline-flex items-center gap-1 text-[10px] text-amber-800 font-semibold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                         <Sparkles className="w-2.5 h-2.5 text-amber-500" />
                         Active Reward
                       </span>
+                    ) : (
+                      <span className="text-slate-400">No active reward</span>
                     )}
                   </div>
 
@@ -311,10 +310,10 @@ export const CustomersList: React.FC<CustomersListProps> = ({
                 <thead className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   <tr>
                     <th className="px-5 py-3.5">Customer Name</th>
-                    <th className="px-5 py-3.5">Phone Number</th>
                     <th className="px-5 py-3.5">Visits</th>
                     <th className="px-5 py-3.5">First Seen</th>
                     <th className="px-5 py-3.5">Last Visit</th>
+                    <th className="px-5 py-3.5">Reward Status</th>
                     <th className="px-5 py-3.5 text-right">Details</th>
                   </tr>
                 </thead>
@@ -336,18 +335,8 @@ export const CustomersList: React.FC<CustomersListProps> = ({
                             </div>
                             <div>
                               <p className="font-semibold text-slate-900">{cust.name}</p>
-                              {hasActiveReward && (
-                                <span className="inline-flex items-center gap-1 text-[10px] text-amber-700 font-medium bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                                  <Sparkles className="w-2.5 h-2.5" />
-                                  Active Reward
-                                </span>
-                              )}
                             </div>
                           </div>
-                        </td>
-
-                        <td className="px-5 py-4 font-mono text-xs text-slate-600">
-                          {maskPhone(cust.phone)}
                         </td>
 
                         <td className="px-5 py-4">
@@ -370,6 +359,19 @@ export const CustomersList: React.FC<CustomersListProps> = ({
 
                         <td className="px-5 py-4 text-xs text-slate-500">
                           {new Date(cust.last_visit_at).toLocaleDateString()}
+                        </td>
+
+                        <td className="px-5 py-4">
+                          {hasActiveReward ? (
+                            <span className="inline-flex items-center gap-1 text-xs text-amber-700 font-medium bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                              <Sparkles className="w-3 h-3" />
+                              Active Reward
+                            </span>
+                          ) : (
+                            <span className="text-xs text-slate-400">
+                              No active reward
+                            </span>
+                          )}
                         </td>
 
                         <td className="px-5 py-4 text-right">
@@ -472,11 +474,7 @@ export const CustomersList: React.FC<CustomersListProps> = ({
                 </div>
                 <div className="bg-white p-3 rounded-xl border border-emerald-200 text-xs space-y-1">
                   <p className="font-bold text-slate-900">
-                    {redeemResult.customer?.name || "Customer"} (
-                    {redeemResult.customer?.phone
-                      ? maskPhone(redeemResult.customer.phone)
-                      : "Verified"}
-                    )
+                    {redeemResult.customer?.name || "Verified Customer"}
                   </p>
                   <p className="text-indigo-700 font-semibold">
                     {redeemResult.reward.title}

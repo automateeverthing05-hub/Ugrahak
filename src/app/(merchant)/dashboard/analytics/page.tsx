@@ -53,10 +53,10 @@ export default async function AnalyticsPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-            Store Performance & Growth Analytics
+            Store Performance & Business Growth Insights
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Real customer footfall, repeat visit rates, and promotion conversion metrics.
+            Real customer visits, repeat visit rates, and offer results.
           </p>
         </div>
       </div>

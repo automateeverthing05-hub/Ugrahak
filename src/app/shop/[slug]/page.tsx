@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: ShopPageProps): Promise<Metad
 
   return {
     title: `${merchant.shop_name} - Customer Rewards`,
-    description: `Claim exclusive first-visit rewards and loyalty benefits at ${merchant.shop_name}.`,
+    description: `Claim exclusive rewards and benefits at ${merchant.shop_name}.`,
   };
 }
 
@@ -130,7 +130,7 @@ export default async function ShopPage({ params }: ShopPageProps) {
 
       {/* Footer */}
       <footer className="w-full max-w-md py-4 text-center text-[11px] text-slate-400">
-        Powered by Ugrahak &bull; Customer Retention Platform
+        Powered by Ugrahak &bull; Built for Local Businesses
       </footer>
     </div>
   );

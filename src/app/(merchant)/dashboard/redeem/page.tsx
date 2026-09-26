@@ -25,7 +25,7 @@ export default async function RedeemPage() {
             Redeem Customer Reward
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Validate reference codes presented by customers during checkout.
+            Verify reference codes presented by customers at the counter.
           </p>
         </div>
       </div>

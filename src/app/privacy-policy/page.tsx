@@ -160,7 +160,7 @@ export default function PrivacyPolicyPage() {
             <ul className="text-xs sm:text-sm text-slate-600 space-y-2 list-disc list-inside">
               <li>To enable merchants to capture visits, recognize repeat customers, and calculate store footfall.</li>
               <li>To issue, validate, and redeem digital scratch cards and unique reward reference codes.</li>
-              <li>To deliver immediate promotional push notifications broadcasted by the merchant to their enrolled customer base.</li>
+              <li>To deliver instant promotional offers sent by the shop owner to their customers.</li>
               <li>To schedule and dispatch automatic Google Maps review links 30 minutes following a first-time customer registration.</li>
               <li>To maintain platform security, prevent fraudulent check-ins, and manage merchant subscriptions.</li>
             </ul>

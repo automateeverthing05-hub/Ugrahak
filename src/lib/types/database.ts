@@ -74,7 +74,7 @@ export interface Database {
           id: string;
           merchant_id: string;
           name: string;
-          phone: string;
+          phone: string | null;
           visit_count: number;
           first_visit_at: string;
           last_visit_at: string;
@@ -85,7 +85,7 @@ export interface Database {
           id?: string;
           merchant_id: string;
           name: string;
-          phone: string;
+          phone?: string | null;
           visit_count?: number;
           first_visit_at?: string;
           last_visit_at?: string;
@@ -96,7 +96,7 @@ export interface Database {
           id?: string;
           merchant_id?: string;
           name?: string;
-          phone?: string;
+          phone?: string | null;
           visit_count?: number;
           first_visit_at?: string;
           last_visit_at?: string;

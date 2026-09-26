@@ -57,14 +57,14 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
 
     // Overlay text
     ctx.fillStyle = "#334155";
-    ctx.font = "bold 14px sans-serif";
+    ctx.font = "bold 13px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("✨ Scratch to Reveal! ✨", rect.width / 2, rect.height / 2 - 8);
+    ctx.fillText("✨ Scratch to Reveal Your Reward ✨", rect.width / 2, rect.height / 2 - 8);
 
     ctx.font = "11px sans-serif";
     ctx.fillStyle = "#64748b";
-    ctx.fillText("Special Welcome Reward", rect.width / 2, rect.height / 2 + 16);
+    ctx.fillText("New Customer Reward", rect.width / 2, rect.height / 2 + 16);
   }, [isRevealed]);
 
   useEffect(() => {
@@ -194,7 +194,7 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
           </div>
 
           <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-white/80 border-t border-white/20 pt-1.5">
-            <span>Show at cashier</span>
+            <span>Show at counter</span>
             {expiresAt && (
               <span className="text-amber-200 text-[10px]">
                 Valid: {new Date(expiresAt).toLocaleDateString()}
@@ -243,7 +243,7 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
 
         <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50 py-1 px-2.5 rounded-lg border border-emerald-100">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-          <span>Show this code to store cashier to redeem</span>
+          <span>Show this code at the counter to redeem</span>
         </div>
       </div>
     </div>

@@ -62,7 +62,7 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
             </Link>
 
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm">
-              Turn first-time customers into repeat loyal customers. Built specifically for local retail shops, cafes, salons, and Indian merchants.
+              Turn first-time customers into repeat loyal customers. Built specifically for local shops, cafes, salons, restaurants, and other businesses.
             </p>
 
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold">
@@ -89,17 +89,17 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
               </li>
               <li>
                 <Link href="/nearby" className="hover:text-indigo-600 transition-colors">
-                  Nearby Offers Discovery
+                  Offers for Nearby Customers
                 </Link>
               </li>
               <li>
                 <Link href="/signup" className="hover:text-indigo-600 transition-colors">
-                  Create Free Merchant Account
+                  Create Free Business Account
                 </Link>
               </li>
               <li>
                 <Link href="/login" className="hover:text-indigo-600 transition-colors">
-                  Merchant Login
+                  Business Owner Login
                 </Link>
               </li>
             </ul>
@@ -151,7 +151,7 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
 
             <div className="pt-2 text-[11px] text-slate-400 leading-normal flex items-start gap-1.5">
               <Mail className="w-3.5 h-3.5 text-indigo-500 mt-0.5 flex-shrink-0" />
-              <span>Merchant support available Mon–Sat (10:00 AM – 6:00 PM IST).</span>
+              <span>Business support available Mon–Sat (10:00 AM – 6:00 PM IST).</span>
             </div>
           </div>
         </div>
@@ -160,7 +160,7 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>100% Isolated Merchant Customer Databases &bull; SSL Secured</span>
+            <span>Your Customer List Is Private &bull; Your Data Is Securely Protected</span>
           </div>
 
           <p className="text-[11px] text-slate-400">

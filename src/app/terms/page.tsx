@@ -91,8 +91,8 @@ export default function TermsPage() {
             <ul className="mt-3 text-xs sm:text-sm text-slate-600 space-y-1.5 list-disc list-inside">
               <li>Display a store QR code at their counter to capture customer check-ins.</li>
               <li>Offer first-visit digital scratch card rewards with promotional codes.</li>
-              <li>Broadcast instant push notifications and offers to enrolled customers.</li>
-              <li>Publish localized deals discoverable in the Nearby Offers section (100–200m radius).</li>
+              <li>Send instant offers and updates to your customers.</li>
+              <li>Publish localized deals discoverable in the Offers for Nearby Customers section (100–200m radius).</li>
               <li>Schedule automated 30-minute post-visit Google Maps review link requests.</li>
             </ul>
           </section>

@@ -118,7 +118,7 @@ export const MerchantProfileForm: React.FC<MerchantProfileFormProps> = ({
       const resData = await response.json();
 
       if (!response.ok) {
-        setError(resData.error || "Failed to save merchant profile.");
+        setError(resData.error || "Failed to save profile.");
         setIsLoading(false);
         return;
       }
@@ -171,12 +171,12 @@ export const MerchantProfileForm: React.FC<MerchantProfileFormProps> = ({
 
           <div>
             <Input
-              label="Business Phone Number"
+              label="Business Owner Phone Number"
               placeholder="e.g. 9876543210"
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              helperText="For customer inquiries and store contact."
+              helperText="Your contact number as the business owner."
             />
           </div>
         </div>
@@ -207,10 +207,10 @@ export const MerchantProfileForm: React.FC<MerchantProfileFormProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <span className="text-xs font-bold text-slate-800 block">
-                Store GPS Location (For Nearby Offers 100–200m)
+                Store GPS Location (For Offers for Nearby Customers 100–200m)
               </span>
               <p className="text-[11px] text-slate-500">
-                Required if you want nearby shoppers within 200m to unlock store offers.
+                Required if you want to send an offer when a customer is near your shop.
               </p>
             </div>
 

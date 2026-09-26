@@ -107,8 +107,8 @@ export default function RefundPolicyPage() {
               Plan Upgrades &amp; Downgrades
             </h2>
             <ul className="text-xs sm:text-sm text-slate-600 space-y-2 list-disc list-inside">
-              <li><strong>Upgrading a Plan:</strong> When upgrading to a higher tier (e.g. Starter to Growth or Pro), the upgrade takes effect immediately, granting higher customer limits and additional weekly broadcast allowances.</li>
-              <li><strong>Downgrading a Plan:</strong> Plan downgrades take effect at the start of the next billing cycle. Existing customer records are preserved, but active weekly offer broadcast quotas will adjust to the lower tier.</li>
+              <li><strong>Upgrading a Plan:</strong> When upgrading to a higher tier (e.g. Starter to Growth or Pro), the upgrade takes effect immediately, granting higher customer limits and additional weekly offer allowances.</li>
+              <li><strong>Downgrading a Plan:</strong> Plan downgrades take effect at the start of the next billing cycle. Existing customer records are preserved, but active weekly offer sending quotas will adjust to the lower tier.</li>
             </ul>
           </section>
 
@@ -162,7 +162,7 @@ export default function RefundPolicyPage() {
               <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 text-xs sm:text-sm text-rose-950">
                 <strong>Non-Refundable Situations:</strong>
                 <ul className="list-disc list-inside mt-1 space-y-1 text-rose-900">
-                  <li>Change of mind after actively utilizing offer broadcasts during the month.</li>
+                  <li>Change of mind after actively sending offers during the month.</li>
                   <li>Failure of end-customer hardware or customer refusal to scan QR codes in store.</li>
                   <li>Account termination resulting from spamming or violation of platform Terms.</li>
                 </ul>
@@ -191,7 +191,7 @@ export default function RefundPolicyPage() {
               To request assistance with cancellations, invoice adjustments, or refunds, please email our billing desk with the following details:
             </p>
             <div className="p-4 rounded-2xl bg-white border border-indigo-100 text-xs sm:text-sm space-y-1.5 text-slate-700">
-              <p>&bull; <strong>Registered Merchant Email:</strong> The email associated with your login.</p>
+              <p>&bull; <strong>Registered Business Email:</strong> The email associated with your login.</p>
               <p>&bull; <strong>Shop Name &amp; Phone:</strong> Your registered business details.</p>
               <p>&bull; <strong>Payment / Transaction ID:</strong> From your invoice receipt.</p>
               <p>&bull; <strong>Send to:</strong> <a href="mailto:supportugrahak@gmail.com" className="text-indigo-600 font-bold hover:underline">supportugrahak@gmail.com</a></p>

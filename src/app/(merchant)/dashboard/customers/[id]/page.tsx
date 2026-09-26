@@ -1,13 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { maskPhone } from "@/lib/utils/referenceCode";
 import { Card } from "@/components/ui/Card";
 import {
   ArrowLeft,
   Calendar,
   RotateCcw,
-  Phone,
+  Clock,
 } from "lucide-react";
 import { CustomerRewardsList } from "@/components/dashboard/CustomerRewardsList";
 import type { Customer, Reward, CustomerVisit } from "@/lib/types/database";
@@ -83,14 +82,14 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
               {customer.name}
             </h1>
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
-              <span className="flex items-center gap-1 font-mono">
-                <Phone className="w-3.5 h-3.5 text-slate-400" />
-                {maskPhone(customer.phone)}
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                First Seen {new Date(customer.first_visit_at).toLocaleDateString()}
               </span>
               <span className="text-slate-300">&bull;</span>
               <span className="flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                Joined {new Date(customer.first_visit_at).toLocaleDateString()}
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                Last Visit {new Date(customer.last_visit_at).toLocaleDateString()}
               </span>
             </div>
           </div>
@@ -116,7 +115,7 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
         {/* Left Col: Customer Rewards */}
         <Card
           title="Issued Rewards"
-          description="Loyalty rewards and discount codes issued to this customer."
+          description="Rewards and discount codes issued to this customer."
         >
           <CustomerRewardsList initialRewards={typedRewards} />
         </Card>
@@ -124,7 +123,7 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
         {/* Right Col: Visit History Timeline */}
         <Card
           title="Visit History"
-          description="Detailed log of QR scans and in-store check-ins."
+          description="Detailed log of QR scans and customer visits."
         >
           {typedVisits.length === 0 ? (
             <div className="py-8 text-center text-xs text-slate-400">
@@ -148,7 +147,7 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
                     <div>
                       <span className="font-semibold text-slate-800">
                         {visit.visit_type === "FIRST_VISIT"
-                          ? "First-Time QR Check-in"
+                          ? "First QR Check-in"
                           : "Repeat Store Visit"}
                       </span>
                     </div>

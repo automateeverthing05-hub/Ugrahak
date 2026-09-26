@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ugrahak - Customer Retention Platform for Local Merchants",
+  title: "Ugrahak - Bring Customers Back to Your Shop",
   description:
     "Turn first-time shoppers into repeat loyal customers. Easy QR-based rewards for local businesses.",
 };

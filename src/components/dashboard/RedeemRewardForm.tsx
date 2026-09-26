@@ -5,8 +5,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
-import { maskPhone } from "@/lib/utils/referenceCode";
-import { Gift, CheckCircle2, Ticket, Sparkles, User, Calendar, RotateCcw } from "lucide-react";
+import { CheckCircle2, RotateCcw } from "lucide-react";
 
 interface RedemptionResult {
   message: string;
@@ -20,7 +19,7 @@ interface RedemptionResult {
   };
   customer: {
     name: string;
-    phone: string;
+    phone?: string | null;
   } | null;
 }
 
@@ -85,7 +84,7 @@ export const RedeemRewardForm: React.FC = () => {
     <div className="space-y-6">
       <Card
         title="Redeem Customer Reward"
-        description="Enter the unique reference code presented by your customer at billing counter."
+        description="Enter the unique reference code presented by your customer at the counter."
       >
         {error && <Alert type="error" message={error} className="mb-4" />}
         {success && <Alert type="success" message={success} className="mb-4" />}
@@ -141,11 +140,6 @@ export const RedeemRewardForm: React.FC = () => {
               <p className="text-sm font-semibold text-slate-900 mt-0.5">
                 {result.customer?.name || "Verified Customer"}
               </p>
-              {result.customer?.phone && (
-                <p className="text-xs text-slate-500">
-                  {maskPhone(result.customer.phone)}
-                </p>
-              )}
             </div>
 
             <div className="bg-white p-3.5 rounded-xl border border-emerald-200">

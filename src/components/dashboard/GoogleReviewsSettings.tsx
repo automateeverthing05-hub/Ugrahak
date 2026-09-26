@@ -124,10 +124,10 @@ export const GoogleReviewsSettings: React.FC<GoogleReviewsSettingsProps> = ({
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                Automatic Google Review Requests
+                Get More Google Reviews
               </h3>
               <p className="text-xs text-slate-500">
-                Automatically asks new customers for a 5-star Google review exactly 30 minutes after their first visit.
+                Make it easy for customers to leave a Google review approximately 30 minutes after their first visit.
               </p>
             </div>
           </div>
@@ -154,7 +154,7 @@ export const GoogleReviewsSettings: React.FC<GoogleReviewsSettingsProps> = ({
         <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl text-xs text-amber-900 space-y-1.5">
           <p className="font-bold flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-amber-600" />
-            <span>How Automatic Google Reviews Work:</span>
+            <span>How Getting Google Reviews Works:</span>
           </p>
           <ul className="list-disc list-inside space-y-1 text-amber-800 text-[11px]">
             <li>When a new customer completes their 1st QR scan, a review request is scheduled for <strong>+30 minutes</strong>.</li>

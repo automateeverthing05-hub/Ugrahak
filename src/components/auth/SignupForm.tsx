@@ -122,7 +122,7 @@ export const SignupForm: React.FC = () => {
         </div>
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-            Create Your Merchant Account
+            Create Your Business Account
           </h2>
         </div>
         <div className="flex items-center gap-1.5 mt-1 text-xs text-indigo-700 font-bold bg-indigo-50/80 px-2.5 py-1 rounded-lg border border-indigo-100 w-fit">
@@ -157,12 +157,13 @@ export const SignupForm: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
             <Input
-              label="Mobile Number"
+              label="Business Owner Phone Number"
               placeholder="10-digit mobile number"
               required
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              helperText="Your contact number as the business owner."
             />
           </div>
 
@@ -185,7 +186,7 @@ export const SignupForm: React.FC = () => {
             placeholder="Paste Google Maps review link"
             value={googleMapsUrl}
             onChange={(e) => setGoogleMapsUrl(e.target.value)}
-            helperText="For sending automatic Google Review requests to customers."
+            helperText="To help customers easily leave a Google review."
           />
         </div>
 

@@ -4,7 +4,6 @@ import { StatCards } from "@/components/dashboard/StatCards";
 import { QRCodeDisplay } from "@/components/dashboard/QRCodeDisplay";
 import { MerchantProfileForm } from "@/components/dashboard/MerchantProfileForm";
 import { Card } from "@/components/ui/Card";
-import { maskPhone } from "@/lib/utils/referenceCode";
 import {
   Store,
   Users,
@@ -166,7 +165,7 @@ export default async function DashboardPage() {
             Bring customers back to your shop
           </h2>
           <p className="text-xs text-indigo-100/90 max-w-md">
-            Send an instant offer with a weekend discount or festival deal to all your enrolled customers.
+            Send an instant offer with a weekend discount or festival deal to all your customers.
           </p>
         </div>
 
@@ -185,7 +184,7 @@ export default async function DashboardPage() {
             className="inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-2xl bg-indigo-800/80 hover:bg-indigo-800 text-white font-bold text-xs transition-colors border border-indigo-500/30 min-h-[44px]"
           >
             <BarChart3 className="w-4 h-4 text-amber-300" />
-            <span>View Analytics</span>
+            <span>View Insights</span>
           </Link>
         </div>
       </div>
@@ -195,8 +194,8 @@ export default async function DashboardPage() {
         {/* Left 2 Cols: Recent Customer Enrollments */}
         <div className="lg:col-span-2 space-y-4">
           <Card
-            title="Recent Customer Enrollments"
-            description="Customers who scanned your shop QR code and enrolled for benefits."
+            title="Recent Customers"
+            description="Customers who scanned your shop QR code."
           >
             {recentCustomers.length === 0 ? (
               <div className="py-10 flex flex-col items-center justify-center text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 p-4">
@@ -207,7 +206,7 @@ export default async function DashboardPage() {
                   No customer visits recorded yet
                 </h4>
                 <p className="text-xs text-slate-500 max-w-sm mt-1">
-                  Place your store QR code at your billing counter. When customers scan it, their visits will appear here.
+                  Place your store QR code at your counter. When customers scan it, their visits will appear here.
                 </p>
               </div>
             ) : (
@@ -226,8 +225,8 @@ export default async function DashboardPage() {
                           <p className="text-sm font-semibold text-slate-900">
                             {cust.name}
                           </p>
-                          <p className="text-xs font-mono text-slate-500">
-                            {maskPhone(cust.phone)}
+                          <p className="text-xs text-slate-500">
+                            First seen {new Date(cust.first_visit_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>

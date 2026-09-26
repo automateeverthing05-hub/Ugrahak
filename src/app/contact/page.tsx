@@ -18,7 +18,7 @@ import { Footer } from "@/components/layout/Footer";
 export const metadata: Metadata = {
   title: "Contact Support | Ugrahak",
   description:
-    "Get in touch with the Ugrahak support team for merchant assistance, technical issues, billing, and account help.",
+    "Get in touch with the Ugrahak support team for business assistance, technical issues, billing, and account help.",
 };
 
 export default function ContactPage() {
@@ -60,13 +60,13 @@ export default function ContactPage() {
         <div className="mb-10 text-center max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold mb-3">
             <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-            <span>Dedicated Merchant Assistance</span>
+            <span>Dedicated Business Support</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
             We&apos;re Here to Help Your Store Grow
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 mt-2">
-            Have questions about setting up your shop QR code, broadcast notifications, or billing? Reach out to our dedicated support team.
+            Have questions about setting up your shop QR code, sending offers, or billing? Reach out to our dedicated support team.
           </p>
         </div>
 
@@ -149,7 +149,7 @@ export default function ContactPage() {
                 </h4>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed pl-11">
-                Need help downloading high-resolution QR codes for counter acrylic stands or configuring your first-visit reward scratch cards? Include your <strong>Shop Name</strong> and registered phone number in your message.
+                Need help downloading high-resolution QR codes for counter stands or configuring scratch cards for new customers? Include your <strong>Shop Name</strong> and registered phone number in your message.
               </p>
             </div>
 
@@ -179,7 +179,7 @@ export default function ContactPage() {
                 </h4>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed pl-11">
-                To request permanent deletion of your merchant account or customer loyalty phone records, write to our support desk with the subject line <em>&quot;Data Deletion Request&quot;</em>. Requests are fulfilled within 30 days.
+                To request permanent deletion of your business account or customer phone records, write to our support desk with the subject line <em>&quot;Data Deletion Request&quot;</em>. Requests are fulfilled within 30 days.
               </p>
             </div>
           </div>
@@ -212,16 +212,16 @@ export default function ContactPage() {
                 How do customers receive my offers?
               </h5>
               <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
-                When customers scan your QR and allow browser notifications, they receive instant Web Push notifications directly on their phone screen when you click &quot;Send Offer&quot;.
+                When customers scan your QR and allow offers, they receive instant alerts directly on their phone screen when you click &quot;Send Offer&quot;.
               </p>
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
               <h5 className="text-xs font-bold text-slate-900">
-                Can other shops see my customer database?
+                Can other shops see my customer list?
               </h5>
               <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
-                Never. Every merchant database is 100% isolated via PostgreSQL Row Level Security. Only you have access to your customer list and visits.
+                Never. Your customer list is private and only accessible to your business. Only you have access to your customer list and visits.
               </p>
             </div>
 

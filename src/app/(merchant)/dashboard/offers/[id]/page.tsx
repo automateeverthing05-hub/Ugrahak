@@ -122,7 +122,7 @@ export default async function OfferDetailPage({ params }: OfferDetailPageProps) 
         </div>
         <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
           <span className="text-xs font-medium text-slate-500">
-            Invalid / Unregistered Tokens
+            Not Delivered / Inactive Devices
           </span>
           <p className="text-2xl font-bold text-amber-600 mt-1">
             {invalidTokens}
@@ -132,8 +132,8 @@ export default async function OfferDetailPage({ params }: OfferDetailPageProps) 
 
       {/* Delivery Log Table */}
       <Card
-        title="Offer Delivery Logs"
-        description="Delivery log for each broadcast attempt of this offer."
+        title="Offer History"
+        description="Log of sent offers and delivery status."
       >
         {typedLogs.length === 0 ? (
           <div className="py-8 text-center text-xs text-slate-400">

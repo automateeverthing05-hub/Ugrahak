@@ -92,10 +92,10 @@ export const LoginForm: React.FC = () => {
           <Store className="w-6 h-6" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-          Merchant Login
+          Business Owner Login
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Login to manage your customers, rewards and offers.
+          Log in to manage your customers, rewards and offers.
         </p>
       </div>
 
@@ -132,7 +132,7 @@ export const LoginForm: React.FC = () => {
           size="lg"
           isLoading={isLoading}
         >
-          Login to Store Dashboard
+          Log In to Business Dashboard
         </Button>
       </form>
 

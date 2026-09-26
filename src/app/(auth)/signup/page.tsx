@@ -17,9 +17,9 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Create Merchant Account | Ugrahak",
+  title: "Create Business Account | Ugrahak",
   description:
-    "Register for a 7-day free trial of Ugrahak. Create your shop QR code and start capturing customer visits in minutes.",
+    "Register for a 7-day free trial of Ugrahak. Create your shop QR code and start building your customer list in minutes.",
 };
 
 export default function SignupPage() {
@@ -65,7 +65,7 @@ export default function SignupPage() {
               </h1>
 
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                Capture customers, reward first visits, send offers and bring customers back. Set up your shop in less than 2 minutes.
+                Save customers, give new customer rewards, send offers and bring customers back. Set up your shop in less than 2 minutes.
               </p>
             </div>
 
@@ -85,7 +85,7 @@ export default function SignupPage() {
                       Customer Scans Your QR
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Customer scans your shop QR and shares their name and phone.
+                      Customer scans your shop QR and enters their name.
                     </p>
                   </div>
                 </div>
@@ -99,7 +99,7 @@ export default function SignupPage() {
                       Customer Gets a Reward
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Customer gets your first-visit scratch-card reward.
+                      Customer gets your scratch-card reward for new customers.
                     </p>
                   </div>
                 </div>
@@ -113,7 +113,7 @@ export default function SignupPage() {
                       Bring Them Back
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Send offers and nearby alerts to bring customers back again.
+                      Send offers when customers are nearby and bring them back again.
                     </p>
                   </div>
                 </div>
@@ -137,13 +137,13 @@ export default function SignupPage() {
               <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs flex items-center gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span className="text-xs font-bold text-slate-800">
-                  Instant Offer Broadcasts
+                  Send Offers Instantly
                 </span>
               </div>
               <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs flex items-center gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span className="text-xs font-bold text-slate-800">
-                  Automated Google Reviews
+                  Get More Google Reviews
                 </span>
               </div>
             </div>

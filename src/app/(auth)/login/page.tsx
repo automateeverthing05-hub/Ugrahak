@@ -18,9 +18,9 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Merchant Login | Ugrahak",
+  title: "Business Owner Login | Ugrahak",
   description:
-    "Log in to your Ugrahak merchant dashboard to view customer visits, broadcast offers, and manage rewards.",
+    "Log in to your Ugrahak business dashboard to view customer visits, send offers, and manage rewards.",
 };
 
 export default function LoginPage() {
@@ -67,7 +67,7 @@ export default function LoginPage() {
               </h1>
 
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
-                Capture customers with a simple QR code, give them a first-visit reward, and bring them back with offers and notifications.
+                Let customers scan your QR code, get a reward, and come back for your offers.
               </p>
             </div>
 
@@ -88,7 +88,7 @@ export default function LoginPage() {
                       Customer Scans Your QR
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Customer scans your shop QR and shares their name and phone.
+                      Customer scans your shop QR and enters their name.
                     </p>
                   </div>
                 </div>
@@ -103,7 +103,7 @@ export default function LoginPage() {
                       Customer Gets a Reward
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Customer gets your first-visit scratch-card reward.
+                      Customer gets your scratch-card reward for new customers.
                     </p>
                   </div>
                 </div>
@@ -118,7 +118,7 @@ export default function LoginPage() {
                       Bring Them Back
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Send offers and nearby alerts to bring customers back again.
+                      Send offers when customers are nearby and bring them back again.
                     </p>
                   </div>
                 </div>
@@ -139,10 +139,10 @@ export default function LoginPage() {
                   </div>
                   <div>
                     <h5 className="text-xs font-bold text-slate-900">
-                      Capture Customers
+                      Save Customers
                     </h5>
                     <p className="text-[11px] text-slate-500 mt-0.5">
-                      Build your own customer database.
+                      Build your own customer list.
                     </p>
                   </div>
                 </div>
@@ -154,10 +154,10 @@ export default function LoginPage() {
                   </div>
                   <div>
                     <h5 className="text-xs font-bold text-slate-900">
-                      First-Visit Rewards
+                      New Customer Rewards
                     </h5>
                     <p className="text-[11px] text-slate-500 mt-0.5">
-                      Give customers a scratch-card reward when they visit for the first time.
+                      Give new customers a scratch-card reward.
                     </p>
                   </div>
                 </div>
@@ -184,10 +184,10 @@ export default function LoginPage() {
                   </div>
                   <div>
                     <h5 className="text-xs font-bold text-slate-900">
-                      Nearby Offers
+                      Offers for Nearby Customers
                     </h5>
                     <p className="text-[11px] text-slate-500 mt-0.5">
-                      Reach customers when they are near your shop.
+                      Send an offer when a customer is near your shop.
                     </p>
                   </div>
                 </div>
@@ -199,7 +199,7 @@ export default function LoginPage() {
                   </div>
                   <div>
                     <h5 className="text-xs font-bold text-slate-900">
-                      Get More Reviews
+                      Get More Google Reviews
                     </h5>
                     <p className="text-[11px] text-slate-500 mt-0.5">
                       Make it easy for customers to leave a Google review.

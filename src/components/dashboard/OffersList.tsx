@@ -239,7 +239,7 @@ export const OffersList: React.FC<OffersListProps> = ({
             <span>SEND OFFER TO YOUR CUSTOMERS</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-            Broadcast Deals & Offers with 1 Tap
+            Send Offers to Your Customers with 1 Tap
           </h2>
           <p className="text-xs sm:text-sm text-indigo-100">
             Select any offer below and click <strong>&quot;SEND TO ALL CUSTOMERS&quot;</strong> to deliver personalized notifications to your customers.
@@ -407,7 +407,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                       href={`/dashboard/offers/${offer.id}`}
                       className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline p-1"
                     >
-                      View Delivery Logs
+                      View Offer History
                     </Link>
 
                     <Button

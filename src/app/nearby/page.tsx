@@ -73,7 +73,7 @@ export default function NearbyOffersPage() {
         setIsLocating(false);
         setError(
           err.code === 1
-            ? "Location permission is required for Nearby Offers. Please enable location permission in your browser settings."
+            ? "Location permission is required for Offers for Nearby Customers. Please enable location permission in your browser settings."
             : `Unable to access location: ${err.message}`
         );
       },
@@ -100,7 +100,7 @@ export default function NearbyOffersPage() {
               href="/login"
               className="text-xs sm:text-sm font-medium text-slate-700 hover:text-indigo-600 px-2 sm:px-3 py-1.5"
             >
-              Merchant Login
+              Business Owner Login
             </Link>
             <Link
               href="/pricing"
@@ -116,7 +116,7 @@ export default function NearbyOffersPage() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-1 w-full text-center">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold mb-4">
           <Compass className="w-3.5 h-3.5 text-indigo-600" />
-          <span>Local Store Discovery (100–200m Zone)</span>
+          <span>Discover Offers Near You (100–200m)</span>
         </div>
 
         <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">

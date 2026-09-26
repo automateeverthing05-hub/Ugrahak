@@ -58,7 +58,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-indigo-600" />
           <span className="text-xs font-bold text-slate-900">
-            Analytics Timeframe
+            Insights Timeframe
           </span>
         </div>
 
@@ -111,7 +111,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500">
-              Total Enrolled
+              Total Customers
             </span>
             <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
               <Users className="w-4 h-4" />
@@ -227,13 +227,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         {/* Left: Reward Funnel */}
         <Card
           title="Reward Program Performance"
-          description="Conversion from first-visit scratch cards to store redemptions."
+          description="From scratch cards for new customers to store redemptions."
         >
           <div className="space-y-4 py-2">
             <div>
               <div className="flex items-center justify-between text-xs mb-1.5">
                 <span className="text-slate-600 font-medium">
-                  Scratch Rewards Issued
+                  Scratch Card Rewards Issued
                 </span>
                 <span className="font-bold text-slate-900">
                   {metrics.rewardsIssued}
@@ -247,7 +247,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             <div>
               <div className="flex items-center justify-between text-xs mb-1.5">
                 <span className="text-slate-600 font-medium">
-                  Successfully Redeemed at Billing
+                  Successfully Redeemed at Counter
                 </span>
                 <span className="font-bold text-emerald-600">
                   {metrics.rewardsRedeemed} ({metrics.redemptionRate}%)
@@ -272,14 +272,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
         {/* Right: Notification Delivery Stats */}
         <Card
-          title="Send Offer Campaigns"
-          description="Delivery success rates across your customer audience."
+          title="Sent Offers"
+          description="Delivery results across your customers."
         >
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <span className="text-[11px] text-slate-500 font-medium">
-                  Promotions Sent
+                  Offers Sent
                 </span>
                 <p className="text-lg sm:text-xl font-bold text-slate-900 mt-1">
                   {metrics.totalNotificationsSent.toLocaleString()}
@@ -288,7 +288,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <span className="text-[11px] text-slate-500 font-medium">
-                  Active Campaigns
+                  Active Offers
                 </span>
                 <p className="text-lg sm:text-xl font-bold text-indigo-600 mt-1">
                   {metrics.activeOffers}
@@ -297,7 +297,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             </div>
 
             <div className="text-xs text-slate-500 pt-2 border-t border-slate-100 flex items-center justify-between">
-              <span>Undelivered Offers:</span>
+              <span>Offers Not Delivered:</span>
               <span className="font-semibold text-rose-600">
                 {metrics.totalNotificationsFailed}
               </span>

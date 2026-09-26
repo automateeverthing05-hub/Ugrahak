@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 export const metadata: Metadata = {
   title: "Pricing Plans | Ugrahak",
   description:
-    "Transparent pricing for local retail merchants. 7-Day Free Trial, Starter, Growth, and Pro plans for store loyalty rewards and customer retention.",
+    "Transparent pricing for local shop owners. 7-Day Free Trial, Starter, Growth, and Pro plans for shop rewards and bringing customers back.",
 };
 
 export default function PricingPage() {
@@ -32,7 +32,7 @@ export default function PricingPage() {
               href="/login"
               className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-indigo-600 px-3 py-1.5 transition-colors"
             >
-              Merchant Sign In
+              Business Owner Login
             </Link>
             <Link
               href="/signup"
@@ -49,13 +49,13 @@ export default function PricingPage() {
         <div className="text-center max-w-2xl mx-auto mb-12">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold mb-3">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            Transparent Local Merchant Pricing
+            Transparent Pricing for Local Businesses
           </span>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Simple Plans Built for Retail Store Growth
+            Simple Plans Built for Business Growth
           </h1>
           <p className="text-sm sm:text-base text-slate-600 mt-2">
-            Turn every walk-in shopper into a repeat loyal customer with QR rewards, Send Offer broadcasts, and nearby alerts.
+            Turn every walk-in shopper into a repeat loyal customer with QR rewards, special offers, and nearby customer alerts.
           </p>
         </div>
 
@@ -133,7 +133,7 @@ export default function PricingPage() {
                 100% Risk-Free 7-Day Free Trial
               </h4>
               <p className="text-xs text-slate-600 mt-0.5">
-                No credit card required to start. Print your store QR code and start retaining customers immediately.
+                No credit card required to start. Print your store QR code and start saving customers immediately.
               </p>
             </div>
           </div>

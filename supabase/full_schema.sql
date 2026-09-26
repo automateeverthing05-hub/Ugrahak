@@ -75,17 +75,16 @@ CREATE TABLE IF NOT EXISTS public.customers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   merchant_id UUID NOT NULL REFERENCES public.merchants(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  phone TEXT NOT NULL,
+  phone TEXT DEFAULT NULL,
   visit_count INTEGER NOT NULL DEFAULT 1,
   first_visit_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   last_visit_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT uq_merchant_customer_phone UNIQUE (merchant_id, phone)
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_customers_merchant_id ON public.customers(merchant_id);
-CREATE INDEX IF NOT EXISTS idx_customers_merchant_phone ON public.customers(merchant_id, phone);
+CREATE INDEX IF NOT EXISTS idx_customers_merchant_name ON public.customers(merchant_id, name);
 CREATE INDEX IF NOT EXISTS idx_customers_merchant_created ON public.customers(merchant_id, created_at DESC);
 
 ALTER TABLE public.customers ENABLE ROW LEVEL SECURITY;

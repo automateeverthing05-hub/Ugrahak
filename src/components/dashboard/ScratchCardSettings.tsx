@@ -217,10 +217,10 @@ export const ScratchCardSettings: React.FC<ScratchCardSettingsProps> = ({
           </div>
           <div>
             <h3 className="text-base sm:text-lg font-bold text-slate-900">
-              First-Visit Scratch Card Rewards
+              New Customer Scratch Card Rewards
             </h3>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Create up to 5 rewards for your first-visit scratch card.
+              Create up to 5 rewards for new customers.
             </p>
           </div>
         </div>
@@ -448,7 +448,7 @@ export const ScratchCardSettings: React.FC<ScratchCardSettingsProps> = ({
                   required
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
-                  helperText="The actual discount or gift applied at billing counter."
+                  helperText="The actual discount or gift applied at the counter."
                 />
               </div>
 
@@ -477,7 +477,7 @@ export const ScratchCardSettings: React.FC<ScratchCardSettingsProps> = ({
                   htmlFor="isEnabledCheckbox"
                   className="text-xs font-semibold text-slate-700 cursor-pointer"
                 >
-                  Enable this reward option for first-visit customers
+                  Enable this reward option for new customers
                 </label>
               </div>
 

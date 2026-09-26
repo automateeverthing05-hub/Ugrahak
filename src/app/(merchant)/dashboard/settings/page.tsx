@@ -31,10 +31,10 @@ export default async function SettingsPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
         <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-          Store Settings & Configuration
+          Business Settings & Configuration
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Manage your business profile, QR standee, Google reviews, nearby radar, and subscription plan.
+          Manage your business profile, QR code, Google reviews, nearby offers, and subscription plan.
         </p>
       </div>
 

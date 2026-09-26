@@ -17,7 +17,7 @@ import { Footer } from "@/components/layout/Footer";
 export const metadata: Metadata = {
   title: "Ugrahak | Turn First-Time Customers Into Repeat Customers",
   description:
-    "Ugrahak helps local retail stores capture customers, reward first visits with digital scratch cards, and bring them back with Send Offer broadcasts.",
+    "Ugrahak helps local shops save customers, give rewards with digital scratch cards, and bring them back with special offers.",
 };
 
 export default async function HomePage() {
@@ -79,7 +79,7 @@ export default async function HomePage() {
 
         {/* Subheadline */}
         <p className="mt-5 text-base sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          Capture customers, reward first visits, send offers and bring customers back.
+          Let customers scan your QR code, get a reward, and come back for your offers.
         </p>
 
         {/* Action Buttons */}
@@ -123,7 +123,7 @@ export default async function HomePage() {
                 Customer Scans Your QR
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-                Customer visits your shop, scans your QR code at the counter, and enters their name and phone number.
+                Customer visits your shop, scans your QR code at the counter, and enters their name.
               </p>
             </div>
 
@@ -139,7 +139,7 @@ export default async function HomePage() {
                 Customer Gets a Reward
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-                Customer gets an instant first-visit scratch card reward with an exclusive discount code to redeem.
+                Customer gets a scratch-card reward for new customers with an exclusive discount code to redeem.
               </p>
             </div>
 
@@ -155,7 +155,7 @@ export default async function HomePage() {
                 Bring Them Back
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-                Send festival and weekend offers directly to your customer base and drive repeated store visits.
+                Send festival and weekend offers directly to your customer list and bring customers back to your shop.
               </p>
             </div>
           </div>
@@ -167,19 +167,19 @@ export default async function HomePage() {
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-semibold text-slate-800">
-                100% Private to Your Store
+                Your Customer List Is Private
               </span>
             </div>
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-semibold text-slate-800">
-                Instant Offer Broadcasts
+                Send Offers Instantly
               </span>
             </div>
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
               <span className="text-xs sm:text-sm font-semibold text-slate-800">
-                Auto Google Maps Review Requests
+                Get More Google Reviews Automatically
               </span>
             </div>
           </div>

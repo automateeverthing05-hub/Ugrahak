@@ -55,7 +55,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     { id: "profile", label: "Shop Profile", icon: Store },
     { id: "qr", label: "Store QR Code", icon: QrCode },
     { id: "reviews", label: "Google Reviews", icon: Star },
-    { id: "nearby", label: "Nearby Offers (GPS)", icon: MapPin },
+    { id: "nearby", label: "Nearby Customers (GPS)", icon: MapPin },
     { id: "scratch", label: "Scratch Card", icon: Gift },
     { id: "billing", label: "Plan & Billing", icon: CreditCard },
   ];
@@ -109,7 +109,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <ol className="space-y-3 text-xs text-slate-600 list-decimal list-inside">
                   <li>Download and print your QR code poster.</li>
                   <li>Place the standee or poster at your checkout counter.</li>
-                  <li>Ask customers to scan with any camera or scanner app to get instant loyalty rewards.</li>
+                  <li>Ask customers to scan with their phone camera to get instant rewards.</li>
                 </ol>
                 <div className="pt-2 border-t border-slate-100">
                   <a
@@ -151,30 +151,30 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <MapPin className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">
-                Nearby Offers (100m – 200m Proximity Radar)
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                Offers for Nearby Customers (100–200m)
               </h3>
               <p className="text-xs text-slate-500">
-                Attract shoppers walking near your store location automatically.
+                Send an offer when a customer is near your shop.
               </p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="p-4 bg-emerald-50/60 rounded-xl border border-emerald-200 text-xs text-emerald-900 space-y-2">
-              <p className="font-semibold">📍 How Nearby Radar Works:</p>
+              <p className="font-semibold">📍 How Offers for Nearby Customers Work:</p>
               <p>
-                When shoppers open Ugrahak within 200 meters of your coordinates, your store offers are displayed on their screen, driving walk-in foot traffic.
+                When customers open Ugrahak within 200 meters of your shop, your offers are displayed on their screen.
               </p>
             </div>
 
             {(!merchant?.latitude || !merchant?.longitude) ? (
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-2">
                 <p className="font-bold text-amber-800">
-                  ⚠️ Please set your shop location before enabling Nearby Offers.
+                  ⚠️ Please set your shop location before enabling Offers for Nearby Customers.
                 </p>
                 <p className="text-amber-700 leading-relaxed">
-                  Nearby proximity detection requires your store&apos;s exact latitude and longitude. Configure your coordinates in your Shop Profile or use your browser&apos;s current GPS position.
+                  Nearby offers require your store&apos;s latitude and longitude. Configure your coordinates in your Shop Profile or use your browser&apos;s current GPS position.
                 </p>
               </div>
             ) : (
@@ -213,7 +213,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 target="_blank"
                 className="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-200 transition-colors inline-flex items-center gap-1.5 min-h-[44px]"
               >
-                <span>View Nearby Discovery Radar</span>
+                <span>View Offers for Nearby Customers</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </Link>
             </div>

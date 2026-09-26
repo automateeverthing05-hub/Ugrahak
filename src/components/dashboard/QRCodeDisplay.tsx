@@ -67,7 +67,7 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
   return (
     <Card
       title="Store QR Code"
-      description="Print and place this QR code at your checkout counter to enroll customers."
+      description="Print and place this QR code at your billing counter for customers to scan."
       className="flex flex-col items-center text-center"
     >
       {/* QR Box (Mobile Adaptive) */}

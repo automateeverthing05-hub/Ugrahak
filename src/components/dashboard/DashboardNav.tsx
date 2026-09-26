@@ -177,7 +177,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                     <span className="font-bold text-sm text-slate-900 block truncate max-w-[140px]">
                       {merchant?.shop_name || "Ugrahak"}
                     </span>
-                    <span className="text-[10px] text-slate-400">Merchant Dashboard</span>
+                    <span className="text-[10px] text-slate-400">Business Dashboard</span>
                   </div>
                 </div>
                 <button
@@ -249,7 +249,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                 >
                   <div className="flex items-center gap-3">
                     <BarChart3 className="w-4 h-4 text-indigo-600" />
-                    <span>Store Analytics</span>
+                    <span>Business Insights</span>
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
                 </Link>
@@ -294,7 +294,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
             <div className="pt-4 border-t border-slate-100 space-y-3">
               <div className="text-xs">
                 <p className="font-semibold text-slate-900 truncate">
-                  {merchant?.shop_name || "Merchant Store"}
+                  {merchant?.shop_name || "Your Shop"}
                 </p>
                 <p className="text-slate-400 text-[11px] truncate">{userEmail}</p>
               </div>

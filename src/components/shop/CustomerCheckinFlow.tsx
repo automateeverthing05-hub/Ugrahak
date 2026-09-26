@@ -5,15 +5,11 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { ScratchCard } from "@/components/shop/ScratchCard";
-import { isValidPhone } from "@/lib/utils/validation";
-import { normalizePhone } from "@/lib/utils/referenceCode";
 import { requestNotificationPermissionAndToken } from "@/lib/firebase/client";
 import {
   Gift,
-  RotateCcw,
   Sparkles,
   ArrowRight,
-  Bell,
   BellRing,
   Star,
   ExternalLink,
@@ -70,14 +66,19 @@ interface NearbyOfferResult {
   } | null;
 }
 
+type FlowStep = "NAME" | "ALLOW_OFFERS" | "GET_REWARD" | "REVEALED";
+
 export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   slug,
   shopName,
   googleMapsUrl,
 }) => {
+  const [step, setStep] = useState<FlowStep>("NAME");
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [fcmToken, setFcmToken] = useState<string | null>(null);
+
   const [error, setError] = useState<string | null>(null);
+  const [permissionError, setPermissionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
 
@@ -91,7 +92,6 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   const [permissionState, setPermissionState] = useState<
     "default" | "granted" | "denied" | "unsupported"
   >("default");
-  const [permissionError, setPermissionError] = useState<string | null>(null);
 
   // Nearby Offers State
   const [isCheckingNearby, setIsCheckingNearby] = useState(false);
@@ -127,6 +127,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             ("Notification" in window ? Notification.permission === "granted" : true)
           ) {
             setIsScratchCardUnlocked(true);
+            setStep("REVEALED");
           }
         }
       }
@@ -156,19 +157,11 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   };
 
   /**
-   * Primary Action: "Get Offer & Scratch Card"
-   * 1. Validate inputs.
-   * 2. Trigger browser notification permission prompt immediately in user gesture.
-   * 3. Perform check-in.
-   * 4. If permission granted -> register FCM token -> UNLOCK Scratch Card.
-   * 5. If permission blocked/dismissed -> KEEP LOCKED & display permission requirement.
+   * STEP 2 -> STEP 3: Handle Name Submit ("Continue")
    */
-  const handleGetOfferAndScratchCard = async (e: React.FormEvent) => {
+  const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return; // Prevent repeated clicks
-
     setError(null);
-    setPermissionError(null);
 
     const trimmedName = name.trim();
     if (!trimmedName) {
@@ -176,155 +169,65 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
       return;
     }
 
-    const cleanPhone = normalizePhone(phone);
-    if (!cleanPhone || !isValidPhone(cleanPhone)) {
-      setError("Please enter a valid 10-digit mobile number.");
+    if (trimmedName.length > 100) {
+      setError("Name cannot exceed 100 characters.");
       return;
     }
 
-    setIsSubmitting(true);
+    setName(trimmedName);
 
-    try {
-      // 1. Perform Check-in API call to secure customer/reward record
-      const checkinResponse = await fetch("/api/shop/checkin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          slug,
-          name: trimmedName,
-          phone: cleanPhone,
-        }),
-      });
-
-      const data = await checkinResponse.json();
-
-      if (!checkinResponse.ok) {
-        setError(data.error || "Failed to check in. Please try again.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      setCheckinData(data);
-
-      // 2. Browser Notification Permission Flow
-      if (typeof window === "undefined" || !("Notification" in window)) {
-        // Unsupported device/environment: unlock directly
-        setPermissionState("unsupported");
-        setIsScratchCardUnlocked(true);
-        try {
-          sessionStorage.setItem(storageKey, JSON.stringify(data));
-        } catch {}
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Check current permission
-      const currentPermission = Notification.permission;
-
-      if (currentPermission === "granted") {
-        // Already granted: retrieve token, register, and unlock immediately
+    // If notifications are already granted in browser or unsupported, jump directly to GET_REWARD
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "granted") {
         setPermissionState("granted");
-        const fcmRes = await requestNotificationPermissionAndToken();
-        if (fcmRes.token && data.customer?.id) {
-          await registerPushToken(data.customer.id, fcmRes.token);
-        }
-        setIsScratchCardUnlocked(true);
-        try {
-          sessionStorage.setItem(storageKey, JSON.stringify(data));
-        } catch {}
-      } else if (currentPermission === "denied") {
-        // Explicitly denied in browser: do NOT unlock Scratch Card
-        setPermissionState("denied");
-        setIsScratchCardUnlocked(false);
-        setPermissionError(
-          "Offers are blocked in your browser settings. Please allow offers/notifications for this site to unlock your scratch card."
-        );
-      } else {
-        // Permission is 'default': Trigger native browser permission prompt NOW
-        const fcmRes = await requestNotificationPermissionAndToken();
-
-        if (fcmRes.status === "granted") {
-          setPermissionState("granted");
-          if (fcmRes.token && data.customer?.id) {
-            await registerPushToken(data.customer.id, fcmRes.token);
-          }
-          setIsScratchCardUnlocked(true);
-          try {
-            sessionStorage.setItem(storageKey, JSON.stringify(data));
-          } catch {}
-        } else if (fcmRes.status === "denied") {
-          setPermissionState("denied");
-          setIsScratchCardUnlocked(false);
-          setPermissionError(
-            "Offer permission was not allowed. You must enable offers to receive discounts and unlock the scratch card."
-          );
-        } else {
-          // Dismissed / default
-          setPermissionState("default");
-          setIsScratchCardUnlocked(false);
-          setPermissionError(
-            "Permission is required to receive offers and unlock your scratch card."
-          );
-        }
+        requestNotificationPermissionAndToken().then((res) => {
+          if (res.token) setFcmToken(res.token);
+          setStep("GET_REWARD");
+        });
+        return;
       }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
-    } finally {
-      setIsSubmitting(false);
+    } else if (typeof window !== "undefined" && !("Notification" in window)) {
+      setPermissionState("unsupported");
+      setStep("GET_REWARD");
+      return;
     }
+
+    setStep("ALLOW_OFFERS");
   };
 
   /**
-   * Action on Locked Screen: "Allow Notifications to Unlock" / "Check Again"
+   * STEP 3: Handle "Allow Offers" Button Click
    */
-  const handleAllowNotificationsToUnlock = async () => {
-    if (isRequestingPermission || !checkinData?.customer?.id) return;
-
+  const handleAllowOffers = async () => {
+    if (isRequestingPermission) return;
     setIsRequestingPermission(true);
     setPermissionError(null);
 
     try {
-      if (typeof window !== "undefined" && "Notification" in window) {
-        if (Notification.permission === "granted") {
-          setPermissionState("granted");
-          const fcmRes = await requestNotificationPermissionAndToken();
-          if (fcmRes.token) {
-            await registerPushToken(checkinData.customer.id, fcmRes.token);
-          }
-          setIsScratchCardUnlocked(true);
-          try {
-            sessionStorage.setItem(storageKey, JSON.stringify(checkinData));
-          } catch {}
-          setIsRequestingPermission(false);
-          return;
-        }
+      if (typeof window === "undefined" || !("Notification" in window)) {
+        setPermissionState("unsupported");
+        setStep("GET_REWARD");
+        setIsRequestingPermission(false);
+        return;
       }
 
-      // Request permission
       const fcmRes = await requestNotificationPermissionAndToken();
 
       if (fcmRes.status === "granted") {
         setPermissionState("granted");
-        if (fcmRes.token && checkinData.customer?.id) {
-          await registerPushToken(checkinData.customer.id, fcmRes.token);
+        if (fcmRes.token) {
+          setFcmToken(fcmRes.token);
         }
-        setIsScratchCardUnlocked(true);
-        try {
-          sessionStorage.setItem(storageKey, JSON.stringify(checkinData));
-        } catch {}
+        setStep("GET_REWARD");
       } else if (fcmRes.status === "denied") {
         setPermissionState("denied");
-        setIsScratchCardUnlocked(false);
         setPermissionError(
-          "Offers are blocked in your browser. Click the lock icon in your browser address bar to allow notifications/offers, then tap Check Again."
+          "Offers are blocked in your browser settings. Please allow offers for this site to unlock your scratch card."
         );
       } else {
         setPermissionState("default");
-        setIsScratchCardUnlocked(false);
         setPermissionError(
-          "Permission is required to receive this offer and unlock your scratch card."
+          "Permission is required to receive offers and unlock your scratch card."
         );
       }
     } catch (err: unknown) {
@@ -333,6 +236,83 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
       );
     } finally {
       setIsRequestingPermission(false);
+    }
+  };
+
+  /**
+   * STEP 4: Handle "Get My Reward" Button Click
+   */
+  const handleGetMyReward = async () => {
+    if (isSubmitting) return; // Prevent double click / race conditions
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      const trimmedName = name.trim();
+      if (!trimmedName) {
+        setError("Please enter your name.");
+        setStep("NAME");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Check Notification permission gating: Must be granted or unsupported
+      if (
+        typeof window !== "undefined" &&
+        "Notification" in window &&
+        Notification.permission !== "granted"
+      ) {
+        setPermissionState(Notification.permission === "denied" ? "denied" : "default");
+        setStep("ALLOW_OFFERS");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Perform check-in API call to generate server-side unique ID and create reward
+      const checkinResponse = await fetch("/api/shop/checkin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug,
+          name: trimmedName,
+        }),
+      });
+
+      const data = await checkinResponse.json();
+
+      if (!checkinResponse.ok) {
+        setError(data.error || "Failed to record your visit. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      setCheckinData(data);
+
+      // Register FCM push token if available
+      let tokenToRegister = fcmToken;
+      if (!tokenToRegister && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+        const tokenRes = await requestNotificationPermissionAndToken();
+        if (tokenRes.token) {
+          tokenToRegister = tokenRes.token;
+          setFcmToken(tokenRes.token);
+        }
+      }
+
+      if (tokenToRegister && data.customer?.id) {
+        await registerPushToken(data.customer.id, tokenToRegister);
+      }
+
+      // Unlock scratch card
+      setIsScratchCardUnlocked(true);
+      setStep("REVEALED");
+
+      try {
+        sessionStorage.setItem(storageKey, JSON.stringify(data));
+      } catch {}
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -386,7 +366,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           status: "ERROR",
           message:
             err.code === 1
-              ? "Location permission is required for Nearby Offers. Please enable location permission in your browser settings."
+              ? "Location permission is required for Offers for Nearby Customers. Please enable location permission in your browser settings."
               : `Unable to access location: ${err.message}`,
         });
         setIsCheckingNearby(false);
@@ -406,123 +386,30 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
     setIsScratchCardUnlocked(false);
     setNearbyResult(null);
     setName("");
-    setPhone("");
+    setFcmToken(null);
     setError(null);
     setPermissionError(null);
+    setStep("NAME");
   };
 
   // =========================================================================
-  // VIEW 1: LOCKED STATE (Check-in submitted but Notification Permission NOT Granted)
+  // VIEW 4: SCRATCH CARD / REVEALED STATE
   // =========================================================================
-  if (checkinData && !isScratchCardUnlocked) {
+  if (step === "REVEALED" && checkinData && isScratchCardUnlocked) {
     return (
       <div className="space-y-4">
-        {/* Locked Card Teaser */}
-        <div className="p-6 rounded-3xl bg-white border border-amber-200 shadow-md text-center space-y-4 relative overflow-hidden">
-          <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-inner">
-            <Lock className="w-7 h-7" />
-          </div>
-
-          <div>
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              Scratch Card Locked
-            </span>
-            <h2 className="text-xl font-extrabold text-slate-900">
-              Almost there, {checkinData.customer.name}!
-            </h2>
-            <p className="text-xs text-slate-600 mt-1 max-w-xs mx-auto">
-              Enable offers to receive store discounts and unlock your exclusive scratch card.
-            </p>
-          </div>
-
-          {/* Locked Canvas Mockup Preview */}
-          <div className="relative w-full max-w-[320px] aspect-[16/9] mx-auto rounded-2xl bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 border-2 border-dashed border-amber-300 flex flex-col items-center justify-center p-4 shadow-inner">
-            <Lock className="w-8 h-8 text-slate-500 mb-1 animate-pulse" />
-            <span className="text-xs font-bold text-slate-700">
-              Offer & Scratch Card Locked
-            </span>
-            <span className="text-[10px] text-slate-500 mt-0.5">
-              Enable Offers to Unlock
-            </span>
-          </div>
-
-          {/* Error / Instruction Alert */}
-          {permissionError && (
-            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left flex items-start gap-2.5 text-xs text-amber-950">
-              <ShieldAlert className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-bold">Permission Required to Receive Offers</p>
-                <p className="text-[11px] text-amber-900 mt-0.5">{permissionError}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Action Button to request permission & unlock */}
-          <div className="pt-2 space-y-2">
-            <Button
-              size="lg"
-              onClick={handleAllowNotificationsToUnlock}
-              isLoading={isRequestingPermission}
-              className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 shadow-md text-sm min-h-[48px]"
-            >
-              <BellRing className="w-4 h-4 text-amber-300" />
-              <span>
-                {permissionState === "denied"
-                  ? "Check Permission & Unlock"
-                  : "Enable Offers to Unlock"}
-              </span>
-            </Button>
-
-            {permissionState === "denied" && (
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 text-left space-y-1">
-                <p className="font-semibold text-slate-800 flex items-center gap-1">
-                  <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>How to allow offers in your browser:</span>
-                </p>
-                <ol className="list-decimal list-inside space-y-0.5 pl-1 text-[10px] text-slate-500">
-                  <li>Tap the 🔒 lock icon near the address bar at the top.</li>
-                  <li>Tap <strong>Permissions</strong> / <strong>Site settings</strong>.</li>
-                  <li>Change <strong>Notifications / Offers</strong> to <strong>Allow</strong>.</li>
-                  <li>Tap &quot;Check Permission &amp; Unlock&quot; above.</li>
-                </ol>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="text-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleReset}
-            className="text-xs text-slate-400 hover:text-slate-600"
-          >
-            Start Over
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // =========================================================================
-  // VIEW 2: UNLOCKED STATE (Notification Permission Granted -> Scratch Card Revealed)
-  // =========================================================================
-  if (checkinData && isScratchCardUnlocked) {
-    return (
-      <div className="space-y-4">
-        {checkinData.isFirstVisit && checkinData.reward ? (
+        {checkinData.reward ? (
           <div className="space-y-4">
             <div className="text-center">
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                Welcome Reward Unlocked!
+                New Customer Reward Unlocked!
               </span>
               <h2 className="text-xl font-bold text-slate-900">
                 Welcome, {checkinData.customer.name}!
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Scratch the card below to reveal your first-visit reward.
+                Scratch to reveal your reward and show it at the counter.
               </p>
             </div>
 
@@ -536,59 +423,30 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             />
           </div>
         ) : (
-          /* Repeat visit card */
           <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
-              <RotateCcw className="w-6 h-6" />
-            </div>
-
-            <div>
-              <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
-                Visit #{checkinData.visitCount}
-              </span>
-              <h2 className="text-xl font-bold text-slate-900 mt-1">
-                Welcome back, {checkinData.customer.name}!
-              </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Thank you for being a valued customer at {shopName}.
-              </p>
-            </div>
-
-            {checkinData.reward ? (
-              <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-left">
-                <div className="flex items-center gap-2 text-amber-800 font-semibold text-sm">
-                  <Gift className="w-4 h-4" />
-                  <span>Active Reward Available</span>
-                </div>
-                <p className="text-xs text-slate-700 mt-1 font-medium">
-                  {checkinData.reward.title}
-                </p>
-                <div className="mt-2 font-mono text-sm font-bold text-slate-900 bg-white px-3 py-1 rounded border border-amber-200 inline-block">
-                  Code: {checkinData.reward.reference_code}
-                </div>
-              </div>
-            ) : (
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
-                Keep visiting {shopName} to earn more rewards and special offers!
-              </div>
-            )}
+            <h2 className="text-xl font-bold text-slate-900">
+              Welcome, {checkinData.customer.name}!
+            </h2>
+            <p className="text-xs text-slate-500">
+              Thank you for visiting {shopName}.
+            </p>
           </div>
         )}
 
-        {/* Feature 1: Push Notification Status Badge */}
+        {/* Status Badge */}
         <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center flex items-center justify-center gap-2 text-xs font-semibold text-emerald-800 shadow-xs">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-          <span>Store Offers Active • You will receive exclusive discounts</span>
+          <span>Offers Are Enabled • You will receive exclusive discounts</span>
         </div>
 
-        {/* Feature 2: Nearby Offers (100–200m) Card */}
+        {/* Nearby Offers (100–200m) Card */}
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm text-center space-y-2.5">
           <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-800">
             <Navigation className="w-4 h-4 text-indigo-600" />
-            <span>Nearby Offers (100–200m Zone)</span>
+            <span>Offers for Nearby Customers (100–200m)</span>
           </div>
           <p className="text-[11px] text-slate-500">
-            Allow location to receive offers near you when walking by this store.
+            Allow location to receive offers when you are near this shop.
           </p>
 
           <Button
@@ -601,7 +459,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             <span>
               {isCheckingNearby
                 ? "Checking Store Proximity..."
-                : "Check Nearby Store Offers"}
+                : "Check Offers Near Me"}
             </span>
           </Button>
 
@@ -656,7 +514,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           )}
         </div>
 
-        {/* Feature 3: Google Review Card */}
+        {/* Google Review Card */}
         {googleMapsUrl && (
           <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200 shadow-sm text-center space-y-2">
             <div className="flex items-center justify-center gap-1.5 text-amber-900 font-bold text-xs">
@@ -664,7 +522,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
               <span>Enjoyed your experience?</span>
             </div>
             <p className="text-[11px] text-amber-800/80">
-              Help our local store grow by leaving a quick 5-star Google review!
+              Make it easy to support our shop with a Google review!
             </p>
             <a
               href={googleMapsUrl}
@@ -694,7 +552,134 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   }
 
   // =========================================================================
-  // VIEW 3: INITIAL ENROLLMENT / QR CHECK-IN FORM
+  // VIEW 3: STEP 4 -> "Get My Reward"
+  // =========================================================================
+  if (step === "GET_REWARD") {
+    return (
+      <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm text-center space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+          <Gift className="w-7 h-7" />
+        </div>
+
+        <div>
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            Ready for Your Reward!
+          </span>
+          <h2 className="text-xl font-extrabold text-slate-900">
+            Hi {name}!
+          </h2>
+          <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+            Tap below to claim your exclusive scratch card from {shopName}.
+          </p>
+        </div>
+
+        {error && <Alert type="error" message={error} className="text-xs text-left" />}
+
+        <div className="pt-2 space-y-2">
+          <Button
+            size="lg"
+            onClick={handleGetMyReward}
+            isLoading={isSubmitting}
+            className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 shadow-md text-sm min-h-[48px]"
+          >
+            <Sparkles className="w-4 h-4 text-amber-300" />
+            <span>Get My Reward</span>
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setStep("NAME")}
+            className="text-xs text-slate-400 hover:text-slate-600"
+          >
+            Change Name
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // VIEW 2: STEP 3 -> "Allow Offers" (Permission Gating)
+  // =========================================================================
+  if (step === "ALLOW_OFFERS") {
+    return (
+      <div className="p-6 rounded-3xl bg-white border border-amber-200 shadow-md text-center space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-inner">
+          <Lock className="w-7 h-7" />
+        </div>
+
+        <div>
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            Reward Locked
+          </span>
+          <h2 className="text-xl font-extrabold text-slate-900">
+            Allow Offers to Get Your Reward
+          </h2>
+          <p className="text-xs text-slate-600 mt-1 max-w-xs mx-auto">
+            Allow offers to receive exclusive discounts from {shopName} and unlock your scratch card.
+          </p>
+        </div>
+
+        {/* Error / Permission Alert */}
+        {permissionError && (
+          <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left flex items-start gap-2.5 text-xs text-amber-950">
+            <ShieldAlert className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold">Permission Required to Receive Offers</p>
+              <p className="text-[11px] text-amber-900 mt-0.5">{permissionError}</p>
+            </div>
+          </div>
+        )}
+
+        <div className="pt-2 space-y-2">
+          <Button
+            size="lg"
+            onClick={handleAllowOffers}
+            isLoading={isRequestingPermission}
+            className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 shadow-md text-sm min-h-[48px]"
+          >
+            <BellRing className="w-4 h-4 text-amber-300" />
+            <span>
+              {permissionState === "denied"
+                ? "Check Permission Again"
+                : "Allow Offers to Get Your Reward"}
+            </span>
+          </Button>
+
+          {permissionState === "denied" && (
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 text-left space-y-1">
+              <p className="font-semibold text-slate-800 flex items-center gap-1">
+                <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
+                <span>How to allow offers in your browser:</span>
+              </p>
+              <ol className="list-decimal list-inside space-y-0.5 pl-1 text-[10px] text-slate-500">
+                <li>Tap the 🔒 lock icon near the address bar at the top.</li>
+                <li>Tap <strong>Permissions</strong> / <strong>Site settings</strong>.</li>
+                <li>Change <strong>Offers</strong> / <strong>Notifications</strong> to <strong>Allow</strong>.</li>
+                <li>Tap &quot;Check Permission Again&quot; above.</li>
+              </ol>
+            </div>
+          )}
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setStep("NAME")}
+            className="text-xs text-slate-400 hover:text-slate-600"
+          >
+            Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // VIEW 1: STEP 2 -> NAME ENTRY ("Your Name" -> "Continue")
   // =========================================================================
   return (
     <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
@@ -706,33 +691,21 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           Claim Your Store Reward
         </h2>
         <p className="text-xs text-slate-500 mt-0.5">
-          Enter your name &amp; phone to unlock instant rewards.
+          Enter your name to unlock your scratch card reward.
         </p>
       </div>
 
       {error && <Alert type="error" message={error} className="mb-4 text-xs" />}
 
-      <form onSubmit={handleGetOfferAndScratchCard} className="space-y-4 text-left">
+      <form onSubmit={handleNameSubmit} className="space-y-4 text-left">
         <div>
           <Input
-            label="Your Full Name"
+            label="Your Name"
             placeholder="e.g. Rahul Sharma"
             required
+            maxLength={100}
             value={name}
             onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <Input
-            label="Mobile Number"
-            type="tel"
-            placeholder="e.g. 9876543210"
-            required
-            maxLength={15}
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            helperText="We do not spam. Used only for store rewards."
           />
         </div>
 
@@ -740,15 +713,14 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           type="submit"
           className="w-full mt-2 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 text-sm min-h-[48px] shadow-sm"
           size="lg"
-          isLoading={isSubmitting}
         >
-          <span>Get Offer &amp; Scratch Card</span>
+          <span>Continue</span>
           <ArrowRight className="w-4 h-4" />
         </Button>
 
         <p className="text-[10px] text-center text-slate-400 flex items-center justify-center gap-1">
-          <Bell className="w-3 h-3 text-slate-400" />
-          <span>Enable offers to receive your reward &amp; scratch card</span>
+          <Sparkles className="w-3 h-3 text-amber-500" />
+          <span>Quick check-in &bull; Instant scratch card reward</span>
         </p>
       </form>
     </div>
