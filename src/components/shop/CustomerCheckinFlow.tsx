@@ -254,7 +254,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
     if (Notification.permission === "denied") {
       setPermissionState("denied");
       setPermissionError(
-        "Offers are blocked in your browser settings. Please allow offers for this site to unlock your scratch card."
+        "Please enable Offers in your browser settings to get your reward."
       );
       setStep("ALLOW_OFFERS");
       setIsSubmitting(false);
@@ -274,13 +274,13 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
       } else if (fcmRes.status === "denied") {
         setPermissionState("denied");
         setPermissionError(
-          "Offers are blocked in your browser settings. Please allow offers for this site to unlock your scratch card."
+          "Please enable Offers in your browser settings to get your reward."
         );
         setStep("ALLOW_OFFERS");
         setIsSubmitting(false);
       } else {
         setPermissionState("default");
-        setError("Permission is required to receive offers and unlock your scratch card. Please tap 'Allow' when prompted.");
+        setError("Please enable Offers in your browser settings to get your reward.");
         setIsSubmitting(false);
       }
     } catch (err: unknown) {
@@ -290,7 +290,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   };
 
   /**
-   * STEP 3: Handle "Allow Offers" / "Check Permission Again" when previously blocked/denied
+   * STEP 3: Handle "Enable Offers" when previously blocked/denied
    */
   const handleAllowOffers = async () => {
     if (isSubmitting) return;
@@ -322,13 +322,13 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
       } else if (fcmRes.status === "denied") {
         setPermissionState("denied");
         setPermissionError(
-          "Offers are still blocked in your browser settings. Follow the instructions below to enable offers and unlock your reward."
+          "Please enable Offers in your browser settings to get your reward."
         );
         setIsSubmitting(false);
       } else {
         setPermissionState("default");
         setPermissionError(
-          "Permission is required to receive offers and unlock your scratch card."
+          "Please enable Offers in your browser settings to get your reward."
         );
         setIsSubmitting(false);
       }
@@ -417,7 +417,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   };
 
   // =========================================================================
-  // VIEW 4: SCRATCH CARD / REVEALED STATE
+  // VIEW 2: SCRATCH CARD / REVEALED STATE ("🎁 Your Reward")
   // =========================================================================
   if (step === "REVEALED" && checkinData && isScratchCardUnlocked) {
     return (
@@ -427,7 +427,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             <div className="text-center">
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                New Customer Reward Unlocked!
+                🎁 Your Reward
               </span>
               <h2 className="text-xl font-bold text-slate-900">
                 Welcome, {checkinData.customer.name}!
@@ -576,7 +576,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   }
 
   // =========================================================================
-  // VIEW 2: PERMISSION BLOCKED / GATING VIEW ("Allow Offers to Get Your Reward")
+  // VIEW 3: PERMISSION DENIED GUIDANCE VIEW
   // =========================================================================
   if (step === "ALLOW_OFFERS") {
     return (
@@ -588,26 +588,26 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
         <div>
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold mb-2">
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            Reward Locked
+            🎁 Your Reward
           </span>
           <h2 className="text-xl font-extrabold text-slate-900">
-            Allow Offers to Get Your Reward
+            Enable Offers to Get Your Reward
           </h2>
           <p className="text-xs text-slate-600 mt-1 max-w-xs mx-auto">
-            Allow offers to receive exclusive discounts from {shopName} and unlock your scratch card.
+            Please enable Offers in your browser settings to get your reward.
           </p>
         </div>
 
-        {/* Error / Permission Alert */}
-        {permissionError && (
-          <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left flex items-start gap-2.5 text-xs text-amber-950">
-            <ShieldAlert className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold">Permission Required to Receive Offers</p>
+        {/* Permission Message */}
+        <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left flex items-start gap-2.5 text-xs text-amber-950">
+          <ShieldAlert className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-bold">Please enable Offers in your browser settings to get your reward.</p>
+            {permissionError && (
               <p className="text-[11px] text-amber-900 mt-0.5">{permissionError}</p>
-            </div>
+            )}
           </div>
-        )}
+        </div>
 
         <div className="pt-2 space-y-2">
           <Button
@@ -617,24 +617,20 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 shadow-md text-sm min-h-[48px]"
           >
             <BellRing className="w-4 h-4 text-amber-300" />
-            <span>
-              {permissionState === "denied"
-                ? "Check Permission Again"
-                : "Enable Offers & Get Reward"}
-            </span>
+            <span>Enable Offers</span>
           </Button>
 
           {permissionState === "denied" && (
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 text-left space-y-1">
               <p className="font-semibold text-slate-800 flex items-center gap-1">
                 <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-                <span>How to allow offers in your browser:</span>
+                <span>How to enable offers in your browser:</span>
               </p>
               <ol className="list-decimal list-inside space-y-0.5 pl-1 text-[10px] text-slate-500">
                 <li>Tap the 🔒 lock icon near the address bar at the top.</li>
-                <li>Tap <strong>Permissions</strong> / <strong>Site settings</strong>.</li>
+                <li>Tap <strong>Site settings</strong> or <strong>Permissions</strong>.</li>
                 <li>Change <strong>Offers</strong> / <strong>Notifications</strong> to <strong>Allow</strong>.</li>
-                <li>Tap &quot;Check Permission Again&quot; above.</li>
+                <li>Tap &quot;Enable Offers&quot; above.</li>
               </ol>
             </div>
           )}
@@ -653,7 +649,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   }
 
   // =========================================================================
-  // VIEW 1: NAME ENTRY ("Your Name" -> "Enable Offers & Get Reward")
+  // VIEW 1: NAME ENTRY ("Enter Your Name" -> "Enable Offers")
   // =========================================================================
   return (
     <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
@@ -674,7 +670,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
       <form onSubmit={handleCheckinSubmit} className="space-y-4 text-left">
         <div>
           <Input
-            label="Your Name"
+            label="Enter Your Name"
             placeholder="e.g. Rahul Sharma"
             required
             maxLength={100}
@@ -690,7 +686,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           size="lg"
         >
           <Sparkles className="w-4 h-4 text-amber-300" />
-          <span>Enable Offers &amp; Get Reward</span>
+          <span>Enable Offers</span>
           <ArrowRight className="w-4 h-4" />
         </Button>
 
