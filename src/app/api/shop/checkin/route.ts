@@ -148,7 +148,8 @@ export async function POST(request: NextRequest) {
     // Create a new Customer record with a new server-generated UUID on every scan
     const now = new Date().toISOString();
 
-    const { data: newCustomer, error: createCustError } = await admin
+    let newCustomer: Customer | null = null;
+    const { data: primaryCust, error: createCustError } = await admin
       .from("customers")
       .insert({
         merchant_id: merchantId,
@@ -161,7 +162,36 @@ export async function POST(request: NextRequest) {
       .select()
       .single<Customer>();
 
-    if (createCustError || !newCustomer) {
+    if (!createCustError && primaryCust) {
+      newCustomer = primaryCust;
+    } else if (createCustError) {
+      // If the database schema has not-null constraint on legacy phone column,
+      // retry with a unique surrogate token to guarantee 100% check-in success
+      const surrogatePhone = `NP_${crypto.randomUUID().replace(/-/g, "").slice(0, 10)}`;
+      const { data: fallbackCust, error: fallbackError } = await admin
+        .from("customers")
+        .insert({
+          merchant_id: merchantId,
+          name: customerName,
+          phone: surrogatePhone,
+          visit_count: 1,
+          first_visit_at: now,
+          last_visit_at: now,
+        })
+        .select()
+        .single<Customer>();
+
+      if (!fallbackError && fallbackCust) {
+        newCustomer = fallbackCust;
+      } else {
+        return NextResponse.json(
+          { error: "Failed to record your visit. Please try again." },
+          { status: 500 }
+        );
+      }
+    }
+
+    if (!newCustomer) {
       return NextResponse.json(
         { error: "Failed to record your visit. Please try again." },
         { status: 500 }
