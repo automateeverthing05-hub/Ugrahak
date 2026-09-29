@@ -16,6 +16,7 @@ import {
   ChevronRight,
   BarChart3,
   Home,
+  TrendingUp,
 } from "lucide-react";
 import type { Merchant } from "@/lib/types/database";
 
@@ -41,7 +42,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
     }
   };
 
-  // Primary navigation items (Strictly 3 main functional sections + Dashboard Home)
+  // Primary navigation items (Customers, Send Offer, Business Growth, Settings)
   const navItems = [
     {
       href: "/dashboard/customers",
@@ -54,6 +55,12 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
       label: "Send Offer",
       icon: Send,
       active: pathname.startsWith("/dashboard/offers"),
+    },
+    {
+      href: "/dashboard/growth",
+      label: "Business Growth",
+      icon: TrendingUp,
+      active: pathname.startsWith("/dashboard/growth") || pathname.startsWith("/dashboard/business-growth"),
     },
     {
       href: "/dashboard/settings",
@@ -239,6 +246,22 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                 </Link>
 
                 <Link
+                  href="/dashboard/growth"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-colors min-h-[44px] ${
+                    pathname.startsWith("/dashboard/growth") || pathname.startsWith("/dashboard/business-growth")
+                      ? "bg-indigo-50 text-indigo-700"
+                      : "text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <TrendingUp className="w-4 h-4 text-indigo-600" />
+                    <span>Business Growth</span>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                </Link>
+
+                <Link
                   href="/dashboard/analytics"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-colors min-h-[44px] ${
@@ -312,25 +335,25 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
         </div>
       )}
 
-      {/* Mobile Bottom Navigation Bar (ONLY 3 primary options: Customers, Send Offer, Settings) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-1 flex items-center justify-around shadow-lg safe-area-bottom">
+      {/* Mobile Bottom Navigation Bar (4 primary options: Customers, Send Offer, Business Growth, Settings) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1 flex items-center justify-around shadow-lg safe-area-bottom">
         <Link
           href="/dashboard/customers"
           prefetch={true}
-          className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition-colors min-h-[48px] ${
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-colors min-h-[48px] ${
             pathname.startsWith("/dashboard/customers")
               ? "text-indigo-600 font-extrabold"
               : "text-slate-500 hover:text-slate-800 font-medium"
           }`}
         >
           <Users className={`w-5 h-5 ${pathname.startsWith("/dashboard/customers") ? "text-indigo-600 scale-110" : "text-slate-400"} transition-transform`} />
-          <span className="text-[11px] mt-0.5">Customers</span>
+          <span className="text-[10px] sm:text-[11px] mt-0.5">Customers</span>
         </Link>
 
         <Link
           href="/dashboard/offers"
           prefetch={true}
-          className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition-colors min-h-[48px] ${
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-colors min-h-[48px] ${
             pathname.startsWith("/dashboard/offers")
               ? "text-indigo-600 font-extrabold"
               : "text-slate-500 hover:text-slate-800 font-medium"
@@ -339,20 +362,33 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
           <div className="relative">
             <Send className={`w-5 h-5 ${pathname.startsWith("/dashboard/offers") ? "text-indigo-600 scale-110" : "text-slate-400"} transition-transform`} />
           </div>
-          <span className="text-[11px] mt-0.5">Send Offer</span>
+          <span className="text-[10px] sm:text-[11px] mt-0.5">Send Offer</span>
+        </Link>
+
+        <Link
+          href="/dashboard/growth"
+          prefetch={true}
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-colors min-h-[48px] ${
+            pathname.startsWith("/dashboard/growth") || pathname.startsWith("/dashboard/business-growth")
+              ? "text-indigo-600 font-extrabold"
+              : "text-slate-500 hover:text-slate-800 font-medium"
+          }`}
+        >
+          <TrendingUp className={`w-5 h-5 ${pathname.startsWith("/dashboard/growth") || pathname.startsWith("/dashboard/business-growth") ? "text-indigo-600 scale-110" : "text-slate-400"} transition-transform`} />
+          <span className="text-[10px] sm:text-[11px] mt-0.5">Growth</span>
         </Link>
 
         <Link
           href="/dashboard/settings"
           prefetch={true}
-          className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition-colors min-h-[48px] ${
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-colors min-h-[48px] ${
             pathname === "/dashboard/settings" || pathname === "/dashboard/profile" || pathname === "/dashboard/billing"
               ? "text-indigo-600 font-extrabold"
               : "text-slate-500 hover:text-slate-800 font-medium"
           }`}
         >
           <Settings className={`w-5 h-5 ${pathname === "/dashboard/settings" || pathname === "/dashboard/profile" || pathname === "/dashboard/billing" ? "text-indigo-600 scale-110" : "text-slate-400"} transition-transform`} />
-          <span className="text-[11px] mt-0.5">Settings</span>
+          <span className="text-[10px] sm:text-[11px] mt-0.5">Settings</span>
         </Link>
       </nav>
     </>
