@@ -66,7 +66,7 @@ interface NearbyOfferResult {
   } | null;
 }
 
-type FlowStep = "NAME" | "ALLOW_OFFERS" | "GET_REWARD" | "REVEALED";
+type FlowStep = "NAME" | "ALLOW_OFFERS" | "REVEALED";
 
 export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   slug,
@@ -80,12 +80,11 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [permissionError, setPermissionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
 
   // Checkin API response data
   const [checkinData, setCheckinData] = useState<CheckinResult | null>(null);
 
-  // Scratch Card Lock state: ONLY true when notification permission is granted & token registered
+  // Scratch Card Lock state: ONLY true when notification permission is granted & token registered (or unsupported)
   const [isScratchCardUnlocked, setIsScratchCardUnlocked] = useState(false);
 
   // Notification Permission State: 'default' | 'granted' | 'denied' | 'unsupported'
@@ -121,7 +120,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
         const parsed = JSON.parse(saved);
         if (parsed && parsed.customer) {
           setCheckinData(parsed);
-          // If already granted, unlock scratch card
+          // If already granted or unsupported, unlock scratch card
           if (
             typeof window !== "undefined" &&
             ("Notification" in window ? Notification.permission === "granted" : true)
@@ -157,124 +156,16 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   };
 
   /**
-   * STEP 2 -> STEP 3: Handle Name Submit ("Continue")
+   * Execute backend checkin, push token registration, and unlock scratch card
    */
-  const handleNameSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    const trimmedName = name.trim();
-    if (!trimmedName) {
-      setError("Please enter your name.");
-      return;
-    }
-
-    if (trimmedName.length > 100) {
-      setError("Name cannot exceed 100 characters.");
-      return;
-    }
-
-    setName(trimmedName);
-
-    // If notifications are already granted in browser or unsupported, jump directly to GET_REWARD
-    if (typeof window !== "undefined" && "Notification" in window) {
-      if (Notification.permission === "granted") {
-        setPermissionState("granted");
-        requestNotificationPermissionAndToken().then((res) => {
-          if (res.token) setFcmToken(res.token);
-          setStep("GET_REWARD");
-        });
-        return;
-      }
-    } else if (typeof window !== "undefined" && !("Notification" in window)) {
-      setPermissionState("unsupported");
-      setStep("GET_REWARD");
-      return;
-    }
-
-    setStep("ALLOW_OFFERS");
-  };
-
-  /**
-   * STEP 3: Handle "Allow Offers" Button Click
-   */
-  const handleAllowOffers = async () => {
-    if (isRequestingPermission) return;
-    setIsRequestingPermission(true);
-    setPermissionError(null);
-
+  const executeCheckinAndUnlock = async (customerName: string, preFetchedToken?: string | null) => {
     try {
-      if (typeof window === "undefined" || !("Notification" in window)) {
-        setPermissionState("unsupported");
-        setStep("GET_REWARD");
-        setIsRequestingPermission(false);
-        return;
-      }
-
-      const fcmRes = await requestNotificationPermissionAndToken();
-
-      if (fcmRes.status === "granted") {
-        setPermissionState("granted");
-        if (fcmRes.token) {
-          setFcmToken(fcmRes.token);
-        }
-        setStep("GET_REWARD");
-      } else if (fcmRes.status === "denied") {
-        setPermissionState("denied");
-        setPermissionError(
-          "Offers are blocked in your browser settings. Please allow offers for this site to unlock your scratch card."
-        );
-      } else {
-        setPermissionState("default");
-        setPermissionError(
-          "Permission is required to receive offers and unlock your scratch card."
-        );
-      }
-    } catch (err: unknown) {
-      setPermissionError(
-        err instanceof Error ? err.message : "Could not complete notification setup."
-      );
-    } finally {
-      setIsRequestingPermission(false);
-    }
-  };
-
-  /**
-   * STEP 4: Handle "Get My Reward" Button Click
-   */
-  const handleGetMyReward = async () => {
-    if (isSubmitting) return; // Prevent double click / race conditions
-    setError(null);
-    setIsSubmitting(true);
-
-    try {
-      const trimmedName = name.trim();
-      if (!trimmedName) {
-        setError("Please enter your name.");
-        setStep("NAME");
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Check Notification permission gating: Must be granted or unsupported
-      if (
-        typeof window !== "undefined" &&
-        "Notification" in window &&
-        Notification.permission !== "granted"
-      ) {
-        setPermissionState(Notification.permission === "denied" ? "denied" : "default");
-        setStep("ALLOW_OFFERS");
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Perform check-in API call to generate server-side unique ID and create reward
       const checkinResponse = await fetch("/api/shop/checkin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           slug,
-          name: trimmedName,
+          name: customerName,
         }),
       });
 
@@ -289,12 +180,16 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
       setCheckinData(data);
 
       // Register FCM push token if available
-      let tokenToRegister = fcmToken;
+      let tokenToRegister = preFetchedToken || fcmToken;
       if (!tokenToRegister && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-        const tokenRes = await requestNotificationPermissionAndToken();
-        if (tokenRes.token) {
-          tokenToRegister = tokenRes.token;
-          setFcmToken(tokenRes.token);
+        try {
+          const tokenRes = await requestNotificationPermissionAndToken();
+          if (tokenRes.token) {
+            tokenToRegister = tokenRes.token;
+            setFcmToken(tokenRes.token);
+          }
+        } catch {
+          // Non-blocking token retrieval
         }
       }
 
@@ -312,6 +207,135 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  /**
+   * DIRECT USER CLICK HANDLER: "Enable Offers & Get Reward"
+   * Triggers browser native notification permission prompt synchronously on user gesture.
+   */
+  const handleCheckinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+
+    setError(null);
+    setPermissionError(null);
+
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setError("Please enter your name.");
+      return;
+    }
+
+    if (trimmedName.length > 100) {
+      setError("Name cannot exceed 100 characters.");
+      return;
+    }
+
+    setName(trimmedName);
+    setIsSubmitting(true);
+
+    // If notifications are unsupported in browser, proceed directly to checkin
+    if (typeof window === "undefined" || !("Notification" in window) || !("serviceWorker" in navigator)) {
+      setPermissionState("unsupported");
+      await executeCheckinAndUnlock(trimmedName);
+      return;
+    }
+
+    // If already granted, perform check-in directly
+    if (Notification.permission === "granted") {
+      setPermissionState("granted");
+      await executeCheckinAndUnlock(trimmedName);
+      return;
+    }
+
+    // If already denied, switch to settings guidance view
+    if (Notification.permission === "denied") {
+      setPermissionState("denied");
+      setPermissionError(
+        "Offers are blocked in your browser settings. Please allow offers for this site to unlock your scratch card."
+      );
+      setStep("ALLOW_OFFERS");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Permission is 'default': Trigger native browser prompt IMMEDIATELY on this user gesture
+    try {
+      const fcmRes = await requestNotificationPermissionAndToken();
+
+      if (fcmRes.status === "granted") {
+        setPermissionState("granted");
+        if (fcmRes.token) {
+          setFcmToken(fcmRes.token);
+        }
+        await executeCheckinAndUnlock(trimmedName, fcmRes.token);
+      } else if (fcmRes.status === "denied") {
+        setPermissionState("denied");
+        setPermissionError(
+          "Offers are blocked in your browser settings. Please allow offers for this site to unlock your scratch card."
+        );
+        setStep("ALLOW_OFFERS");
+        setIsSubmitting(false);
+      } else {
+        setPermissionState("default");
+        setError("Permission is required to receive offers and unlock your scratch card. Please tap 'Allow' when prompted.");
+        setIsSubmitting(false);
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Could not complete notification setup.");
+      setIsSubmitting(false);
+    }
+  };
+
+  /**
+   * STEP 3: Handle "Allow Offers" / "Check Permission Again" when previously blocked/denied
+   */
+  const handleAllowOffers = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setPermissionError(null);
+    setError(null);
+
+    try {
+      if (typeof window === "undefined" || !("Notification" in window)) {
+        setPermissionState("unsupported");
+        await executeCheckinAndUnlock(name.trim() || "Customer");
+        return;
+      }
+
+      if (Notification.permission === "granted") {
+        setPermissionState("granted");
+        await executeCheckinAndUnlock(name.trim() || "Customer");
+        return;
+      }
+
+      const fcmRes = await requestNotificationPermissionAndToken();
+
+      if (fcmRes.status === "granted") {
+        setPermissionState("granted");
+        if (fcmRes.token) {
+          setFcmToken(fcmRes.token);
+        }
+        await executeCheckinAndUnlock(name.trim() || "Customer", fcmRes.token);
+      } else if (fcmRes.status === "denied") {
+        setPermissionState("denied");
+        setPermissionError(
+          "Offers are still blocked in your browser settings. Follow the instructions below to enable offers and unlock your reward."
+        );
+        setIsSubmitting(false);
+      } else {
+        setPermissionState("default");
+        setPermissionError(
+          "Permission is required to receive offers and unlock your scratch card."
+        );
+        setIsSubmitting(false);
+      }
+    } catch (err: unknown) {
+      setPermissionError(
+        err instanceof Error ? err.message : "Could not complete notification setup."
+      );
       setIsSubmitting(false);
     }
   };
@@ -552,57 +576,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   }
 
   // =========================================================================
-  // VIEW 3: STEP 4 -> "Get My Reward"
-  // =========================================================================
-  if (step === "GET_REWARD") {
-    return (
-      <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm text-center space-y-4">
-        <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
-          <Gift className="w-7 h-7" />
-        </div>
-
-        <div>
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            Ready for Your Reward!
-          </span>
-          <h2 className="text-xl font-extrabold text-slate-900">
-            Hi {name}!
-          </h2>
-          <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-            Tap below to claim your exclusive scratch card from {shopName}.
-          </p>
-        </div>
-
-        {error && <Alert type="error" message={error} className="text-xs text-left" />}
-
-        <div className="pt-2 space-y-2">
-          <Button
-            size="lg"
-            onClick={handleGetMyReward}
-            isLoading={isSubmitting}
-            className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 shadow-md text-sm min-h-[48px]"
-          >
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>Get My Reward</span>
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setStep("NAME")}
-            className="text-xs text-slate-400 hover:text-slate-600"
-          >
-            Change Name
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // =========================================================================
-  // VIEW 2: STEP 3 -> "Allow Offers" (Permission Gating)
+  // VIEW 2: PERMISSION BLOCKED / GATING VIEW ("Allow Offers to Get Your Reward")
   // =========================================================================
   if (step === "ALLOW_OFFERS") {
     return (
@@ -639,14 +613,14 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           <Button
             size="lg"
             onClick={handleAllowOffers}
-            isLoading={isRequestingPermission}
+            isLoading={isSubmitting}
             className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 shadow-md text-sm min-h-[48px]"
           >
             <BellRing className="w-4 h-4 text-amber-300" />
             <span>
               {permissionState === "denied"
                 ? "Check Permission Again"
-                : "Allow Offers to Get Your Reward"}
+                : "Enable Offers & Get Reward"}
             </span>
           </Button>
 
@@ -679,7 +653,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   }
 
   // =========================================================================
-  // VIEW 1: STEP 2 -> NAME ENTRY ("Your Name" -> "Continue")
+  // VIEW 1: NAME ENTRY ("Your Name" -> "Enable Offers & Get Reward")
   // =========================================================================
   return (
     <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
@@ -697,7 +671,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
 
       {error && <Alert type="error" message={error} className="mb-4 text-xs" />}
 
-      <form onSubmit={handleNameSubmit} className="space-y-4 text-left">
+      <form onSubmit={handleCheckinSubmit} className="space-y-4 text-left">
         <div>
           <Input
             label="Your Name"
@@ -711,10 +685,12 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
 
         <Button
           type="submit"
+          isLoading={isSubmitting}
           className="w-full mt-2 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 text-sm min-h-[48px] shadow-sm"
           size="lg"
         >
-          <span>Continue</span>
+          <Sparkles className="w-4 h-4 text-amber-300" />
+          <span>Enable Offers &amp; Get Reward</span>
           <ArrowRight className="w-4 h-4" />
         </Button>
 
@@ -726,3 +702,4 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
     </div>
   );
 };
+

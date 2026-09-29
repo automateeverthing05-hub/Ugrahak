@@ -33,6 +33,31 @@ export async function getFirebaseMessaging() {
 }
 
 /**
+ * Safe synchronous trigger for native browser notification permission prompt.
+ * Must be executed synchronously within the user gesture event loop.
+ * Supports modern Promise-based and legacy callback-based browser APIs.
+ */
+export function requestNativePermission(): Promise<NotificationPermission> {
+  if (typeof window === "undefined" || !("Notification" in window)) {
+    return Promise.resolve("granted" as NotificationPermission);
+  }
+
+  try {
+    const res = Notification.requestPermission();
+    if (res && typeof res.then === "function") {
+      return res;
+    }
+    return new Promise<NotificationPermission>((resolve) => {
+      Notification.requestPermission((permission) => {
+        resolve(permission);
+      });
+    });
+  } catch {
+    return Promise.resolve(Notification.permission || "default");
+  }
+}
+
+/**
  * Requests native notification permission and retrieves FCM push token
  */
 export async function requestNotificationPermissionAndToken(): Promise<{
@@ -45,7 +70,11 @@ export async function requestNotificationPermissionAndToken(): Promise<{
   }
 
   try {
-    const permission = await Notification.requestPermission();
+    let permission: NotificationPermission = Notification.permission;
+    if (permission === "default") {
+      permission = await requestNativePermission();
+    }
+
     if (permission === "denied") {
       return { status: "denied", error: "Notification permission was blocked in browser settings." };
     }
@@ -53,7 +82,7 @@ export async function requestNotificationPermissionAndToken(): Promise<{
       return { status: "default", error: "Notification permission prompt was dismissed." };
     }
 
-    // Permission is granted!
+    // Permission is granted! Initialize FCM and obtain token
     const messaging = await getFirebaseMessaging();
     if (!messaging) {
       return { status: "granted", token: `fcm_web_granted_${Date.now()}` };
@@ -91,4 +120,5 @@ export async function requestNotificationPermissionAndToken(): Promise<{
     };
   }
 }
+
 
