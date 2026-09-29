@@ -127,7 +127,7 @@ export const SignupForm: React.FC = () => {
         </div>
         <div className="flex items-center gap-1.5 mt-1 text-xs text-indigo-700 font-bold bg-indigo-50/80 px-2.5 py-1 rounded-lg border border-indigo-100 w-fit">
           <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-          <span>7 Days Free Trial &bull; No Credit Card Required</span>
+          <span>Starter Plan &bull; ₹999/month</span>
         </div>
       </div>
 
@@ -229,7 +229,7 @@ export const SignupForm: React.FC = () => {
           size="lg"
           isLoading={isLoading}
         >
-          Create Free Account
+          Get Started
         </Button>
       </form>
 

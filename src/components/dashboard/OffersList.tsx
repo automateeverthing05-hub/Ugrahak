@@ -42,6 +42,8 @@ interface OffersListProps {
   initialOffers: Offer[];
   subscriberCount: number;
   customerCount: number;
+  monthlyRecipientsUsed: number;
+  monthlyRecipientLimit: number | "unlimited";
   merchantInfo: MerchantInfo;
   initialStats?: Record<string, OfferStats>;
 }
@@ -50,6 +52,8 @@ export const OffersList: React.FC<OffersListProps> = ({
   initialOffers,
   subscriberCount,
   customerCount,
+  monthlyRecipientsUsed,
+  monthlyRecipientLimit,
   merchantInfo,
   initialStats = {},
 }) => {
@@ -57,6 +61,7 @@ export const OffersList: React.FC<OffersListProps> = ({
 
   const [offers, setOffers] = useState<Offer[]>(initialOffers);
   const [stats, setStats] = useState<Record<string, OfferStats>>(initialStats);
+  const [quotaError, setQuotaError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
 
@@ -198,7 +203,9 @@ export const OffersList: React.FC<OffersListProps> = ({
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Failed to send broadcast.");
+        setQuotaError(data.error || "Failed to send broadcast.");
+        setIsSending(false);
+        return;
       } else {
         // Update local stats
         setStats((prev) => ({
@@ -454,6 +461,60 @@ export const OffersList: React.FC<OffersListProps> = ({
               <strong>{subscriberCount}</strong> registered customer device(s).
             </p>
 
+            {/* Quota Check & Warning */}
+            {monthlyRecipientLimit !== "unlimited" && (
+              <div className="space-y-2">
+                {monthlyRecipientsUsed >= monthlyRecipientLimit ? (
+                  <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong>Monthly limit reached:</strong> You have reached your monthly Send Offer limit of{" "}
+                        {monthlyRecipientLimit} customer recipients.
+                      </div>
+                    </div>
+                    <Link
+                      href="/dashboard/settings"
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-center text-xs whitespace-nowrap shadow-xs"
+                    >
+                      Upgrade Plan
+                    </Link>
+                  </div>
+                ) : subscriberCount > (monthlyRecipientLimit - monthlyRecipientsUsed) ? (
+                  <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong>Quota exceeded:</strong> You have{" "}
+                        {Math.max(0, monthlyRecipientLimit - monthlyRecipientsUsed)} offer recipients remaining this month. This campaign requires {subscriberCount}.
+                      </div>
+                    </div>
+                    <Link
+                      href="/dashboard/settings"
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-center text-xs whitespace-nowrap shadow-xs"
+                    >
+                      Upgrade Plan
+                    </Link>
+                  </div>
+                ) : null}
+              </div>
+            )}
+
+            {quotaError && (
+              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  <div>{quotaError}</div>
+                </div>
+                <Link
+                  href="/dashboard/settings"
+                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-center text-xs whitespace-nowrap shadow-xs"
+                >
+                  Upgrade Plan
+                </Link>
+              </div>
+            )}
+
             {subscriberCount === 0 && (
               <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
@@ -501,7 +562,10 @@ export const OffersList: React.FC<OffersListProps> = ({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => setConfirmSendOffer(null)}
+                onClick={() => {
+                  setConfirmSendOffer(null);
+                  setQuotaError(null);
+                }}
                 disabled={isSending}
                 className="min-h-[40px]"
               >
@@ -512,7 +576,12 @@ export const OffersList: React.FC<OffersListProps> = ({
                 size="sm"
                 onClick={handleTriggerSendBroadcast}
                 isLoading={isSending}
-                disabled={subscriberCount === 0 || isSending}
+                disabled={
+                  subscriberCount === 0 ||
+                  isSending ||
+                  (monthlyRecipientLimit !== "unlimited" &&
+                    subscriberCount > Math.max(0, monthlyRecipientLimit - monthlyRecipientsUsed))
+                }
                 className="min-h-[40px] bg-indigo-600 hover:bg-indigo-700 font-bold px-5 gap-1.5 shadow-sm"
               >
                 <Send className="w-3.5 h-3.5" />

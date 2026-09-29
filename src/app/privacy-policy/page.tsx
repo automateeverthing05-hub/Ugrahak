@@ -38,7 +38,7 @@ export default function PrivacyPolicyPage() {
               href="/signup"
               className="text-xs sm:text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-3.5 py-2 rounded-xl transition-colors shadow-xs"
             >
-              Start Free Trial
+              Get Started
             </Link>
           </div>
         </div>

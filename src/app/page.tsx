@@ -55,7 +55,7 @@ export default async function HomePage() {
               href="/signup"
               className="text-xs sm:text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 rounded-xl shadow-xs transition-colors"
             >
-              Create Free Account
+              Get Started
             </Link>
           </div>
         </div>
@@ -63,12 +63,12 @@ export default async function HomePage() {
 
       {/* Hero Section */}
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-20 text-center">
-        {/* 7 Days Free Trial Badge */}
+        {/* Simple Monthly Plans Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs sm:text-sm font-bold mb-6 shadow-2xs">
           <Sparkles className="w-4 h-4 text-indigo-600" />
-          <span>7 Days Free Trial</span>
+          <span>Starter Plan at ₹999/month</span>
           <span className="text-slate-300">&bull;</span>
-          <span className="text-slate-600 font-medium">No Credit Card Required</span>
+          <span className="text-slate-600 font-medium">No Setup Fees</span>
         </div>
 
         {/* Headline */}
@@ -88,7 +88,7 @@ export default async function HomePage() {
             href="/signup"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 text-base font-extrabold text-white bg-indigo-600 hover:bg-indigo-700 rounded-2xl shadow-sm transition-all"
           >
-            <span>Create Free Account</span>
+            <span>Get Started</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link

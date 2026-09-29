@@ -59,12 +59,12 @@ export async function POST(request: NextRequest, { params }: Params) {
       );
     }
 
-    // 2. Fetch Merchant details
+    // 2. Fetch Merchant details and plan
     const { data: merchant } = await admin
       .from("merchants")
-      .select("shop_name, phone, slug")
+      .select("shop_name, phone, slug, plan, subscription_started_at")
       .eq("id", user.id)
-      .maybeSingle<Merchant>();
+      .maybeSingle<Merchant & { subscription_started_at?: string | null }>();
 
     const shopName = merchant?.shop_name || "Ugrahak Store";
     const shopPhone = merchant?.phone || "";
@@ -99,6 +99,34 @@ export async function POST(request: NextRequest, { params }: Params) {
         message:
           "No subscribed customer devices found. Customers must first scan your shop QR code and allow notifications to receive offers.",
       });
+    }
+
+    // 3.5. Server-Side Monthly Send Offer Recipient Quota Enforcement
+    const { getBillingPeriod, checkOfferRecipientAllowance } = await import("@/lib/billing/plans");
+    const { start: periodStart, end: periodEnd } = getBillingPeriod(merchant?.subscription_started_at);
+
+    const { count: usedCount } = await admin
+      .from("notification_logs")
+      .select("*", { count: "exact", head: true })
+      .eq("merchant_id", user.id)
+      .eq("status", "SENT")
+      .gte("sent_at", periodStart)
+      .lte("sent_at", periodEnd);
+
+    const currentUsed = usedCount || 0;
+    const allowance = checkOfferRecipientAllowance(currentUsed, typedTokens.length, merchant?.plan);
+
+    if (!allowance.allowed) {
+      return NextResponse.json(
+        {
+          error: allowance.message || "Monthly offer recipient limit exceeded.",
+          code: "OFFER_LIMIT_REACHED",
+          used: allowance.used,
+          limit: allowance.limit,
+          remaining: allowance.remaining,
+        },
+        { status: 403 }
+      );
     }
 
     // 4. Fetch customer names for personalization

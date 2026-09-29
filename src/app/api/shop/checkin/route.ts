@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
     if (planCheck.isReached) {
       return NextResponse.json(
         {
-          error: `Store customer limit reached (${planCheck.current} / ${planCheck.limit}). Please notify the store owner to upgrade their Ugrahak plan.`,
+          error: `Your ${merchant.plan === "PRO" ? "Pro" : merchant.plan === "GROWTH" ? "Growth" : "Starter"} plan supports up to ${planCheck.limit} customers. Please upgrade your plan to accept more customers.`,
         },
         { status: 403 }
       );

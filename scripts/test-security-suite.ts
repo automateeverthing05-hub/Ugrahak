@@ -113,18 +113,18 @@ async function runSecurityTests() {
     !canUseNearbyOffers("STARTER") && canUseNearbyOffers("GROWTH") && canUseNearbyOffers("PRO")
   );
 
-  const starterLimitCheck = isCustomerLimitReached(1500, "STARTER");
+  const starterLimitCheck = isCustomerLimitReached(100, "STARTER");
   assert(
     "Customer Limit Enforced on Plan Exceeded",
     "Authorization",
-    starterLimitCheck.isReached && starterLimitCheck.limit === 1500
+    starterLimitCheck.isReached && starterLimitCheck.limit === 100
   );
 
-  const starterUnderCheck = isCustomerLimitReached(1499, "STARTER");
+  const starterUnderCheck = isCustomerLimitReached(99, "STARTER");
   assert(
     "Customer Under Limit Allowed",
     "Authorization",
-    !starterUnderCheck.isReached && starterUnderCheck.limit === 1500
+    !starterUnderCheck.isReached && starterUnderCheck.limit === 100
   );
 
   const proLimitCheck = isCustomerLimitReached(10000, "PRO");

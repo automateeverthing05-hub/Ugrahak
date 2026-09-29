@@ -62,16 +62,16 @@ export default function RefundPolicyPage() {
 
         {/* Policy Sections */}
         <div className="space-y-8 text-slate-700 text-sm sm:text-base leading-relaxed">
-          {/* 1. 7-Day Free Trial */}
+          {/* 1. Monthly Subscriptions */}
           <section className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs">
             <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-3 flex items-center gap-2">
               <span className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs">
                 1
               </span>
-              7-Day Free Trial — Zero Risk
+              Monthly Subscriptions &amp; Billing
             </h2>
             <p className="text-slate-600">
-              Every merchant receives a complimentary <strong>7-Day Free Trial</strong> upon account registration. During this trial period, you have full access to generate your counter QR code, configure scratch card rewards, and test customer check-ins without entering credit card or payment information. You will never be charged during the trial unless you explicitly choose to upgrade to a paid monthly plan.
+              Ugrahak operates on prepaid monthly subscription tiers (Starter, Growth, and Pro). Upon selecting a plan, you have immediate access to generate your counter QR code, configure scratch card rewards, manage customers, and send customer offers within your plan&apos;s quota.
             </p>
           </section>
 
@@ -147,7 +147,7 @@ export default function RefundPolicyPage() {
               Refund Eligibility &amp; Scope
             </h2>
             <p className="text-slate-600 mb-3">
-              Because Ugrahak is a digital cloud SaaS platform that offers an unrestricted 7-Day Free Trial before purchase, monthly subscription fees are generally <strong>non-refundable once a billing cycle has started</strong>, except under the following specific circumstances:
+              Because Ugrahak is a digital cloud SaaS platform with immediate feature provisioning, monthly subscription fees are generally <strong>non-refundable once a billing cycle has started</strong>, except under the following specific circumstances:
             </p>
             <div className="space-y-3">
               <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-xs sm:text-sm text-emerald-950">

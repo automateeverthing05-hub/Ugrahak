@@ -43,15 +43,31 @@ export default async function OffersPage() {
       .eq("merchant_id", user.id),
     supabase
       .from("merchants")
-      .select("shop_name, phone, slug")
+      .select("shop_name, phone, slug, plan, subscription_started_at")
       .eq("id", user.id)
-      .maybeSingle<Merchant>(),
+      .maybeSingle<Merchant & { subscription_started_at?: string | null }>(),
   ]);
 
   const typedOffers = (offers || []) as Offer[];
   const subscriberCount = pushTokens?.length || 0;
   const typedLogs = (logs || []) as NotificationLog[];
   const totalCustomers = customerCount || 0;
+
+  // Monthly Send Offer Recipient Quota calculation
+  const { getPlanConfig, getBillingPeriod } = await import("@/lib/billing/plans");
+  const planConfig = getPlanConfig(merchant?.plan);
+  const { start: periodStart, end: periodEnd } = getBillingPeriod(merchant?.subscription_started_at);
+
+  const { count: monthlySentCount } = await supabase
+    .from("notification_logs")
+    .select("*", { count: "exact", head: true })
+    .eq("merchant_id", user.id)
+    .eq("status", "SENT")
+    .gte("sent_at", periodStart)
+    .lte("sent_at", periodEnd);
+
+  const monthlyRecipientsUsed = monthlySentCount || 0;
+  const monthlyRecipientLimit = planConfig.monthlyRecipientLimit;
 
   // Compute delivery stats per offer_id
   const statsByOfferId: Record<
@@ -90,12 +106,19 @@ export default async function OffersPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
           <div className="text-xs font-bold text-slate-700 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
             YOUR CUSTOMERS: <span className="text-indigo-600 font-extrabold">{totalCustomers}</span>
           </div>
           <div className="text-xs font-semibold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
-            Customers Receiving Offers: <span className="font-bold text-slate-900">{subscriberCount}</span>
+            Monthly Offer Recipients:{" "}
+            <span className="font-extrabold text-indigo-700">
+              {monthlyRecipientsUsed}
+            </span>{" "}
+            /{" "}
+            <span className="font-bold text-slate-700">
+              {monthlyRecipientLimit === "unlimited" ? "Unlimited" : monthlyRecipientLimit}
+            </span>
           </div>
         </div>
       </div>
@@ -104,6 +127,8 @@ export default async function OffersPage() {
         initialOffers={typedOffers}
         subscriberCount={subscriberCount}
         customerCount={totalCustomers}
+        monthlyRecipientsUsed={monthlyRecipientsUsed}
+        monthlyRecipientLimit={monthlyRecipientLimit}
         merchantInfo={{
           shopName: merchant?.shop_name || "Ugrahak Store",
           phone: merchant?.phone || "",

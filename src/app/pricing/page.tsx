@@ -7,11 +7,11 @@ import { Footer } from "@/components/layout/Footer";
 export const metadata: Metadata = {
   title: "Pricing Plans | Ugrahak",
   description:
-    "Transparent pricing for local shop owners. 7-Day Free Trial, Starter, Growth, and Pro plans for shop rewards and bringing customers back.",
+    "Transparent pricing for local business owners. Starter, Growth, and Pro plans for store rewards and bringing customers back.",
 };
 
 export default function PricingPage() {
-  const planList = [PLANS.TRIAL, PLANS.STARTER, PLANS.GROWTH, PLANS.PRO];
+  const planList = [PLANS.STARTER, PLANS.GROWTH, PLANS.PRO];
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
@@ -38,7 +38,7 @@ export default function PricingPage() {
               href="/signup"
               className="text-xs sm:text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl transition-colors shadow-xs"
             >
-              Start 7-Day Free Trial
+              Get Started
             </Link>
           </div>
         </div>
@@ -55,19 +55,19 @@ export default function PricingPage() {
             Simple Plans Built for Business Growth
           </h1>
           <p className="text-sm sm:text-base text-slate-600 mt-2">
-            Turn every walk-in shopper into a repeat loyal customer with QR rewards, special offers, and nearby customer alerts.
+            Turn walk-in shoppers into repeat loyal customers with QR rewards, special offers, and nearby customer alerts.
           </p>
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {planList.map((plan) => {
             const isPopular = plan.id === "GROWTH";
 
             return (
               <div
                 key={plan.id}
-                className={`bg-white rounded-3xl p-6 flex flex-col justify-between transition-all shadow-xs ${
+                className={`bg-white rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all shadow-xs ${
                   isPopular
                     ? "border-2 border-indigo-600 shadow-md relative"
                     : "border border-slate-200"
@@ -83,15 +83,13 @@ export default function PricingPage() {
                   <h3 className="text-lg font-bold text-slate-900">{plan.name}</h3>
                   <div className="mt-3 flex items-baseline gap-1">
                     <span className="text-3xl font-extrabold text-slate-900">
-                      {plan.priceINR === 0 ? "Free" : `₹${plan.priceINR.toLocaleString()}`}
+                      ₹{plan.priceINR.toLocaleString()}
                     </span>
-                    {plan.priceINR > 0 && (
-                      <span className="text-xs text-slate-500 font-medium">/ month</span>
-                    )}
+                    <span className="text-xs text-slate-500 font-medium">/ month</span>
                   </div>
 
                   <p className="text-xs text-indigo-600 font-semibold mt-2">
-                    {plan.customerLimit.toLocaleString()} Customers Included
+                    Up to {plan.customerLimit.toLocaleString()} Customers
                   </p>
 
                   <ul className="mt-6 space-y-3 text-xs text-slate-600">
@@ -107,13 +105,13 @@ export default function PricingPage() {
                 <div className="pt-8">
                   <Link
                     href="/signup"
-                    className={`w-full py-3 px-4 rounded-2xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors ${
+                    className={`w-full py-3.5 px-4 rounded-2xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors min-h-[46px] ${
                       isPopular
                         ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
-                        : "bg-slate-100 hover:bg-slate-200 text-slate-800"
+                        : "bg-slate-900 hover:bg-slate-800 text-white"
                     }`}
                   >
-                    <span>{plan.id === "TRIAL" ? "Start Free Trial" : `Choose ${plan.name}`}</span>
+                    <span>{plan.id === "STARTER" ? "Get Started" : `Choose ${plan.name}`}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
@@ -122,34 +120,34 @@ export default function PricingPage() {
           })}
         </div>
 
-        {/* Guarantee section */}
-        <div className="mt-14 bg-indigo-50/70 border border-indigo-200 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        {/* Feature Highlights Section */}
+        <div className="mt-14 bg-indigo-50/70 border border-indigo-200 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left max-w-5xl mx-auto">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
               <h4 className="text-base font-bold text-slate-900">
-                100% Risk-Free 7-Day Free Trial
+                Simple &amp; Predictable Monthly Pricing
               </h4>
               <p className="text-xs text-slate-600 mt-0.5">
-                No credit card required to start. Print your store QR code and start saving customers immediately.
+                Print your store QR code, engage your customers with personalized offers, and grow your local business.
               </p>
             </div>
           </div>
 
           <Link
             href="/signup"
-            className="px-6 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-bold hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap"
+            className="px-6 py-3.5 bg-indigo-600 text-white rounded-2xl text-xs font-bold hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap min-h-[46px] flex items-center justify-center"
           >
-            Get Started Now
+            Get Started
           </Link>
         </div>
 
         {/* Explicit Legal Links for Pricing & Subscriptions */}
-        <div className="mt-10 p-5 bg-white border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div className="mt-10 p-5 bg-white border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left max-w-5xl mx-auto">
           <div className="text-xs text-slate-500">
-            <span className="font-semibold text-slate-700">Billing Terms &amp; Policies:</span> All plans include automatic recurring billing unless cancelled.
+            <span className="font-semibold text-slate-700">Billing Terms &amp; Policies:</span> All plans include monthly recurring subscription billing unless cancelled.
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-semibold text-indigo-600">
             <Link href="/terms" className="hover:underline inline-flex items-center gap-1">
@@ -175,4 +173,3 @@ export default function PricingPage() {
     </div>
   );
 }
-

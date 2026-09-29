@@ -136,9 +136,8 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date().toISOString();
-    const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    // 4. Create merchant profile in public.merchants
+    // 4. Create merchant profile in public.merchants with Starter plan
     const { error: profileError } = await admin.from("merchants").upsert(
       {
         id: userId,
@@ -147,10 +146,11 @@ export async function POST(request: NextRequest) {
         phone: cleanPhone,
         google_maps_url: google_maps_url?.trim() || null,
         slug: finalSlug,
-        plan: "TRIAL",
+        plan: "STARTER",
         subscription_status: "ACTIVE",
+        subscription_started_at: now,
         trial_started_at: now,
-        trial_ends_at: trialEnd,
+        trial_ends_at: now,
         created_at: now,
         updated_at: now,
       },

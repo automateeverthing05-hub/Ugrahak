@@ -19,7 +19,7 @@ import {
 export const metadata: Metadata = {
   title: "Create Business Account | Ugrahak",
   description:
-    "Register for a 7-day free trial of Ugrahak. Create your shop QR code and start building your customer list in minutes.",
+    "Create your shop QR code and start building your customer list in minutes with Ugrahak.",
 };
 
 export default function SignupPage() {
@@ -56,7 +56,7 @@ export default function SignupPage() {
             <div className="space-y-3">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>7 Days Free Trial &bull; No Card Required</span>
+                <span>Starter Plan &bull; Setup in 2 Minutes</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">

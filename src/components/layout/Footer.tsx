@@ -67,7 +67,7 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
 
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              <span>7 Days Free Trial &bull; No Credit Card Required</span>
+              <span>Starter Plan &bull; ₹999/month</span>
             </div>
           </div>
 
@@ -94,7 +94,7 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
               </li>
               <li>
                 <Link href="/signup" className="hover:text-indigo-600 transition-colors">
-                  Create Free Business Account
+                  Create Business Account
                 </Link>
               </li>
               <li>

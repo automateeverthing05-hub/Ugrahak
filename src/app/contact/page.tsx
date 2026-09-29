@@ -48,7 +48,7 @@ export default function ContactPage() {
               href="/signup"
               className="text-xs sm:text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-3.5 py-2 rounded-xl transition-colors shadow-xs"
             >
-              Start Free Trial
+              Get Started
             </Link>
           </div>
         </div>
@@ -227,10 +227,10 @@ export default function ContactPage() {
 
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
               <h5 className="text-xs font-bold text-slate-900">
-                How does the 7-Day Free Trial work?
+                How do Ugrahak subscription plans work?
               </h5>
               <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
-                You get full access to the platform for 7 days with zero credit card commitment. You only pay if you decide to continue after testing.
+                Ugrahak offers simple monthly plans starting with Starter (₹999/mo) for up to 100 customers and 100 offer recipients per month. You can upgrade anytime as your customer list grows.
               </p>
             </div>
           </div>

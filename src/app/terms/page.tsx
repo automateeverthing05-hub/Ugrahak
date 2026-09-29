@@ -38,7 +38,7 @@ export default function TermsPage() {
               href="/signup"
               className="text-xs sm:text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-3.5 py-2 rounded-xl transition-colors shadow-xs"
             >
-              Start Free Trial
+              Get Started
             </Link>
           </div>
         </div>
@@ -182,16 +182,16 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          {/* 9. Subscriptions, 7-Day Free Trial & Pricing */}
+          {/* 9. Subscriptions & Paid Plans */}
           <section className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs">
             <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-3 flex items-center gap-2">
               <span className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs">
                 9
               </span>
-              Subscriptions, 7-Day Free Trial &amp; Plans
+              Subscriptions &amp; Paid Plans
             </h2>
             <p className="text-slate-600">
-              New merchant accounts include a <strong>7-Day Free Trial</strong> without requiring upfront payment information. Following the trial, continued access to broadcast features and customer capacity requires subscribing to a paid monthly plan (Starter, Growth, or Pro). All fees are quoted in Indian Rupees (INR) and are subject to applicable taxes.
+              Access to Ugrahak customer features, QR check-in processing, and offer broadcasting requires subscribing to a paid monthly plan (Starter, Growth, or Pro). All fees are quoted in Indian Rupees (INR) and are subject to applicable taxes. Monthly quotas (including customer database capacity and monthly offer recipient limits) are enforced according to the selected plan tier.
             </p>
           </section>
 

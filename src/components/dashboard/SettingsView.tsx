@@ -23,7 +23,7 @@ import Link from "next/link";
 import type { Merchant } from "@/lib/types/database";
 
 interface SettingsViewProps {
-  merchant: (Merchant & { latitude?: number | null; longitude?: number | null; plan?: string; trial_ends_at?: string }) | null;
+  merchant: (Merchant & { latitude?: number | null; longitude?: number | null; plan?: string }) | null;
   customerCount: number;
 }
 
@@ -40,16 +40,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     Math.round((customerCount / currentPlan.customerLimit) * 100),
     100
   );
-
-  const trialEnds = merchant?.trial_ends_at
-    ? new Date(merchant.trial_ends_at)
-    : null;
-  const daysLeft = trialEnds
-    ? Math.max(
-        Math.ceil((trialEnds.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-        0
-      )
-    : 7;
 
   const tabs: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
     { id: "profile", label: "Shop Profile", icon: Store },
@@ -238,18 +228,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   Current Plan: {currentPlan.name}
                 </span>
                 <h2 className="text-xl font-bold text-slate-900 mt-2">
-                  {currentPlan.priceINR === 0
-                    ? "Active Free Trial"
-                    : `₹${currentPlan.priceINR.toLocaleString()} / month`}
+                  ₹{currentPlan.priceINR.toLocaleString()} / month
                 </h2>
               </div>
-
-              {currentPlan.id === "TRIAL" && (
-                <div className="flex items-center gap-2 bg-amber-50 text-amber-900 px-3 py-1.5 rounded-xl border border-amber-200 text-xs font-semibold self-start sm:self-auto">
-                  <Clock className="w-4 h-4 text-amber-600" />
-                  <span>{daysLeft} days remaining in trial</span>
-                </div>
-              )}
             </div>
 
             {/* Quota Progress Bar */}
