@@ -18,9 +18,9 @@ export default async function SettingsPage() {
   const [{ data: merchant }, { count: customerCount }] = await Promise.all([
     supabase
       .from("merchants")
-      .select("id, shop_name, owner_name, phone, google_maps_url, slug, latitude, longitude, plan, trial_ends_at, subscription_status")
+      .select("id, shop_name, owner_name, phone, google_maps_url, slug, latitude, longitude, plan, subscription_status")
       .eq("id", user.id)
-      .maybeSingle<Merchant & { latitude?: number | null; longitude?: number | null; plan?: string; trial_ends_at?: string }>(),
+      .maybeSingle<Merchant & { latitude?: number | null; longitude?: number | null; plan?: "FREE" | "STARTER" | "GROWTH" | "PRO" }>(),
     supabase
       .from("customers")
       .select("*", { count: "exact", head: true })

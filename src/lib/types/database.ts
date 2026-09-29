@@ -20,7 +20,7 @@ export interface Database {
           latitude: number | null;
           longitude: number | null;
           customer_count: number;
-          plan: "FREE" | "STARTER" | "GROWTH" | "PRO" | "TRIAL";
+          plan: "FREE" | "STARTER" | "GROWTH" | "PRO";
           subscription_status: "ACTIVE" | "EXPIRED" | "CANCELLED";
           trial_started_at: string;
           trial_ends_at: string;
@@ -39,7 +39,7 @@ export interface Database {
           latitude?: number | null;
           longitude?: number | null;
           customer_count?: number;
-          plan?: "FREE" | "STARTER" | "GROWTH" | "PRO" | "TRIAL";
+          plan?: "FREE" | "STARTER" | "GROWTH" | "PRO";
           subscription_status?: "ACTIVE" | "EXPIRED" | "CANCELLED";
           trial_started_at?: string;
           trial_ends_at?: string;
@@ -58,7 +58,7 @@ export interface Database {
           latitude?: number | null;
           longitude?: number | null;
           customer_count?: number;
-          plan?: "FREE" | "STARTER" | "GROWTH" | "PRO" | "TRIAL";
+          plan?: "FREE" | "STARTER" | "GROWTH" | "PRO";
           subscription_status?: "ACTIVE" | "EXPIRED" | "CANCELLED";
           trial_started_at?: string;
           trial_ends_at?: string;

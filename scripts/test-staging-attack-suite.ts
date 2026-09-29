@@ -336,14 +336,14 @@ async function runStagingAttackSuite() {
 
   // 23. Invalid Payment Status Manipulation
   const clientDeclaredPlan = "PRO";
-  const verifiedDbPlan = "TRIAL";
+  const verifiedDbPlan = "FREE";
   const planCheck = canUseNearbyOffers(verifiedDbPlan);
   recordTest(
     23,
     "Client Plan / Feature Tampering",
-    "Client asserting PRO privileges with TRIAL database record",
+    "Client asserting PRO privileges with FREE database record",
     "Feature access evaluated solely from database merchant.plan",
-    `Privileges granted: ${planCheck ? "PRO" : "TRIAL (Restricted)"}`,
+    `Privileges granted: ${planCheck ? "PRO" : "FREE (Restricted)"}`,
     !planCheck
   );
 

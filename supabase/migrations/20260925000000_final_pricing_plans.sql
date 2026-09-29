@@ -8,3 +8,4 @@ ALTER TABLE public.merchants
 
 -- 2. Ensure existing index on plan is present
 CREATE INDEX IF NOT EXISTS idx_merchants_plan ON public.merchants(plan);
+
