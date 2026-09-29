@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateReferenceCode } from "@/lib/utils/referenceCode";
-import { isCustomerLimitReached } from "@/lib/billing/plans";
+import { isCustomerLimitReached, getPlanConfig } from "@/lib/billing/plans";
 import { pickRandomFirstVisitReward } from "@/lib/rewards/scratchCardConfig";
 import { scheduleReviewRequest } from "@/lib/reviews/reviewScheduler";
 import { rateLimitCheckin } from "@/lib/redis/rateLimiter";
@@ -137,9 +137,10 @@ export async function POST(request: NextRequest) {
 
     const planCheck = isCustomerLimitReached(totalCustomersCount, merchant.plan);
     if (planCheck.isReached) {
+      const planConfig = getPlanConfig(merchant.plan);
       return NextResponse.json(
         {
-          error: `Your ${merchant.plan === "PRO" ? "Pro" : merchant.plan === "GROWTH" ? "Growth" : "Starter"} plan supports up to ${planCheck.limit} customers. Please upgrade your plan to accept more customers.`,
+          error: `Your ${planConfig.name} plan supports up to ${planCheck.limit.toLocaleString()} customers. Please upgrade your plan to accept more customers.`,
         },
         { status: 403 }
       );

@@ -71,7 +71,7 @@ export default function RefundPolicyPage() {
               Monthly Subscriptions &amp; Billing
             </h2>
             <p className="text-slate-600">
-              Ugrahak operates on prepaid monthly subscription tiers (Starter, Growth, and Pro). Upon selecting a plan, you have immediate access to generate your counter QR code, configure scratch card rewards, manage customers, and send customer offers within your plan&apos;s quota.
+              Ugrahak provides a permanent Free plan alongside paid monthly subscription tiers (Starter, Growth, and Pro). Upon selecting or upgrading a plan, you have immediate access to generate your counter QR code, configure scratch card rewards, manage customers, and send customer offers within your plan&apos;s quota.
             </p>
           </section>
 

@@ -255,10 +255,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           {/* Available Growth Plans */}
           <div>
             <h3 className="text-base font-bold text-slate-900 mb-4">
-              Available Growth Plans
+              Available Subscription Plans
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[PLANS.STARTER, PLANS.GROWTH, PLANS.PRO].map((plan) => {
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[PLANS.FREE, PLANS.STARTER, PLANS.GROWTH, PLANS.PRO].map((plan) => {
                 const isCurrent = currentPlan.id === plan.id;
 
                 return (
@@ -276,6 +276,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                         {plan.id === "GROWTH" && (
                           <span className="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-full">
                             Recommended
+                          </span>
+                        )}
+                        {plan.id === "FREE" && (
+                          <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">
+                            Free
                           </span>
                         )}
                       </div>
@@ -311,7 +316,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                           href="/pricing"
                           className="w-full py-2 px-3 rounded-xl text-xs font-bold text-center inline-flex items-center justify-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
                         >
-                          <span>Upgrade to {plan.name}</span>
+                          <span>{plan.id === "FREE" ? "Switch to Free" : `Upgrade to ${plan.name}`}</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
                       )}

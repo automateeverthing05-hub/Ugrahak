@@ -230,7 +230,7 @@ export default function ContactPage() {
                 How do Ugrahak subscription plans work?
               </h5>
               <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
-                Ugrahak offers simple monthly plans starting with Starter (₹999/mo) for up to 100 customers and 100 offer recipients per month. You can upgrade anytime as your customer list grows.
+                Ugrahak offers a permanent Free plan (₹0/mo) for up to 100 customers and 100 monthly offer recipients. As your shop grows, upgrade easily to Starter (₹999/mo, 1,500 customers), Growth (₹2,999/mo, 5,000 customers), or Pro (₹6,999/mo, 10,000 customers).
               </p>
             </div>
           </div>

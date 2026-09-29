@@ -65,9 +65,9 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
               Turn first-time customers into repeat loyal customers. Built specifically for local shops, cafes, salons, restaurants, and other businesses.
             </p>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Starter Plan &bull; ₹999/month</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Free Plan Available &bull; ₹0/month</span>
             </div>
           </div>
 

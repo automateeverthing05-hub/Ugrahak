@@ -54,9 +54,9 @@ export default function SignupPage() {
           {/* Left Column (Desktop 6 Cols / Mobile Stacked): Value Proposition */}
           <div className="lg:col-span-6 space-y-6 sm:space-y-8">
             <div className="space-y-3">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Starter Plan &bull; Setup in 2 Minutes</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Free Plan &bull; No Card Required</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">

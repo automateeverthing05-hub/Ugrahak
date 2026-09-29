@@ -191,7 +191,7 @@ export default function TermsPage() {
               Subscriptions &amp; Paid Plans
             </h2>
             <p className="text-slate-600">
-              Access to Ugrahak customer features, QR check-in processing, and offer broadcasting requires subscribing to a paid monthly plan (Starter, Growth, or Pro). All fees are quoted in Indian Rupees (INR) and are subject to applicable taxes. Monthly quotas (including customer database capacity and monthly offer recipient limits) are enforced according to the selected plan tier.
+              Ugrahak provides a permanent Free plan as well as paid monthly subscription tiers (Starter, Growth, and Pro). All paid fees are quoted in Indian Rupees (INR) and are subject to applicable taxes. Feature access and monthly quotas (including customer database capacity and monthly offer recipient limits) are enforced according to the selected plan tier.
             </p>
           </section>
 

@@ -125,9 +125,9 @@ export const SignupForm: React.FC = () => {
             Create Your Business Account
           </h2>
         </div>
-        <div className="flex items-center gap-1.5 mt-1 text-xs text-indigo-700 font-bold bg-indigo-50/80 px-2.5 py-1 rounded-lg border border-indigo-100 w-fit">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-          <span>Starter Plan &bull; ₹999/month</span>
+        <div className="flex items-center gap-1.5 mt-1 text-xs text-emerald-700 font-bold bg-emerald-50/80 px-2.5 py-1 rounded-lg border border-emerald-100 w-fit">
+          <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Free Plan &bull; ₹0/month</span>
         </div>
       </div>
 
@@ -229,7 +229,7 @@ export const SignupForm: React.FC = () => {
           size="lg"
           isLoading={isLoading}
         >
-          Get Started
+          Get Started Free
         </Button>
       </form>
 

@@ -1,4 +1,4 @@
-export type PlanId = "STARTER" | "GROWTH" | "PRO" | "TRIAL";
+export type PlanId = "FREE" | "STARTER" | "GROWTH" | "PRO";
 
 export interface PlanConfig {
   id: PlanId;
@@ -11,28 +11,50 @@ export interface PlanConfig {
   hasNearbyOffers: boolean;
   hasAdvancedAnalytics: boolean;
   hasStaffAccounts: boolean;
+  hasBasicCustomerTracking: boolean;
+  hasGoogleReviewRequests: boolean;
   features: string[];
 }
 
-export const PLANS: Record<"STARTER" | "GROWTH" | "PRO", PlanConfig> = {
+export const PLANS: Record<PlanId, PlanConfig> = {
+  FREE: {
+    id: "FREE",
+    name: "Free",
+    priceINR: 0,
+    period: "month",
+    customerLimit: 100,
+    monthlyRecipientLimit: 100,
+    weeklyOfferLimit: "unlimited",
+    hasNearbyOffers: false,
+    hasAdvancedAnalytics: false,
+    hasStaffAccounts: false,
+    hasBasicCustomerTracking: false,
+    hasGoogleReviewRequests: true,
+    features: [
+      "Maximum 100 customers",
+      "Maximum 100 Send Offer customer recipients per month",
+      "Google Review Requests",
+      "Store QR code & scratch cards",
+    ],
+  },
   STARTER: {
     id: "STARTER",
     name: "Starter",
     priceINR: 999,
     period: "month",
-    customerLimit: 100,
-    monthlyRecipientLimit: 100,
-    weeklyOfferLimit: 1,
+    customerLimit: 1500,
+    monthlyRecipientLimit: "unlimited",
+    weeklyOfferLimit: "unlimited",
     hasNearbyOffers: false,
     hasAdvancedAnalytics: false,
     hasStaffAccounts: false,
+    hasBasicCustomerTracking: true,
+    hasGoogleReviewRequests: true,
     features: [
-      "Up to 100 customers",
-      "Customer List",
-      "New Customer Reward",
-      "Send Offers (100 customer recipients/month)",
-      "Google Review requests",
-      "Basic customer tracking",
+      "Maximum 1,500 customers",
+      "Send Offer",
+      "Google Review Requests",
+      "Basic Customer Tracking",
       "Store QR code & scratch cards",
     ],
   },
@@ -42,18 +64,19 @@ export const PLANS: Record<"STARTER" | "GROWTH" | "PRO", PlanConfig> = {
     priceINR: 2999,
     period: "month",
     customerLimit: 5000,
-    monthlyRecipientLimit: 5000,
-    weeklyOfferLimit: 3,
+    monthlyRecipientLimit: "unlimited",
+    weeklyOfferLimit: "unlimited",
     hasNearbyOffers: true,
     hasAdvancedAnalytics: false,
     hasStaffAccounts: false,
+    hasBasicCustomerTracking: true,
+    hasGoogleReviewRequests: true,
     features: [
-      "Up to 5,000 customers",
-      "Send Offers (5,000 customer recipients/month)",
-      "3 weekly offers",
-      "Get More Google Reviews",
-      "Track repeat customers",
-      "Offers for Nearby Customers (100–200m radius)",
+      "Maximum 5,000 customers",
+      "Send Offer",
+      "Google Review Requests",
+      "Basic Customer Tracking",
+      "Nearby Offers (100–200m)",
       "Priority offer sending",
     ],
   },
@@ -68,27 +91,29 @@ export const PLANS: Record<"STARTER" | "GROWTH" | "PRO", PlanConfig> = {
     hasNearbyOffers: true,
     hasAdvancedAnalytics: true,
     hasStaffAccounts: true,
+    hasBasicCustomerTracking: true,
+    hasGoogleReviewRequests: true,
     features: [
-      "Up to 10,000 customers",
-      "Unlimited customer recipients for Send Offer",
-      "Unlimited weekly offers",
-      "Get More Google Reviews",
-      "Track Repeat Customers",
-      "Offers for Nearby Customers (100–200m radius)",
+      "Maximum 10,000 customers",
+      "Send Offer",
+      "Google Review Requests",
+      "Advanced Customer Tracking",
+      "Nearby Offers (100–200m)",
       "Business Growth Insights",
-      "Multiple staff support",
+      "Multiple Staff",
     ],
   },
 };
 
 /**
- * Returns plan configuration for a given plan ID (defaults to STARTER)
+ * Returns plan configuration for a given plan ID (defaults to FREE)
  */
 export function getPlanConfig(planId?: string | null): PlanConfig {
-  const normalized = (planId || "STARTER").toUpperCase();
+  const normalized = (planId || "FREE").toUpperCase();
+  if (normalized === "STARTER") return PLANS.STARTER;
   if (normalized === "GROWTH") return PLANS.GROWTH;
   if (normalized === "PRO") return PLANS.PRO;
-  return PLANS.STARTER;
+  return PLANS.FREE;
 }
 
 /**
@@ -197,6 +222,30 @@ export function checkOfferRecipientAllowance(
 export function canUseNearbyOffers(planId?: string | null): boolean {
   const config = getPlanConfig(planId);
   return config.hasNearbyOffers;
+}
+
+/**
+ * Checks if merchant's plan supports Business Growth Insights
+ */
+export function canUseBusinessGrowthInsights(planId?: string | null): boolean {
+  const config = getPlanConfig(planId);
+  return config.hasAdvancedAnalytics;
+}
+
+/**
+ * Checks if merchant's plan supports Multiple Staff
+ */
+export function canUseMultipleStaff(planId?: string | null): boolean {
+  const config = getPlanConfig(planId);
+  return config.hasStaffAccounts;
+}
+
+/**
+ * Checks if merchant's plan supports Basic Customer Tracking
+ */
+export function hasBasicCustomerTracking(planId?: string | null): boolean {
+  const config = getPlanConfig(planId);
+  return config.hasBasicCustomerTracking;
 }
 
 /**
