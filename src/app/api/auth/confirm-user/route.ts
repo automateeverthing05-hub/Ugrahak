@@ -30,20 +30,15 @@ export async function POST(request: NextRequest) {
     const admin = createAdminClient();
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Query user in auth.users
-    const { data: usersData, error: listError } = await admin.auth.admin.listUsers();
-    if (listError) {
-      return NextResponse.json(
-        { error: "Unable to complete user verification." },
-        { status: 500 }
-      );
-    }
+    // Direct O(1) user lookup in auth.users without pagination or scanning
+    const { data: linkData, error: lookupError } = await admin.auth.admin.generateLink({
+      type: "recovery",
+      email: normalizedEmail,
+    });
 
-    const existingUser = usersData.users.find(
-      (u) => u.email?.toLowerCase() === normalizedEmail
-    );
+    const existingUserId = linkData?.user?.id;
 
-    if (!existingUser) {
+    if (lookupError || !existingUserId) {
       // Return generic response without confirming user existence to prevent account enumeration
       return NextResponse.json(
         { error: "Unable to verify user account. Please check your credentials." },
@@ -53,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     // Update user to confirmed
     const { error: updateError } = await admin.auth.admin.updateUserById(
-      existingUser.id,
+      existingUserId,
       {
         email_confirm: true,
       }

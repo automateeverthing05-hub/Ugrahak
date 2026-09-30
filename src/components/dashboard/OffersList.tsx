@@ -24,6 +24,7 @@ import {
   Phone,
   Store,
 } from "lucide-react";
+import { UpgradeOfferLimitModal } from "@/components/dashboard/UpgradeOfferLimitModal";
 import type { Offer } from "@/lib/types/database";
 
 interface OfferStats {
@@ -87,6 +88,13 @@ export const OffersList: React.FC<OffersListProps> = ({
     invalidCount: number;
     message: string;
   } | null>(null);
+
+  const [upgradeModalState, setUpgradeModalState] = useState<{
+    isOpen: boolean;
+    used?: number;
+    limit?: number;
+    remaining?: number;
+  }>({ isOpen: false });
 
   const openCreateModal = () => {
     setEditingOffer(null);
@@ -182,7 +190,7 @@ export const OffersList: React.FC<OffersListProps> = ({
   };
 
   const handleTriggerSendBroadcast = async () => {
-    if (!confirmSendOffer) return;
+    if (!confirmSendOffer || isSending) return;
     const offer = confirmSendOffer;
 
     if (subscriberCount === 0) {
@@ -190,6 +198,27 @@ export const OffersList: React.FC<OffersListProps> = ({
         "You currently have 0 customers enabled to receive offers. When customers scan your QR code and enable offers, they are enrolled to receive your offers."
       );
       setConfirmSendOffer(null);
+      return;
+    }
+
+    // Immediate Client Pre-Check for Free Plan Limit (Triggers upgrade popup immediately)
+    if (
+      monthlyRecipientLimit !== "unlimited" &&
+      (monthlyRecipientsUsed >= monthlyRecipientLimit ||
+        subscriberCount > Math.max(0, monthlyRecipientLimit - monthlyRecipientsUsed))
+    ) {
+      setConfirmSendOffer(null);
+      setQuotaError(null);
+      setUpgradeModalState({
+        isOpen: true,
+        used: monthlyRecipientsUsed,
+        limit: typeof monthlyRecipientLimit === "number" ? monthlyRecipientLimit : 100,
+        remaining: Math.max(
+          0,
+          (typeof monthlyRecipientLimit === "number" ? monthlyRecipientLimit : 100) -
+            monthlyRecipientsUsed
+        ),
+      });
       return;
     }
 
@@ -203,6 +232,24 @@ export const OffersList: React.FC<OffersListProps> = ({
       const data = await res.json();
 
       if (!res.ok) {
+        if (
+          res.status === 403 &&
+          (data.code === "OFFER_LIMIT_REACHED" ||
+            data.error?.toLowerCase().includes("limit") ||
+            data.error?.toLowerCase().includes("upgrade"))
+        ) {
+          setConfirmSendOffer(null);
+          setQuotaError(null);
+          setUpgradeModalState({
+            isOpen: true,
+            used: typeof data.used === "number" ? data.used : monthlyRecipientsUsed,
+            limit: typeof data.limit === "number" ? data.limit : 100,
+            remaining: typeof data.remaining === "number" ? data.remaining : 0,
+          });
+          setIsSending(false);
+          return;
+        }
+
         setQuotaError(data.error || "Failed to send broadcast.");
         setIsSending(false);
         return;
@@ -473,12 +520,26 @@ export const OffersList: React.FC<OffersListProps> = ({
                         {monthlyRecipientLimit} customer recipients.
                       </div>
                     </div>
-                    <Link
-                      href="/dashboard/settings"
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-center text-xs whitespace-nowrap shadow-xs"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConfirmSendOffer(null);
+                        setQuotaError(null);
+                        setUpgradeModalState({
+                          isOpen: true,
+                          used: monthlyRecipientsUsed,
+                          limit: typeof monthlyRecipientLimit === "number" ? monthlyRecipientLimit : 100,
+                          remaining: Math.max(
+                            0,
+                            (typeof monthlyRecipientLimit === "number" ? monthlyRecipientLimit : 100) -
+                              monthlyRecipientsUsed
+                          ),
+                        });
+                      }}
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-center text-xs whitespace-nowrap shadow-xs cursor-pointer"
                     >
                       Upgrade Plan
-                    </Link>
+                    </button>
                   </div>
                 ) : subscriberCount > (monthlyRecipientLimit - monthlyRecipientsUsed) ? (
                   <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -489,12 +550,26 @@ export const OffersList: React.FC<OffersListProps> = ({
                         {Math.max(0, monthlyRecipientLimit - monthlyRecipientsUsed)} offer recipients remaining this month. This campaign requires {subscriberCount}.
                       </div>
                     </div>
-                    <Link
-                      href="/dashboard/settings"
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-center text-xs whitespace-nowrap shadow-xs"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConfirmSendOffer(null);
+                        setQuotaError(null);
+                        setUpgradeModalState({
+                          isOpen: true,
+                          used: monthlyRecipientsUsed,
+                          limit: typeof monthlyRecipientLimit === "number" ? monthlyRecipientLimit : 100,
+                          remaining: Math.max(
+                            0,
+                            (typeof monthlyRecipientLimit === "number" ? monthlyRecipientLimit : 100) -
+                              monthlyRecipientsUsed
+                          ),
+                        });
+                      }}
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-center text-xs whitespace-nowrap shadow-xs cursor-pointer"
                     >
                       Upgrade Plan
-                    </Link>
+                    </button>
                   </div>
                 ) : null}
               </div>
@@ -506,12 +581,26 @@ export const OffersList: React.FC<OffersListProps> = ({
                   <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                   <div>{quotaError}</div>
                 </div>
-                <Link
-                  href="/dashboard/settings"
-                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-center text-xs whitespace-nowrap shadow-xs"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmSendOffer(null);
+                    setQuotaError(null);
+                    setUpgradeModalState({
+                      isOpen: true,
+                      used: monthlyRecipientsUsed,
+                      limit: typeof monthlyRecipientLimit === "number" ? monthlyRecipientLimit : 100,
+                      remaining: Math.max(
+                        0,
+                        (typeof monthlyRecipientLimit === "number" ? monthlyRecipientLimit : 100) -
+                          monthlyRecipientsUsed
+                      ),
+                    });
+                  }}
+                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-center text-xs whitespace-nowrap shadow-xs cursor-pointer"
                 >
                   Upgrade Plan
-                </Link>
+                </button>
               </div>
             )}
 
@@ -576,12 +665,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                 size="sm"
                 onClick={handleTriggerSendBroadcast}
                 isLoading={isSending}
-                disabled={
-                  subscriberCount === 0 ||
-                  isSending ||
-                  (monthlyRecipientLimit !== "unlimited" &&
-                    subscriberCount > Math.max(0, monthlyRecipientLimit - monthlyRecipientsUsed))
-                }
+                disabled={subscriberCount === 0 || isSending}
                 className="min-h-[40px] bg-indigo-600 hover:bg-indigo-700 font-bold px-5 gap-1.5 shadow-sm"
               >
                 <Send className="w-3.5 h-3.5" />
@@ -811,6 +895,15 @@ export const OffersList: React.FC<OffersListProps> = ({
           </div>
         </div>
       )}
+
+      {/* Upgrade Offer Limit Modal */}
+      <UpgradeOfferLimitModal
+        isOpen={upgradeModalState.isOpen}
+        onClose={() => setUpgradeModalState({ isOpen: false })}
+        used={upgradeModalState.used}
+        limit={upgradeModalState.limit}
+        remaining={upgradeModalState.remaining}
+      />
     </div>
   );
 };

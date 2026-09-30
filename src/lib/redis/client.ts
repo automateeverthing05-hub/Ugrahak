@@ -19,9 +19,16 @@ export function getRedisClient(): Redis | null {
   if (!url || !token) {
     if (isRedisAvailable !== false) {
       isRedisAvailable = false;
-      logger.warn("Upstash Redis credentials missing. Operating in fallback mode.", {
-        operation: "REDIS_INIT",
-      });
+      if (process.env.NODE_ENV === "production") {
+        logger.error(
+          "CRITICAL: Upstash Redis credentials missing in production environment. UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required for security and rate limiting.",
+          { operation: "REDIS_INIT" }
+        );
+      } else {
+        logger.warn("Upstash Redis credentials missing. Operating in local fallback mode.", {
+          operation: "REDIS_INIT",
+        });
+      }
     }
     return null;
   }

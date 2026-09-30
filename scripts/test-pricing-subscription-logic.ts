@@ -192,6 +192,26 @@ async function runTestSuite() {
   assert(!!customPeriod.start && !!customPeriod.end, "Custom subscription period generated");
   assert(new Date(customPeriod.end) > new Date(customPeriod.start), "Custom period end is after start");
 
+  // TEST 8: 100-Recipient Automatic Upgrade Prompt & Limit Rules
+  console.log("\n▶ 8. 100-Recipient Automatic Upgrade Prompt & Behavior:");
+  // Condition 1: Free merchant with 0 used sending to 50 (< 100) -> Allowed, no modal trigger
+  const allowBelowLimit = checkOfferRecipientAllowance(0, 50, "FREE");
+  assert(allowBelowLimit.allowed === true && Number(allowBelowLimit.remaining ?? 0) > 0, "Free merchant below limit (50/100) is allowed");
+
+  // Condition 2: Free merchant at 100 used sending 1 (100 >= 100) -> Blocked with OFFER_LIMIT_REACHED condition
+  const blockAt100 = checkOfferRecipientAllowance(100, 1, "FREE");
+  assert(blockAt100.allowed === false, "Free merchant at 100 used is blocked from sending");
+
+  // Condition 3: Free merchant with 80 used sending to 30 customers (80 + 30 = 110 > 100) -> Blocked
+  const blockExceedingBatch = checkOfferRecipientAllowance(80, 30, "FREE");
+  assert(blockExceedingBatch.allowed === false, "Free merchant batch exceeding remaining quota (80 used + 30 target) is blocked");
+
+  // Condition 4: Paid merchants (Starter, Growth, Pro) have no 100 cap and never trigger Free quota block
+  const starterAllow = checkOfferRecipientAllowance(100, 200, "STARTER");
+  const growthAllow = checkOfferRecipientAllowance(500, 1000, "GROWTH");
+  const proAllow = checkOfferRecipientAllowance(2000, 5000, "PRO");
+  assert(starterAllow.allowed && growthAllow.allowed && proAllow.allowed, "Paid plans bypass Free 100 recipient quota");
+
   console.log("\n==================================================");
   console.log(`TEST RESULTS: ${testsPassed} Passed, ${testsFailed} Failed`);
   console.log("==================================================");

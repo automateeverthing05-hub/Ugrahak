@@ -51,6 +51,36 @@ function fallbackRateLimit(
   };
 }
 
+function isProduction(): boolean {
+  return process.env.NODE_ENV === "production";
+}
+
+function handleLimiterFallback(
+  key: string,
+  limit: number,
+  windowMs: number,
+  operation: string,
+  securitySensitive: boolean = true
+): RateLimitResult {
+  if (isProduction() && securitySensitive) {
+    logger.error(
+      `CRITICAL: Production Redis unavailable for security-sensitive rate limiter [${key}]. Failing safely to protect system integrity.`,
+      {
+        operation,
+        metadata: { key, limit, windowMs },
+      }
+    );
+    return {
+      success: false,
+      limit,
+      remaining: 0,
+      reset: Math.floor((Date.now() + windowMs) / 1000),
+    };
+  }
+
+  return fallbackRateLimit(key, limit, windowMs);
+}
+
 /**
  * Creates a rate limiter instance if Redis is configured
  */
@@ -81,7 +111,7 @@ let authLimiter: Ratelimit | null = null;
 export async function rateLimitCheckin(identifier: string): Promise<RateLimitResult> {
   const redis = getRedisClient();
   if (!redis) {
-    return fallbackRateLimit(`checkin:${identifier}`, 60, 60_000); // 60 req / 1 min
+    return handleLimiterFallback(`checkin:${identifier}`, 60, 60_000, "RATELIMIT_CHECKIN", true);
   }
 
   if (!checkinLimiter) {
@@ -97,18 +127,18 @@ export async function rateLimitCheckin(identifier: string): Promise<RateLimitRes
       reset: res.reset,
     };
   } catch (error) {
-    logger.warn("Rate limiting failed on checkin, failing open", {
+    logger.warn("Rate limiting failed on checkin, handling fallback", {
       operation: "RATELIMIT_CHECKIN",
       metadata: { identifier },
     });
-    return fallbackRateLimit(`checkin:${identifier}`, 60, 60_000);
+    return handleLimiterFallback(`checkin:${identifier}`, 60, 60_000, "RATELIMIT_CHECKIN", true);
   }
 }
 
 export async function rateLimitNearbyCheck(identifier: string): Promise<RateLimitResult> {
   const redis = getRedisClient();
   if (!redis) {
-    return fallbackRateLimit(`nearby:${identifier}`, 120, 60_000); // 120 req / 1 min
+    return handleLimiterFallback(`nearby:${identifier}`, 120, 60_000, "RATELIMIT_NEARBY", false);
   }
 
   if (!nearbyLimiter) {
@@ -124,18 +154,18 @@ export async function rateLimitNearbyCheck(identifier: string): Promise<RateLimi
       reset: res.reset,
     };
   } catch (error) {
-    logger.warn("Rate limiting failed on nearby check, failing open", {
+    logger.warn("Rate limiting failed on nearby check, handling fallback", {
       operation: "RATELIMIT_NEARBY",
       metadata: { identifier },
     });
-    return fallbackRateLimit(`nearby:${identifier}`, 120, 60_000);
+    return handleLimiterFallback(`nearby:${identifier}`, 120, 60_000, "RATELIMIT_NEARBY", false);
   }
 }
 
 export async function rateLimitTokenRegistration(identifier: string): Promise<RateLimitResult> {
   const redis = getRedisClient();
   if (!redis) {
-    return fallbackRateLimit(`token_reg:${identifier}`, 60, 60_000); // 60 req / 1 min
+    return handleLimiterFallback(`token_reg:${identifier}`, 60, 60_000, "RATELIMIT_TOKEN_REG", true);
   }
 
   if (!tokenRegisterLimiter) {
@@ -151,18 +181,18 @@ export async function rateLimitTokenRegistration(identifier: string): Promise<Ra
       reset: res.reset,
     };
   } catch (error) {
-    logger.warn("Rate limiting failed on token registration, failing open", {
+    logger.warn("Rate limiting failed on token registration, handling fallback", {
       operation: "RATELIMIT_TOKEN_REG",
       metadata: { identifier },
     });
-    return fallbackRateLimit(`token_reg:${identifier}`, 60, 60_000);
+    return handleLimiterFallback(`token_reg:${identifier}`, 60, 60_000, "RATELIMIT_TOKEN_REG", true);
   }
 }
 
 export async function rateLimitOfferSend(merchantId: string): Promise<RateLimitResult> {
   const redis = getRedisClient();
   if (!redis) {
-    return fallbackRateLimit(`offer_send:${merchantId}`, 30, 60_000); // 30 sends / 1 min
+    return handleLimiterFallback(`offer_send:${merchantId}`, 30, 60_000, "RATELIMIT_OFFER_SEND", true);
   }
 
   if (!offerSendLimiter) {
@@ -178,18 +208,18 @@ export async function rateLimitOfferSend(merchantId: string): Promise<RateLimitR
       reset: res.reset,
     };
   } catch (error) {
-    logger.warn("Rate limiting failed on offer send, failing open", {
+    logger.warn("Rate limiting failed on offer send, handling fallback", {
       operation: "RATELIMIT_OFFER_SEND",
       metadata: { merchantId },
     });
-    return fallbackRateLimit(`offer_send:${merchantId}`, 30, 60_000);
+    return handleLimiterFallback(`offer_send:${merchantId}`, 30, 60_000, "RATELIMIT_OFFER_SEND", true);
   }
 }
 
 export async function rateLimitRedeem(identifier: string): Promise<RateLimitResult> {
   const redis = getRedisClient();
   if (!redis) {
-    return fallbackRateLimit(`redeem:${identifier}`, 30, 60_000); // 30 req / 1 min
+    return handleLimiterFallback(`redeem:${identifier}`, 30, 60_000, "RATELIMIT_REDEEM", true);
   }
 
   if (!redeemLimiter) {
@@ -205,18 +235,18 @@ export async function rateLimitRedeem(identifier: string): Promise<RateLimitResu
       reset: res.reset,
     };
   } catch (error) {
-    logger.warn("Rate limiting failed on redeem, failing open", {
+    logger.warn("Rate limiting failed on redeem, handling fallback", {
       operation: "RATELIMIT_REDEEM",
       metadata: { identifier },
     });
-    return fallbackRateLimit(`redeem:${identifier}`, 30, 60_000);
+    return handleLimiterFallback(`redeem:${identifier}`, 30, 60_000, "RATELIMIT_REDEEM", true);
   }
 }
 
 export async function rateLimitAuth(identifier: string): Promise<RateLimitResult> {
   const redis = getRedisClient();
   if (!redis) {
-    return fallbackRateLimit(`auth:${identifier}`, 20, 60_000); // 20 attempts / 1 min
+    return handleLimiterFallback(`auth:${identifier}`, 20, 60_000, "RATELIMIT_AUTH", true);
   }
 
   if (!authLimiter) {
@@ -232,11 +262,11 @@ export async function rateLimitAuth(identifier: string): Promise<RateLimitResult
       reset: res.reset,
     };
   } catch (error) {
-    logger.warn("Rate limiting failed on auth, failing open", {
+    logger.warn("Rate limiting failed on auth, handling fallback", {
       operation: "RATELIMIT_AUTH",
       metadata: { identifier },
     });
-    return fallbackRateLimit(`auth:${identifier}`, 20, 60_000);
+    return handleLimiterFallback(`auth:${identifier}`, 20, 60_000, "RATELIMIT_AUTH", true);
   }
 }
 

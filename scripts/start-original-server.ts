@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
-import localtunnel from "localtunnel";
 
 function parseEnv(filePath: string): Record<string, string> {
   if (!fs.existsSync(filePath)) return {};
@@ -47,7 +46,8 @@ process.on("unhandledRejection", (err) => {
   console.warn("[TUNNEL WARNING]", err);
 });
 
-let currentTunnel: localtunnel.Tunnel | null = null;
+// Optional local tunnel handle
+let currentTunnel: any = null;
 
 async function setupTunnel(retryCount = 0) {
   try {
@@ -58,6 +58,14 @@ async function setupTunnel(retryCount = 0) {
       currentTunnel = null;
     }
 
+    // Dynamic import to avoid static dependency vulnerability
+    const ltModule = await import("localtunnel" as any).catch(() => null);
+    if (!ltModule || !ltModule.default) {
+      console.log("Local tunnel module not installed or enabled. Server is running on http://localhost:3000");
+      return;
+    }
+
+    const localtunnel = ltModule.default;
     const tunnel = await localtunnel({ port: 3000 });
     currentTunnel = tunnel;
 
@@ -75,8 +83,8 @@ async function setupTunnel(retryCount = 0) {
     console.log(`LOCALTUNNEL PASSWORD (IF PROMPTED): ${tunnelPassword.trim()}`);
     console.log("==================================================\n");
 
-    tunnel.on("error", (err) => {
-      console.warn("Tunnel socket notice:", err.message);
+    tunnel.on("error", (err: any) => {
+      console.warn("Tunnel socket notice:", err?.message || err);
       setTimeout(() => setupTunnel(retryCount + 1), 3000);
     });
 
