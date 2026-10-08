@@ -290,20 +290,20 @@ export const OffersList: React.FC<OffersListProps> = ({
         <div className="space-y-1.5 max-w-xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
             <Send className="w-3.5 h-3.5" />
-            <span>SEND OFFER TO YOUR CUSTOMERS</span>
+            <span>CUSTOMERS KO OFFER BHEJEIN</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-            Send Offers to Your Customers with 1 Tap
+            1 Click Me Sabhi Customers Ko Offer Bhejein
           </h2>
           <p className="text-xs sm:text-sm text-indigo-100">
-            Select any offer below and click <strong>&quot;SEND TO ALL CUSTOMERS&quot;</strong> to deliver personalized notifications to your customers.
+            Niche kisi bhi offer ko select karein aur <strong>&quot;SABHI CUSTOMERS KO BHEJEIN&quot;</strong> dabakar sabhi customers ko message bhejein.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center sm:text-left">
             <span className="text-[11px] text-indigo-200 block uppercase font-bold">
-              Your Customers
+              Aapke Customers
             </span>
             <span className="text-xl sm:text-2xl font-black">
               {customerCount}
@@ -312,7 +312,7 @@ export const OffersList: React.FC<OffersListProps> = ({
 
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center sm:text-left">
             <span className="text-[11px] text-indigo-200 block uppercase font-bold">
-              Customers Receiving Offers
+              Offers Enabled
             </span>
             <span className="text-xl sm:text-2xl font-black">
               {subscriberCount}
@@ -325,7 +325,7 @@ export const OffersList: React.FC<OffersListProps> = ({
             className="gap-2 bg-white text-indigo-700 hover:bg-indigo-50 font-bold min-h-[46px] shadow-md self-stretch sm:self-auto"
           >
             <Plus className="w-4 h-4 text-indigo-600" />
-            <span>+ Create New Offer</span>
+            <span>+ Naya Offer Banayein</span>
           </Button>
         </div>
       </div>
@@ -336,7 +336,7 @@ export const OffersList: React.FC<OffersListProps> = ({
           <div className="flex items-center gap-2">
             <Tag className="w-5 h-5 text-indigo-600" />
             <h3 className="text-base sm:text-lg font-bold text-slate-900">
-              Your Offers
+              Aapke Offers
             </h3>
           </div>
           <span className="text-xs text-slate-500 font-semibold">
@@ -352,10 +352,10 @@ export const OffersList: React.FC<OffersListProps> = ({
             </div>
             <div className="space-y-1">
               <h4 className="text-base font-bold text-slate-900">
-                No Offers Created Yet
+                Abhi Koi Offer Nahi Banaya Hai
               </h4>
               <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-                Create an offer first, then send it to all your customers.
+                Pehle ek offer banayein, phir apne sabhi customers ko bhejein.
               </p>
             </div>
             <div>
@@ -365,7 +365,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                 className="gap-2 min-h-[42px] bg-indigo-600 hover:bg-indigo-700 font-bold"
               >
                 <Plus className="w-4 h-4" />
-                <span>+ Create New Offer</span>
+                <span>+ Naya Offer Banayein</span>
               </Button>
             </div>
           </div>
@@ -400,7 +400,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                         {offerStat.totalSent > 0 && (
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
                             <CheckCircle2 className="w-3 h-3 text-indigo-600" />
-                            <span>Delivered to {offerStat.totalSent}</span>
+                            <span>{offerStat.totalSent} ko deliver hua</span>
                           </span>
                         )}
                       </div>
@@ -437,7 +437,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                     <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 pt-1">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        Created {new Date(offer.created_at).toLocaleDateString()}
+                        Banaya {new Date(offer.created_at).toLocaleDateString()}
                       </span>
                       {offer.start_at && (
                         <span className="flex items-center gap-1">
@@ -450,7 +450,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                       )}
                       <span className="flex items-center gap-1 font-semibold text-slate-500">
                         <Users className="w-3 h-3 text-indigo-500" />
-                        {subscriberCount} Receiving Offers
+                        {subscriberCount} Offers Enabled
                       </span>
                     </div>
                   </div>
@@ -461,7 +461,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                       href={`/dashboard/offers/${offer.id}`}
                       className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline p-1"
                     >
-                      View Offer History
+                      Offer History Dekhein
                     </Link>
 
                     <Button
@@ -471,7 +471,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                       className="gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 min-h-[40px] px-4 font-bold shadow-xs"
                     >
                       <Send className="w-3.5 h-3.5" />
-                      <span>SEND TO ALL CUSTOMERS</span>
+                      <span>SABHI CUSTOMERS KO BHEJEIN</span>
                     </Button>
                   </div>
                 </div>
@@ -625,7 +625,7 @@ export const OffersList: React.FC<OffersListProps> = ({
 
               <div className="bg-white rounded-xl p-3 shadow-xs border border-slate-200 space-y-2 text-xs">
                 <div className="flex items-center justify-between text-[10px] text-slate-400">
-                  <span className="font-bold text-indigo-600">Ugrahak</span>
+                  <span className="font-bold text-indigo-600">U-Grahak</span>
                   <span>Just now</span>
                 </div>
 
@@ -794,7 +794,7 @@ export const OffersList: React.FC<OffersListProps> = ({
                           <div className="w-4 h-4 rounded-md bg-indigo-600 flex items-center justify-center text-white text-[9px] font-black">
                             UG
                           </div>
-                          <span className="font-semibold text-slate-700">Ugrahak</span>
+                          <span className="font-semibold text-slate-700">U-Grahak</span>
                         </div>
                         <span className="text-[10px]">Just now</span>
                       </div>

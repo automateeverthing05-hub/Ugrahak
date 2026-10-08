@@ -92,10 +92,10 @@ export const LoginForm: React.FC = () => {
           <Store className="w-6 h-6" />
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-          Business Owner Login
+          Shop Owner Login
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Log in to manage your customers, rewards and offers.
+          Apne customers, rewards aur offers manage karne ke liye login karein.
         </p>
       </div>
 
@@ -132,25 +132,25 @@ export const LoginForm: React.FC = () => {
           size="lg"
           isLoading={isLoading}
         >
-          Log In to Business Dashboard
+          Login Karein
         </Button>
       </form>
 
       <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col items-center gap-3 text-center">
         <p className="text-xs text-slate-600">
-          New to Ugrahak?{" "}
+          Naya business account banana hai?{" "}
           <Link
             href="/signup"
             className="font-bold text-indigo-600 hover:text-indigo-700 underline"
           >
-            Start Free — 7 Days
+            Free Account Banayein
           </Link>
         </p>
 
         {/* Trust & Clarity Note */}
         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-          <span>Built for local shops, cafes, salons, restaurants and other businesses.</span>
+          <span>Local retail shops, cafes, salons aur restaurants ke liye banaya gaya.</span>
         </div>
       </div>
     </div>

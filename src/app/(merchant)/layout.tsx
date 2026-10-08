@@ -3,6 +3,14 @@ import { redirect } from "next/navigation";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { Footer } from "@/components/layout/Footer";
 import type { Merchant } from "@/lib/types/database";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function MerchantLayout({
   children,

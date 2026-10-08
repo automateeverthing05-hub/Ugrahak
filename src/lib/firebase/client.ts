@@ -33,13 +33,27 @@ export async function getFirebaseMessaging() {
 }
 
 /**
+ * Comprehensive cross-browser Web Push capability detection.
+ * Checks for window, Notification API, ServiceWorker API, and PushManager API.
+ */
+export function isPushNotificationSupported(): boolean {
+  if (typeof window === "undefined") return false;
+  return Boolean(
+    "Notification" in window &&
+    "serviceWorker" in navigator &&
+    "PushManager" in window &&
+    typeof Notification.requestPermission === "function"
+  );
+}
+
+/**
  * Safe synchronous trigger for native browser notification permission prompt.
  * Must be executed synchronously within the user gesture event loop.
  * Supports modern Promise-based and legacy callback-based browser APIs.
  */
 export function requestNativePermission(): Promise<NotificationPermission> {
-  if (typeof window === "undefined" || !("Notification" in window)) {
-    return Promise.resolve("granted" as NotificationPermission);
+  if (!isPushNotificationSupported()) {
+    return Promise.resolve("default" as NotificationPermission);
   }
 
   try {
@@ -65,8 +79,11 @@ export async function requestNotificationPermissionAndToken(): Promise<{
   token?: string;
   error?: string;
 }> {
-  if (typeof window === "undefined" || !("Notification" in window) || !("serviceWorker" in navigator)) {
-    return { status: "unsupported", error: "Push notifications are not supported by this browser." };
+  if (!isPushNotificationSupported()) {
+    return {
+      status: "unsupported",
+      error: "Push notifications are not supported on this browser or device.",
+    };
   }
 
   try {
@@ -76,13 +93,19 @@ export async function requestNotificationPermissionAndToken(): Promise<{
     }
 
     if (permission === "denied") {
-      return { status: "denied", error: "Notification permission was blocked in browser settings." };
+      return {
+        status: "denied",
+        error: "Notification permission was blocked in browser settings.",
+      };
     }
     if (permission === "default") {
-      return { status: "default", error: "Notification permission prompt was dismissed." };
+      return {
+        status: "default",
+        error: "Notification permission prompt was dismissed.",
+      };
     }
 
-    // Permission is granted! Initialize FCM and obtain token
+    // Permission is granted! Initialize FCM and obtain token with timeout safety
     const messaging = await getFirebaseMessaging();
     if (!messaging) {
       return { status: "granted", token: `fcm_web_granted_${Date.now()}` };
@@ -93,17 +116,26 @@ export async function requestNotificationPermissionAndToken(): Promise<{
     let registration: ServiceWorkerRegistration | undefined;
     try {
       registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
-      await navigator.serviceWorker.ready;
+      // Add a 3s race condition so ready check never hangs mobile browsers indefinitely
+      await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((resolve) => setTimeout(resolve, 3000)),
+      ]);
     } catch (swErr) {
       console.warn("Service worker registration notice:", swErr);
     }
 
     try {
       const { getToken } = await import("firebase/messaging");
-      const token = await getToken(messaging, {
+      const tokenPromise = getToken(messaging, {
         vapidKey,
         serviceWorkerRegistration: registration,
       });
+
+      const token = await Promise.race([
+        tokenPromise,
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+      ]);
 
       if (token) {
         return { status: "granted", token };

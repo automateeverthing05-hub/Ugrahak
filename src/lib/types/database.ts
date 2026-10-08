@@ -468,7 +468,7 @@ export interface Database {
           customer_id: string;
           review_url: string | null;
           scheduled_at: string;
-          status: "PENDING" | "SENT" | "FAILED" | "SKIPPED";
+          status: "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "SKIPPED";
           sent_at: string | null;
           error_message: string | null;
           created_at: string;
@@ -480,7 +480,7 @@ export interface Database {
           customer_id: string;
           review_url?: string | null;
           scheduled_at: string;
-          status?: "PENDING" | "SENT" | "FAILED" | "SKIPPED";
+          status?: "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "SKIPPED";
           sent_at?: string | null;
           error_message?: string | null;
           created_at?: string;
@@ -492,7 +492,7 @@ export interface Database {
           customer_id?: string;
           review_url?: string | null;
           scheduled_at?: string;
-          status?: "PENDING" | "SENT" | "FAILED" | "SKIPPED";
+          status?: "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "SKIPPED";
           sent_at?: string | null;
           error_message?: string | null;
           created_at?: string;

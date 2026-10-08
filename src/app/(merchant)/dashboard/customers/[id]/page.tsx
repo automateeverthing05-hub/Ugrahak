@@ -9,6 +9,7 @@ import {
   Clock,
 } from "lucide-react";
 import { CustomerRewardsList } from "@/components/dashboard/CustomerRewardsList";
+import { DeleteCustomerButton } from "@/components/dashboard/DeleteCustomerButton";
 import type { Customer, Reward, CustomerVisit } from "@/lib/types/database";
 
 interface CustomerDetailPageProps {
@@ -62,14 +63,20 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Back button */}
-      <Link
-        href="/dashboard/customers"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Customers
-      </Link>
+      {/* Top Navigation & Action Bar */}
+      <div className="flex items-center justify-between gap-2">
+        <Link
+          href="/dashboard/customers"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Customers
+        </Link>
+        <DeleteCustomerButton
+          customerId={customer.id}
+          customerName={customer.name}
+        />
+      </div>
 
       {/* Customer Header Card */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">

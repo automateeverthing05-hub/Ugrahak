@@ -38,7 +38,7 @@ export const BUSINESS_GROWTH_SERVICES: GrowthService[] = [
     ],
     delivery: "Estimated delivery: 3–5 days",
     ctaText: "Get Started on WhatsApp",
-    whatsappMessage: "Hi Ugrahak, I want to get started with Website Development.",
+    whatsappMessage: "Hi U-Grahak, I want to get started with Website Development.",
     iconName: "Globe",
   },
   {
@@ -56,7 +56,7 @@ export const BUSINESS_GROWTH_SERVICES: GrowthService[] = [
     ],
     note: "Ad budget is separate.",
     ctaText: "Start Ads on WhatsApp",
-    whatsappMessage: "Hi Ugrahak, I want to start Meta Ads & Lead Generation for my business.",
+    whatsappMessage: "Hi U-Grahak, I want to start Meta Ads & Lead Generation for my business.",
     iconName: "Megaphone",
   },
   {
@@ -73,7 +73,7 @@ export const BUSINESS_GROWTH_SERVICES: GrowthService[] = [
       "Monthly report",
     ],
     ctaText: "Get Started on WhatsApp",
-    whatsappMessage: "Hi Ugrahak, I want to get started with Social Media Management.",
+    whatsappMessage: "Hi U-Grahak, I want to get started with Social Media Management.",
     iconName: "Share2",
   },
   {
@@ -89,7 +89,7 @@ export const BUSINESS_GROWTH_SERVICES: GrowthService[] = [
       "Monthly report",
     ],
     ctaText: "Start SEO on WhatsApp",
-    whatsappMessage: "Hi Ugrahak, I want to start SEO for my business.",
+    whatsappMessage: "Hi U-Grahak, I want to start SEO for my business.",
     iconName: "Search",
   },
   {
@@ -106,7 +106,7 @@ export const BUSINESS_GROWTH_SERVICES: GrowthService[] = [
       "Monthly report",
     ],
     ctaText: "Manage My Profile on WhatsApp",
-    whatsappMessage: "Hi Ugrahak, I want help managing my Google Business Profile.",
+    whatsappMessage: "Hi U-Grahak, I want help managing my Google Business Profile.",
     iconName: "Store",
   },
 ];

@@ -44,7 +44,7 @@ export const BusinessGrowthView: React.FC = () => {
             Business Growth
           </h1>
           <p className="text-sm sm:text-base text-indigo-100/90 leading-relaxed">
-            Get more customers and grow your business with Ugrahak growth services.
+            Get more customers and grow your business with U-Grahak growth services.
           </p>
         </div>
       </div>

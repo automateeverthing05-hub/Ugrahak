@@ -128,6 +128,20 @@ export async function processPendingReviewRequests(): Promise<{
 
   for (const req of pendingRequests) {
     try {
+      // 0. Concurrency lock: Claim request by transitioning status PENDING -> PROCESSING
+      // If another cron runner already claimed it, skip to prevent duplicate pushes
+      const { data: claimed, error: claimErr } = await admin
+        .from("review_requests")
+        .update({ status: "PROCESSING", updated_at: now })
+        .eq("id", req.id)
+        .eq("status", "PENDING")
+        .select("id")
+        .maybeSingle();
+
+      if (claimErr || !claimed) {
+        summary.skipped++;
+        continue;
+      }
       // 1. Fetch Merchant to check Google Review URL
       const { data: merchant } = await admin
         .from("merchants")
@@ -269,7 +283,7 @@ export async function processPendingReviewRequests(): Promise<{
 
 async function updateRequestStatus(
   id: string,
-  status: "PENDING" | "SENT" | "FAILED" | "SKIPPED",
+  status: "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "SKIPPED",
   sentAt: string | null,
   errorMessage: string | null
 ) {

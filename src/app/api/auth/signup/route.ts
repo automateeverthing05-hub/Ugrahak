@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { isValidEmail, isValidPassword, isValidPhone, isValidGoogleMapsUrl } from "@/lib/utils/validation";
 import { generateSlug } from "@/lib/utils/slugify";
 import { normalizePhone } from "@/lib/utils/referenceCode";
@@ -177,11 +178,29 @@ export async function POST(request: NextRequest) {
       console.warn("Default scratch reward seed notice:", seedErr);
     }
 
+    // 6. Automatically sign in server-side to establish authenticated session cookies directly
+    let sessionEstablished = false;
+    try {
+      const serverSupabase = await createClient();
+      const { data: signInData, error: signInError } =
+        await serverSupabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password: password,
+        });
+
+      if (!signInError && signInData.session) {
+        sessionEstablished = true;
+      }
+    } catch (sessionErr) {
+      console.warn("Server session establishment notice (client will fallback if needed):", sessionErr);
+    }
+
     return NextResponse.json({
       success: true,
       userId: userId,
       email: normalizedEmail,
       slug: finalSlug,
+      sessionEstablished,
     });
   } catch (err: unknown) {
     return NextResponse.json(

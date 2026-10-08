@@ -64,23 +64,41 @@ export const SignupForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // 1. Create account + initialize merchant profile on server
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          owner_name: ownerName.trim(),
-          shop_name: shopName.trim(),
-          phone: cleanPhone,
-          email: email.trim().toLowerCase(),
-          google_maps_url: googleMapsUrl.trim() || null,
-          password,
-        }),
-      });
+      // 1. Create account + initialize merchant profile + establish session on server
+      let res: Response;
+      try {
+        res = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            owner_name: ownerName.trim(),
+            shop_name: shopName.trim(),
+            phone: cleanPhone,
+            email: email.trim().toLowerCase(),
+            google_maps_url: googleMapsUrl.trim() || null,
+            password,
+          }),
+        });
+      } catch (networkErr: unknown) {
+        setError(
+          networkErr instanceof Error
+            ? `Network request failed: ${networkErr.message}. Please check your internet connection.`
+            : "Network error occurred while connecting to the signup service."
+        );
+        setIsLoading(false);
+        return;
+      }
 
-      const data = await res.json();
+      let data: { error?: string; sessionEstablished?: boolean; success?: boolean } = {};
+      try {
+        data = await res.json();
+      } catch {
+        setError("Unable to read response from server. Please try again.");
+        setIsLoading(false);
+        return;
+      }
 
       if (!res.ok) {
         setError(data.error || "Failed to create account. Please try again.");
@@ -88,24 +106,34 @@ export const SignupForm: React.FC = () => {
         return;
       }
 
-      // 2. Immediately sign in to establish active authenticated session in browser cookies
-      const supabase = createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password,
-      });
-
-      if (signInError) {
-        setError(
-          signInError.message ||
-            "Account created successfully, but automatic login failed. Please sign in."
-        );
-        setIsLoading(false);
+      // 2. If server established session directly in cookies, immediately proceed to dashboard
+      if (data.sessionEstablished) {
+        window.location.href = "/dashboard";
         return;
       }
 
-      // 3. Directly redirect to merchant dashboard
-      window.location.href = "/dashboard";
+      // 3. Fallback: If server session wasn't established, sign in via client
+      try {
+        const supabase = createClient();
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: email.trim().toLowerCase(),
+          password,
+        });
+
+        if (signInError) {
+          // Account was created successfully! Inform merchant to login
+          setError(
+            "Account created successfully! Please click Login below to access your dashboard."
+          );
+          setIsLoading(false);
+          return;
+        }
+
+        window.location.href = "/dashboard";
+      } catch {
+        // If client sign-in throws, redirect to login since account is verified
+        window.location.href = "/login?signupSuccess=true";
+      }
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred during signup."
@@ -122,7 +150,7 @@ export const SignupForm: React.FC = () => {
         </div>
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-            Create Your Business Account
+            Account Banayein
           </h2>
         </div>
         <div className="flex items-center gap-1.5 mt-1 text-xs text-emerald-700 font-bold bg-emerald-50/80 px-2.5 py-1 rounded-lg border border-emerald-100 w-fit">
@@ -136,8 +164,8 @@ export const SignupForm: React.FC = () => {
       <form onSubmit={handleSubmit} className="space-y-3.5">
         <div>
           <Input
-            label="Owner Name"
-            placeholder="Your name"
+            label="Aapka Naam (Owner Name)"
+            placeholder="Apna poora naam likhein"
             required
             value={ownerName}
             onChange={(e) => setOwnerName(e.target.value)}
@@ -146,8 +174,8 @@ export const SignupForm: React.FC = () => {
 
         <div>
           <Input
-            label="Shop / Business Name"
-            placeholder="Shop or business name"
+            label="Shop ya Business ka Naam"
+            placeholder="Jaise: Royal Sweets & Bakery"
             required
             value={shopName}
             onChange={(e) => setShopName(e.target.value)}
@@ -157,20 +185,20 @@ export const SignupForm: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
             <Input
-              label="Business Owner Phone Number"
+              label="Aapka Mobile Number"
               placeholder="10-digit mobile number"
               required
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              helperText="Your contact number as the business owner."
+              helperText="Shop owner ka contact number."
             />
           </div>
 
           <div>
             <Input
-              label="Email"
-              placeholder="Business email"
+              label="Email Address"
+              placeholder="owner@yourshop.com"
               type="email"
               autoComplete="email"
               required
@@ -183,10 +211,10 @@ export const SignupForm: React.FC = () => {
         <div>
           <Input
             label="Google Maps Link (Optional)"
-            placeholder="Paste Google Maps review link"
+            placeholder="Google Maps review link paste karein"
             value={googleMapsUrl}
             onChange={(e) => setGoogleMapsUrl(e.target.value)}
-            helperText="To help customers easily leave a Google review."
+            helperText="Customers se Google reviews paane ke liye."
           />
         </div>
 
@@ -195,16 +223,16 @@ export const SignupForm: React.FC = () => {
             label="Password"
             type="password"
             autoComplete="new-password"
-            placeholder="Create password"
+            placeholder="Password banayein"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            helperText="Minimum 6 characters."
+            helperText="Kam se kam 6 characters ka password."
           />
         </div>
 
         <p className="text-[11px] text-slate-500 text-center leading-relaxed px-1 pt-1">
-          By creating an account, you agree to our{" "}
+          Account banakar aap hamare{" "}
           <Link
             href="/terms"
             target="_blank"
@@ -212,15 +240,15 @@ export const SignupForm: React.FC = () => {
           >
             Terms &amp; Conditions
           </Link>{" "}
-          and{" "}
+          aur{" "}
           <Link
             href="/privacy-policy"
             target="_blank"
             className="text-indigo-600 hover:text-indigo-700 underline font-semibold"
           >
             Privacy Policy
-          </Link>
-          .
+          </Link>{" "}
+          se sehmat hote hain.
         </p>
 
         <Button
@@ -229,24 +257,24 @@ export const SignupForm: React.FC = () => {
           size="lg"
           isLoading={isLoading}
         >
-          Get Started Free
+          Start Free — No Card Required
         </Button>
       </form>
 
       <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col items-center gap-3 text-center">
         <p className="text-xs text-slate-600">
-          Already have an account?{" "}
+          Pehle se account hai?{" "}
           <Link
             href="/login"
             className="font-bold text-indigo-600 hover:text-indigo-700 underline"
           >
-            Login
+            Login Karein
           </Link>
         </p>
 
         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-          <span>Built for local shops, cafes, salons, restaurants and other businesses.</span>
+          <span>Local retail shops, cafes, salons aur restaurants ke liye banaya gaya.</span>
         </div>
       </div>
     </div>

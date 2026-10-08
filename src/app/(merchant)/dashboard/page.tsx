@@ -81,7 +81,7 @@ export default async function DashboardPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 mb-2">
             <Store className="w-6 h-6" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Welcome to Ugrahak</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Welcome to U-Grahak</h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Let&apos;s set up your store details to generate your customer QR code.
           </p>
@@ -159,13 +159,13 @@ export default async function DashboardPage() {
       <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[11px] font-bold text-amber-200">
-            <span>Core Flow: Customers &rarr; Send Offer &rarr; Return</span>
+            <span>Aasan Process: Customers &rarr; Offer Bhejein &rarr; Repeat Visits</span>
           </div>
           <h2 className="text-lg sm:text-xl font-extrabold tracking-tight">
-            Bring customers back to your shop
+            Customers ko apni shop par wapas bulayein
           </h2>
           <p className="text-xs text-indigo-100/90 max-w-md">
-            Send an instant offer with a weekend discount or festival deal to all your customers.
+            Apne sabhi customers ko weekend discount ya festival offer ek click me bhejein.
           </p>
         </div>
 
@@ -175,7 +175,7 @@ export default async function DashboardPage() {
             className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white text-indigo-700 font-extrabold text-xs sm:text-sm hover:bg-indigo-50 transition-colors shadow-sm min-h-[44px]"
           >
             <Send className="w-4 h-4 text-indigo-600" />
-            <span>Send New Offer</span>
+            <span>Naya Offer Bhejein</span>
             <ArrowRight className="w-4 h-4 text-indigo-600" />
           </Link>
 
@@ -184,7 +184,7 @@ export default async function DashboardPage() {
             className="inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-2xl bg-indigo-800/80 hover:bg-indigo-800 text-white font-bold text-xs transition-colors border border-indigo-500/30 min-h-[44px]"
           >
             <BarChart3 className="w-4 h-4 text-amber-300" />
-            <span>View Insights</span>
+            <span>Insights Dekhein</span>
           </Link>
         </div>
       </div>
@@ -195,7 +195,7 @@ export default async function DashboardPage() {
         <div className="lg:col-span-2 space-y-4">
           <Card
             title="Recent Customers"
-            description="Customers who scanned your shop QR code."
+            description="Shop QR code scan karne wale customers."
           >
             {recentCustomers.length === 0 ? (
               <div className="py-10 flex flex-col items-center justify-center text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 p-4">
@@ -203,10 +203,10 @@ export default async function DashboardPage() {
                   <Users className="w-6 h-6" />
                 </div>
                 <h4 className="text-sm font-semibold text-slate-800">
-                  No customer visits recorded yet
+                  Abhi koi customer visit nahi hua
                 </h4>
                 <p className="text-xs text-slate-500 max-w-sm mt-1">
-                  Place your store QR code at your counter. When customers scan it, their visits will appear here.
+                  Apna Shop QR code counter par lagayein. Jab customer scan karenge, unka visit yahan dikhega.
                 </p>
               </div>
             ) : (
@@ -226,7 +226,7 @@ export default async function DashboardPage() {
                             {cust.name}
                           </p>
                           <p className="text-xs text-slate-500">
-                            First seen {new Date(cust.first_visit_at).toLocaleDateString()}
+                            Pehli visit: {new Date(cust.first_visit_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
@@ -238,7 +238,7 @@ export default async function DashboardPage() {
                         <Link
                           href={`/dashboard/customers/${cust.id}`}
                           className="text-indigo-600 hover:text-indigo-800 p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center"
-                          title="View Customer Details"
+                          title="Customer Details Dekhein"
                         >
                           <ChevronRight className="w-4 h-4" />
                         </Link>
@@ -252,7 +252,7 @@ export default async function DashboardPage() {
                     href="/dashboard/customers"
                     className="text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline p-1 inline-flex items-center gap-1"
                   >
-                    <span>View All {totalCustomers} Customers</span>
+                    <span>Sabhi {totalCustomers} Customers Dekhein</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
 
@@ -261,7 +261,7 @@ export default async function DashboardPage() {
                     className="text-xs font-semibold text-slate-500 hover:text-slate-800 p-1 inline-flex items-center gap-1"
                   >
                     <Ticket className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Redeem Code</span>
+                    <span>Reward Redeem Karein</span>
                   </Link>
                 </div>
               </div>

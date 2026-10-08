@@ -44,8 +44,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const tabs: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
     { id: "profile", label: "Shop Profile", icon: Store },
     { id: "qr", label: "Store QR Code", icon: QrCode },
-    { id: "reviews", label: "Google Reviews", icon: Star },
-    { id: "nearby", label: "Nearby Customers (GPS)", icon: MapPin },
+    { id: "reviews", label: "Google Reviews Badhayein", icon: Star },
+    { id: "nearby", label: "Nearby Offers (GPS)", icon: MapPin },
     { id: "scratch", label: "Scratch Card", icon: Gift },
     { id: "billing", label: "Plan & Billing", icon: CreditCard },
   ];
@@ -94,12 +94,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
                 <h4 className="font-bold text-sm text-slate-900">
-                  How to use your QR Code
+                  QR Code ka use kaise karein
                 </h4>
                 <ol className="space-y-3 text-xs text-slate-600 list-decimal list-inside">
-                  <li>Download and print your QR code poster.</li>
-                  <li>Place the standee or poster at your checkout counter.</li>
-                  <li>Ask customers to scan with their phone camera to get instant rewards.</li>
+                  <li>Apna QR code poster download aur print karein.</li>
+                  <li>Billing counter par standee ya poster lagayein.</li>
+                  <li>Customers ko phone camera se scan karke instant reward paane ko kahein.</li>
                 </ol>
                 <div className="pt-2 border-t border-slate-100">
                   <a
@@ -108,7 +108,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     rel="noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700"
                   >
-                    <span>Preview customer QR page</span>
+                    <span>Customer QR page preview karein</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
@@ -117,7 +117,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           ) : (
             <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center">
               <p className="text-sm text-slate-600">
-                Please complete your shop profile first to generate your QR code.
+                QR code generate karne ke liye pehle apni shop profile complete karein.
               </p>
             </div>
           )}
@@ -142,19 +142,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                Offers for Nearby Customers (100–200m)
+                Nearby Offers (100–200m)
               </h3>
               <p className="text-xs text-slate-500">
-                Send an offer when a customer is near your shop.
+                Jab customer aapki shop ke paas aayein toh offer bhejein.
               </p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="p-4 bg-emerald-50/60 rounded-xl border border-emerald-200 text-xs text-emerald-900 space-y-2">
-              <p className="font-semibold">📍 How Offers for Nearby Customers Work:</p>
+              <p className="font-semibold">📍 Nearby Offers kaise kaam karta hai:</p>
               <p>
-                When customers open Ugrahak within 200 meters of your shop, your offers are displayed on their screen.
+                Jab customer aapki shop se 100–200 meter ke daayre me U-Grahak open karenge, unki screen par aapka offer dikhega.
               </p>
             </div>
 

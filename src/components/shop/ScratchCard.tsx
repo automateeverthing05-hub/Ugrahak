@@ -35,7 +35,7 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
     const rect = canvas.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
 
@@ -57,20 +57,44 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
 
     // Overlay text
     ctx.fillStyle = "#334155";
-    ctx.font = "bold 13px sans-serif";
+    ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("✨ Scratch to Reveal Your Reward ✨", rect.width / 2, rect.height / 2 - 8);
+    ctx.fillText("✨ Scratch Karke Reward Dekhein ✨", rect.width / 2, rect.height / 2 - 8);
 
-    ctx.font = "11px sans-serif";
+    ctx.font = "11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
     ctx.fillStyle = "#64748b";
-    ctx.fillText("New Customer Reward", rect.width / 2, rect.height / 2 + 16);
+    ctx.fillText("Naye Customer ka Reward", rect.width / 2, rect.height / 2 + 16);
   }, [isRevealed]);
 
   useEffect(() => {
     if (!isRevealed) {
       initCanvas();
     }
+  }, [initCanvas, isRevealed]);
+
+  // Handle device orientation change / window resize
+  useEffect(() => {
+    if (isRevealed || typeof window === "undefined") return;
+
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (!isRevealed) {
+          initCanvas();
+        }
+      }, 150);
+    };
+
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+
+    return () => {
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
   }, [initCanvas, isRevealed]);
 
   const checkScratchPercentage = () => {
@@ -115,26 +139,38 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
 
     ctx.globalCompositeOperation = "destination-out";
     ctx.beginPath();
-    ctx.arc(x, y, 22, 0, Math.PI * 2);
+    ctx.arc(x, y, 24, 0, Math.PI * 2);
     ctx.fill();
 
     checkScratchPercentage();
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Modern Pointer Events API (Universal support across iOS Safari, Android Chrome, Samsung Internet, Edge, Firefox)
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
     setIsDrawing(true);
     scratch(e.clientX, e.clientY);
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
     scratch(e.clientX, e.clientY);
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
     setIsDrawing(false);
   };
 
+  const handlePointerCancel = () => {
+    setIsDrawing(false);
+  };
+
+  // Fallback touch handlers for older touch devices
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDrawing(true);
     if (e.touches[0]) {
@@ -168,7 +204,7 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
       {/* Scratch Box Container (Responsive for 320px+) */}
       <div
         ref={containerRef}
-        className="relative w-full aspect-[16/10] min-h-[180px] rounded-2xl overflow-hidden shadow-lg border-2 border-amber-300/60 bg-gradient-to-br from-amber-500 via-indigo-600 to-indigo-800 text-white p-4 sm:p-5 flex flex-col justify-between"
+        className="relative w-full aspect-[16/10] min-h-[180px] rounded-2xl overflow-hidden shadow-lg border-2 border-amber-300/60 bg-gradient-to-br from-amber-500 via-indigo-600 to-indigo-800 text-white p-4 sm:p-5 flex flex-col justify-between select-none"
       >
         {/* Underlying Reward Content */}
         <div className="flex flex-col h-full justify-between z-0">
@@ -194,7 +230,7 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
           </div>
 
           <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-white/80 border-t border-white/20 pt-1.5">
-            <span>Show at counter</span>
+            <span>Counter par dikhayein</span>
             {expiresAt && (
               <span className="text-amber-200 text-[10px]">
                 Valid: {new Date(expiresAt).toLocaleDateString()}
@@ -208,10 +244,12 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full cursor-pointer touch-none z-10 select-none transition-opacity duration-300"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
+            style={{ touchAction: "none" }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
+            onPointerLeave={handlePointerCancel}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -243,7 +281,7 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
 
         <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50 py-1 px-2.5 rounded-lg border border-emerald-100">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-          <span>Show this code at the counter to redeem</span>
+          <span>Yeh code counter par dikhakar reward paayein</span>
         </div>
       </div>
     </div>

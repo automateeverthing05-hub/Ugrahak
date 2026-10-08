@@ -19,6 +19,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type { Merchant } from "@/lib/types/database";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 interface DashboardNavProps {
   merchant: Merchant | null;
@@ -42,17 +43,17 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
     }
   };
 
-  // Primary navigation items (Customers, Send Offer, Business Growth, Settings)
+  // Primary navigation items (Customer List, Offer Bhejein, Business Growth, Settings)
   const navItems = [
     {
       href: "/dashboard/customers",
-      label: "Customers",
+      label: "Customer List",
       icon: Users,
       active: pathname.startsWith("/dashboard/customers"),
     },
     {
       href: "/dashboard/offers",
-      label: "Send Offer",
+      label: "Offer Bhejein",
       icon: Send,
       active: pathname.startsWith("/dashboard/offers"),
     },
@@ -79,19 +80,12 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
             {/* Brand Logo & Name */}
             <div className="flex items-center gap-4 sm:gap-8">
               <Link href="/dashboard" className="flex items-center gap-2 group">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-xs group-hover:bg-indigo-700 transition-colors">
-                  <Store className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight leading-tight">
-                    Ugrahak
+                <BrandLogo size="md" />
+                {merchant?.shop_name && (
+                  <span className="hidden sm:inline-block text-[11px] text-slate-500 font-semibold bg-slate-100 px-2 py-0.5 rounded-md truncate max-w-[140px]">
+                    {merchant.shop_name}
                   </span>
-                  {merchant?.shop_name && (
-                    <span className="text-[10px] text-slate-500 font-medium truncate max-w-[120px] sm:max-w-[180px]">
-                      {merchant.shop_name}
-                    </span>
-                  )}
-                </div>
+                )}
               </Link>
 
               {/* Desktop Navigation (Customers, Send Offer, Settings) */}
@@ -182,7 +176,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                   </div>
                   <div>
                     <span className="font-bold text-sm text-slate-900 block truncate max-w-[140px]">
-                      {merchant?.shop_name || "Ugrahak"}
+                      {merchant?.shop_name || "U-Grahak"}
                     </span>
                     <span className="text-[10px] text-slate-400">Business Dashboard</span>
                   </div>
@@ -224,7 +218,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                 >
                   <div className="flex items-center gap-3">
                     <Users className="w-4 h-4 text-indigo-600" />
-                    <span>Customers</span>
+                    <span>Customer List</span>
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
                 </Link>
@@ -240,7 +234,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                 >
                   <div className="flex items-center gap-3">
                     <Send className="w-4 h-4 text-indigo-600" />
-                    <span>Send Offer</span>
+                    <span>Offer Bhejein</span>
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
                 </Link>
@@ -317,7 +311,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
             <div className="pt-4 border-t border-slate-100 space-y-3">
               <div className="text-xs">
                 <p className="font-semibold text-slate-900 truncate">
-                  {merchant?.shop_name || "Your Shop"}
+                  {merchant?.shop_name || "Aapki Shop"}
                 </p>
                 <p className="text-slate-400 text-[11px] truncate">{userEmail}</p>
               </div>
@@ -328,14 +322,14 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                 className="w-full flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-rose-50 text-rose-700 font-bold text-xs border border-rose-200 hover:bg-rose-100 transition-colors min-h-[44px]"
               >
                 <LogOut className="w-4 h-4" />
-                <span>{isLoggingOut ? "Signing out..." : "Sign Out"}</span>
+                <span>{isLoggingOut ? "Logout ho rahe hain..." : "Logout"}</span>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Mobile Bottom Navigation Bar (4 primary options: Customers, Send Offer, Business Growth, Settings) */}
+      {/* Mobile Bottom Navigation Bar (4 primary options: Customer List, Offer Bhejein, Business Growth, Settings) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1 flex items-center justify-around shadow-lg safe-area-bottom">
         <Link
           href="/dashboard/customers"
@@ -362,7 +356,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
           <div className="relative">
             <Send className={`w-5 h-5 ${pathname.startsWith("/dashboard/offers") ? "text-indigo-600 scale-110" : "text-slate-400"} transition-transform`} />
           </div>
-          <span className="text-[10px] sm:text-[11px] mt-0.5">Send Offer</span>
+          <span className="text-[10px] sm:text-[11px] mt-0.5">Offer Bhejein</span>
         </Link>
 
         <Link

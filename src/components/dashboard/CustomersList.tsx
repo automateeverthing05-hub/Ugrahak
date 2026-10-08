@@ -164,7 +164,7 @@ export const CustomersList: React.FC<CustomersListProps> = ({
           className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors min-h-[42px]"
         >
           <Ticket className="w-4 h-4" />
-          <span>Verify & Redeem Code</span>
+          <span>Reward Code Verify Karein</span>
         </button>
       </div>
 
@@ -174,7 +174,7 @@ export const CustomersList: React.FC<CustomersListProps> = ({
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search customer name..."
+            placeholder="Customer ka naam search karein..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-colors"
@@ -190,7 +190,7 @@ export const CustomersList: React.FC<CustomersListProps> = ({
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
-            All ({initialCustomers.length})
+            Sabhi ({initialCustomers.length})
           </button>
           <button
             onClick={() => handleFilterChange("FIRST")}
@@ -221,23 +221,23 @@ export const CustomersList: React.FC<CustomersListProps> = ({
             <Users className="w-7 h-7 sm:w-8 sm:h-8" />
           </div>
           <h3 className="text-base sm:text-lg font-bold text-slate-900">
-            No Customers in List Yet
+            Abhi List Me Koi Customer Nahi Hai
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mt-1.5">
-            Display your store QR code at your billing counter. When customers scan and enter their details, they will automatically appear here.
+            Billing counter par apna Shop QR code lagayein. Jab customer scan karenge, unka record yahan dikhega.
           </p>
           <div className="mt-6">
             <Link
               href="/dashboard/settings"
               className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors shadow-xs"
             >
-              Get Store QR Code
+              Shop QR Code Dekhein
             </Link>
           </div>
         </div>
       ) : filteredCustomers.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-500 text-xs shadow-xs">
-          No matching customers found for &quot;{search}&quot;.
+          &quot;{search}&quot; ke liye koi customer nahi mila.
         </div>
       ) : (
         <>

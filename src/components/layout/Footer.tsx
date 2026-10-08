@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Store, ShieldCheck, Mail, FileText, RefreshCw, HelpCircle, Sparkles } from "lucide-react";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 interface FooterProps {
   className?: string;
@@ -15,12 +16,7 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
       <footer className={`border-t border-slate-200 bg-white py-6 px-4 text-center text-xs text-slate-500 ${className}`}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-indigo-600 flex items-center justify-center text-white font-black text-xs">
-              <Store className="w-3.5 h-3.5" />
-            </div>
-            <span className="font-bold text-slate-900 tracking-tight">Ugrahak</span>
-            <span className="text-slate-300">&bull;</span>
-            <span>Local Retail SaaS</span>
+            <BrandLogo size="sm" showTagline={true} />
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-slate-600">
@@ -39,7 +35,7 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
           </div>
 
           <p className="text-[11px] text-slate-400">
-            &copy; {currentYear} Ugrahak. All rights reserved.
+            &copy; {currentYear} U-Grahak. All rights reserved.
           </p>
         </div>
       </footer>
@@ -53,12 +49,7 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
           {/* Brand & Purpose (5 Cols) */}
           <div className="md:col-span-5 space-y-4">
             <Link href="/" className="inline-flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black shadow-xs">
-                <Store className="w-5 h-5" />
-              </div>
-              <span className="font-black text-xl text-slate-900 tracking-tight">
-                Ugrahak
-              </span>
+              <BrandLogo size="md" />
             </Link>
 
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm">
@@ -164,7 +155,7 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
           </div>
 
           <p className="text-[11px] text-slate-400">
-            &copy; {currentYear} Ugrahak. Built for Local Businesses in India.
+            &copy; {currentYear} U-Grahak. Built for Local Businesses in India.
           </p>
         </div>
       </div>

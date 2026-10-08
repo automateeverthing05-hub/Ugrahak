@@ -105,6 +105,15 @@ CREATE POLICY "Merchants can update own customers"
   USING (auth.uid() = merchant_id)
   WITH CHECK (auth.uid() = merchant_id);
 
+DROP POLICY IF EXISTS "Merchants can delete own customers" ON public.customers;
+CREATE POLICY "Merchants can delete own customers"
+  ON public.customers FOR DELETE TO authenticated
+  USING (auth.uid() = merchant_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_customers_merchant_phone_unique 
+  ON public.customers (merchant_id, phone) 
+  WHERE phone IS NOT NULL AND phone <> '';
+
 DROP TRIGGER IF EXISTS trigger_customers_updated_at ON public.customers;
 CREATE TRIGGER trigger_customers_updated_at
   BEFORE UPDATE ON public.customers

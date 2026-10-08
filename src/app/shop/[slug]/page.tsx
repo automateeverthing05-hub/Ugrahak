@@ -5,6 +5,7 @@ import { CustomerCheckinFlow } from "@/components/shop/CustomerCheckinFlow";
 import { Store, MapPin, Phone } from "lucide-react";
 import type { Metadata } from "next";
 import type { ShopPublicProfile } from "@/lib/types/database";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 export const revalidate = 60; // 60s ISR public caching
 
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }: ShopPageProps): Promise<Metad
 
   if (!merchant) {
     return {
-      title: "Shop Not Found - Ugrahak",
+      title: "Shop Not Found - U-Grahak",
     };
   }
 
@@ -68,12 +69,7 @@ export default async function ShopPage({ params }: ShopPageProps) {
       {/* Header / Brand */}
       <header className="w-full max-w-md flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
-            <Store className="w-4 h-4" />
-          </div>
-          <span className="font-bold text-sm text-slate-800 tracking-tight">
-            Ugrahak
-          </span>
+          <BrandLogo size="sm" />
         </div>
         <span className="text-[10px] sm:text-[11px] font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-full">
           Store Rewards
@@ -130,7 +126,7 @@ export default async function ShopPage({ params }: ShopPageProps) {
 
       {/* Footer */}
       <footer className="w-full max-w-md py-4 text-center text-[11px] text-slate-400">
-        Powered by Ugrahak &bull; Built for Local Businesses
+        Powered by U-Grahak &bull; Built for Local Businesses
       </footer>
     </div>
   );

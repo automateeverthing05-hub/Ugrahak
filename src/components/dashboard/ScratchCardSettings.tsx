@@ -380,7 +380,7 @@ export const ScratchCardSettings: React.FC<ScratchCardSettingsProps> = ({
             <ul className="list-disc list-inside space-y-1 text-purple-800 text-[11px]">
               <li>When a customer completes their 1st QR scan, 1 enabled reward is picked <strong>server-side</strong>.</li>
               <li>Customer scratches the interactive card on their smartphone screen to reveal their reward and 6-digit reference code.</li>
-              <li>If no custom rewards are enabled, Ugrahak automatically uses the standard <strong>Flat 10% Off</strong>.</li>
+              <li>If no custom rewards are enabled, U-Grahak automatically uses the standard <strong>Flat 10% Off</strong>.</li>
             </ul>
           </div>
         </div>

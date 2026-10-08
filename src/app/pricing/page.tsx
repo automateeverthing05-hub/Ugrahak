@@ -3,9 +3,10 @@ import Link from "next/link";
 import { PLANS } from "@/lib/billing/plans";
 import { Store, Check, ArrowRight, ShieldCheck, Sparkles, FileText, RefreshCw } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 export const metadata: Metadata = {
-  title: "Pricing Plans | Ugrahak",
+  title: "Pricing Plans | U-Grahak",
   description:
     "Transparent pricing for local business owners. Free, Starter, Growth, and Pro plans for store rewards and bringing customers back.",
 };
@@ -19,12 +20,7 @@ export default function PricingPage() {
       <header className="border-b border-slate-200 bg-white sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-xs">
-              <Store className="w-5 h-5" />
-            </div>
-            <span className="font-extrabold text-lg text-slate-900 tracking-tight">
-              Ugrahak
-            </span>
+            <BrandLogo size="md" />
           </Link>
 
           <div className="flex items-center gap-3">

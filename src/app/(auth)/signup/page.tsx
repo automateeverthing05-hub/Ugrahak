@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SignupForm } from "@/components/auth/SignupForm";
 import { Spinner } from "@/components/ui/Spinner";
 import { Footer } from "@/components/layout/Footer";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 import {
   Store,
   QrCode,
@@ -17,9 +18,9 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Create Business Account | Ugrahak",
+  title: "Create Business Account | U-Grahak",
   description:
-    "Create your shop QR code and start building your customer list in minutes with Ugrahak.",
+    "Create your shop QR code and start building your customer list in minutes with U-Grahak.",
 };
 
 export default function SignupPage() {
@@ -29,12 +30,7 @@ export default function SignupPage() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black shadow-xs">
-              <Store className="w-5 h-5" />
-            </div>
-            <span className="font-extrabold text-lg text-slate-900 tracking-tight">
-              Ugrahak
-            </span>
+            <BrandLogo size="md" />
           </Link>
 
           <div className="flex items-center gap-3">
@@ -56,7 +52,7 @@ export default function SignupPage() {
             <div className="space-y-3">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Free Plan &bull; No Card Required</span>
+                <span>Free se shuru karein &bull; No Card Required</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
@@ -65,14 +61,14 @@ export default function SignupPage() {
               </h1>
 
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                Save customers, give new customer rewards, send offers and bring customers back. Set up your shop in less than 2 minutes.
+                Customers ko save karein, naye customer rewards dein, offers bhejein aur unhe dobara bulayein. 2 minute me apni shop setup karein.
               </p>
             </div>
 
             {/* Visual 3-Step Flow */}
             <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
               <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
-                How It Works In 3 Simple Steps
+                Ugrahak Kaise Kaam Karta Hai
               </h3>
 
               <div className="space-y-3.5">
@@ -85,7 +81,7 @@ export default function SignupPage() {
                       Customer Scans Your QR
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Customer scans your shop QR and enters their name.
+                      Customer shop par aakar QR scan karega aur apna naam likhega.
                     </p>
                   </div>
                 </div>
@@ -96,10 +92,10 @@ export default function SignupPage() {
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-slate-900">
-                      Customer Gets a Reward
+                      Customer ko Reward Milega
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Customer gets your scratch-card reward for new customers.
+                      Customer ko turant scratch card reward aur discount code milega.
                     </p>
                   </div>
                 </div>
@@ -110,10 +106,10 @@ export default function SignupPage() {
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-slate-900">
-                      Bring Them Back
+                      Offers Bhejkar Dobara Bulayein
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Send offers when customers are nearby and bring them back again.
+                      Offers bhejkar customers ko dobara apni shop par aane ka reason dein.
                     </p>
                   </div>
                 </div>
@@ -137,13 +133,13 @@ export default function SignupPage() {
               <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs flex items-center gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span className="text-xs font-bold text-slate-800">
-                  Send Offers Instantly
+                  Direct Offers Bhejein
                 </span>
               </div>
               <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs flex items-center gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span className="text-xs font-bold text-slate-800">
-                  Get More Google Reviews
+                  Google Reviews Badhayein
                 </span>
               </div>
             </div>

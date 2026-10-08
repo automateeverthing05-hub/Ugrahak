@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import crypto from "crypto";
 import { processPendingReviewRequests } from "@/lib/reviews/reviewScheduler";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,12 +16,19 @@ export async function GET(request: NextRequest) {
 
     let isAuthorized = isVercelCron;
 
-    if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
-      isAuthorized = true;
+    if (cronSecret && authHeader) {
+      const expectedHeader = `Bearer ${cronSecret}`;
+      // Constant-length / timing safe check if lengths match
+      if (
+        authHeader.length === expectedHeader.length &&
+        crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedHeader))
+      ) {
+        isAuthorized = true;
+      }
     }
 
-    // In local dev environment, also allow authenticated merchants to test-trigger the scheduler
-    if (!isAuthorized) {
+    // In non-production environments, also allow authenticated merchants to test-trigger the scheduler
+    if (!isAuthorized && process.env.NODE_ENV !== "production") {
       try {
         const supabase = await createClient();
         const {
@@ -34,7 +42,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    if (!isAuthorized && process.env.NODE_ENV === "production") {
+    if (!isAuthorized) {
       return NextResponse.json(
         { error: "Unauthorized cron execution." },
         { status: 401 }
@@ -51,7 +59,14 @@ export async function GET(request: NextRequest) {
     });
   } catch (err: unknown) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to process review requests" },
+      {
+        error:
+          process.env.NODE_ENV === "production"
+            ? "Failed to process review requests"
+            : err instanceof Error
+            ? err.message
+            : "Failed to process review requests",
+      },
       { status: 500 }
     );
   }

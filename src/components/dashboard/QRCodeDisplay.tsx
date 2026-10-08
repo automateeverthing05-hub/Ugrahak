@@ -42,6 +42,8 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
     if (!svgElement) return;
 
     const svgData = new XMLSerializer().serializeToString(svgElement);
+    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const blobUrl = URL.createObjectURL(svgBlob);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
@@ -59,15 +61,16 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
         downloadLink.href = pngFile;
         downloadLink.click();
       }
+      URL.revokeObjectURL(blobUrl);
     };
 
-    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+    img.src = blobUrl;
   };
 
   return (
     <Card
-      title="Store QR Code"
-      description="Print and place this QR code at your billing counter for customers to scan."
+      title="Shop QR Code"
+      description="Billing counter par lagane ke liye is QR code ko download aur print karein."
       className="flex flex-col items-center text-center"
     >
       {/* QR Box (Mobile Adaptive) */}
@@ -112,7 +115,7 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
           className="flex-1 gap-1.5 text-xs min-h-[40px]"
         >
           <Download className="w-3.5 h-3.5" />
-          <span>Download QR</span>
+          <span>QR Download Karein</span>
         </Button>
 
         <a
@@ -127,7 +130,7 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
             className="w-full gap-1.5 text-xs min-h-[40px]"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span>Open Page</span>
+            <span>QR Page Kholein</span>
           </Button>
         </a>
       </div>

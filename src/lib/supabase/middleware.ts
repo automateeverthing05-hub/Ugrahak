@@ -23,11 +23,16 @@ export async function updateSession(request: NextRequest) {
   supabaseResponse.headers.set("X-XSS-Protection", "1; mode=block");
   supabaseResponse.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
-  const pathname = request.nextUrl.pathname;
+  const rawPathname = request.nextUrl.pathname;
+  // Normalize trailing slashes for robust matching (e.g. /shop/hiuhi/ -> /shop/hiuhi)
+  const pathname = rawPathname.length > 1 && rawPathname.endsWith("/")
+    ? rawPathname.slice(0, -1)
+    : rawPathname;
 
   // Fast-path for public static / marketing / customer routes (Zero Auth Network Overhead)
   const isPublicRoute =
     pathname === "/" ||
+    pathname === "/shop" ||
     pathname.startsWith("/shop/") ||
     pathname.startsWith("/nearby") ||
     pathname.startsWith("/pricing") ||
@@ -35,8 +40,8 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/terms") ||
     pathname.startsWith("/privacy-policy") ||
     pathname.startsWith("/refund-policy") ||
-    pathname.startsWith("/api/shop/") ||
-    pathname.startsWith("/api/cron/") ||
+    pathname.startsWith("/api/shop") ||
+    pathname.startsWith("/api/cron") ||
     pathname.startsWith("/api/inngest");
 
   if (isPublicRoute) {

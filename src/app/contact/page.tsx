@@ -14,11 +14,12 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 export const metadata: Metadata = {
-  title: "Contact Support | Ugrahak",
+  title: "Contact Support | U-Grahak",
   description:
-    "Get in touch with the Ugrahak support team for business assistance, technical issues, billing, and account help.",
+    "Get in touch with the U-Grahak support team for business assistance, technical issues, billing, and account help.",
 };
 
 export default function ContactPage() {
@@ -28,12 +29,7 @@ export default function ContactPage() {
       <header className="border-b border-slate-200 bg-white sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-xs">
-              <Store className="w-5 h-5" />
-            </div>
-            <span className="font-extrabold text-lg text-slate-900 tracking-tight">
-              Ugrahak
-            </span>
+            <BrandLogo size="md" />
           </Link>
 
           <div className="flex items-center gap-3">

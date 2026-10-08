@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Store, FileText, CheckCircle2, AlertTriangle, Scale, ShieldAlert, ArrowLeft, Mail } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions | Ugrahak",
+  title: "Terms & Conditions | U-Grahak",
   description:
-    "Terms and Conditions governing the use of the Ugrahak merchant SaaS platform.",
+    "Terms and Conditions governing the use of the U-Grahak merchant SaaS platform.",
 };
 
 export default function TermsPage() {
@@ -18,12 +19,7 @@ export default function TermsPage() {
       <header className="border-b border-slate-200 bg-white sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-xs">
-              <Store className="w-5 h-5" />
-            </div>
-            <span className="font-extrabold text-lg text-slate-900 tracking-tight">
-              Ugrahak
-            </span>
+            <BrandLogo size="md" />
           </Link>
 
           <div className="flex items-center gap-3">
@@ -56,7 +52,7 @@ export default function TermsPage() {
             Terms &amp; Conditions
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-2">
-            Last Updated: {lastUpdated} &bull; Please read these terms carefully before using Ugrahak
+            Last Updated: {lastUpdated} &bull; Please read these terms carefully before using U-Grahak
           </p>
         </div>
 
@@ -71,8 +67,8 @@ export default function TermsPage() {
               Acceptance of Terms
             </h2>
             <p className="text-slate-600">
-              By accessing, registering for, or using the <strong>Ugrahak</strong> SaaS platform (the &quot;Service&quot;), operated by{" "}
-              <span className="font-semibold text-slate-800">Ugrahak</span>,
+              By accessing, registering for, or using the <strong>U-Grahak</strong> SaaS platform (the &quot;Service&quot;), operated by{" "}
+              <span className="font-semibold text-slate-800">U-Grahak</span>,
               you (&quot;Merchant,&quot; &quot;User,&quot; or &quot;Subscriber&quot;) agree to be legally bound by these Terms &amp; Conditions and our Privacy Policy. If you do not agree to these terms, do not register or use the Service.
             </p>
           </section>
@@ -86,7 +82,7 @@ export default function TermsPage() {
               Service Description
             </h2>
             <p className="text-slate-600">
-              Ugrahak is a cloud-based software subscription platform designed for local businesses, shops, cafes, salons, and retail establishments. The platform enables merchants to:
+              U-Grahak is a cloud-based software subscription platform designed for local businesses, shops, cafes, salons, and retail establishments. The platform enables merchants to:
             </p>
             <ul className="mt-3 text-xs sm:text-sm text-slate-600 space-y-1.5 list-disc list-inside">
               <li>Display a store QR code at their counter to capture customer check-ins.</li>
@@ -132,7 +128,7 @@ export default function TermsPage() {
               Rewards, Scratch Cards &amp; Store Discounts
             </h2>
             <p className="text-slate-600">
-              Merchants configure their own discount amounts, scratch card probabilities, and reward validity periods. <strong>Ugrahak is a software facilitator and is not a party to the commercial transaction between the merchant and the end customer.</strong> The merchant is solely responsible for honoring validly presented discount codes and scratch card rewards at their billing counter.
+              Merchants configure their own discount amounts, scratch card probabilities, and reward validity periods. <strong>U-Grahak is a software facilitator and is not a party to the commercial transaction between the merchant and the end customer.</strong> The merchant is solely responsible for honoring validly presented discount codes and scratch card rewards at their billing counter.
             </p>
           </section>
 
@@ -145,7 +141,7 @@ export default function TermsPage() {
               Offer Broadcasts &amp; Notification Delivery
             </h2>
             <p className="text-slate-600">
-              Push notification delivery depends on customer device state, browser background execution permissions, battery optimization settings, and active internet connectivity. While Ugrahak dispatches notifications immediately via Firebase Cloud Messaging without scheduled delays, we cannot guarantee 100% receipt if an end user&apos;s device is offline or has revoked notification permissions.
+              Push notification delivery depends on customer device state, browser background execution permissions, battery optimization settings, and active internet connectivity. While U-Grahak dispatches notifications immediately via Firebase Cloud Messaging without scheduled delays, we cannot guarantee 100% receipt if an end user&apos;s device is offline or has revoked notification permissions.
             </p>
           </section>
 
@@ -158,7 +154,7 @@ export default function TermsPage() {
               Google Review Requests
             </h2>
             <p className="text-slate-600">
-              The automated Google review feature directs customers to the merchant&apos;s publicly accessible Google Maps review page. Ugrahak does not generate, alter, influence, post fake reviews, or interfere with Google&apos;s third-party review systems.
+              The automated Google review feature directs customers to the merchant&apos;s publicly accessible Google Maps review page. U-Grahak does not generate, alter, influence, post fake reviews, or interfere with Google&apos;s third-party review systems.
             </p>
           </section>
 
@@ -174,11 +170,11 @@ export default function TermsPage() {
               Merchants agree not to engage in any of the following activities:
             </p>
             <ul className="text-xs sm:text-sm text-slate-600 space-y-1.5 list-disc list-inside">
-              <li>Reverse engineering, decompiling, or attempting to extract Ugrahak source code.</li>
+              <li>Reverse engineering, decompiling, or attempting to extract U-Grahak source code.</li>
               <li>Sending fraudulent, illegal, obscene, gambling-related, or deceptive promotional messages.</li>
               <li>Automated bot scraping or flooding the check-in or notification endpoints.</li>
               <li>Impersonating another business, brand, or merchant.</li>
-              <li>Reselling or subleasing Ugrahak accounts without authorized partner agreement.</li>
+              <li>Reselling or subleasing U-Grahak accounts without authorized partner agreement.</li>
             </ul>
           </section>
 
@@ -191,7 +187,7 @@ export default function TermsPage() {
               Subscriptions &amp; Paid Plans
             </h2>
             <p className="text-slate-600">
-              Ugrahak provides a permanent Free plan as well as paid monthly subscription tiers (Starter, Growth, and Pro). All paid fees are quoted in Indian Rupees (INR) and are subject to applicable taxes. Feature access and monthly quotas (including customer database capacity and monthly offer recipient limits) are enforced according to the selected plan tier.
+              U-Grahak provides a permanent Free plan as well as paid monthly subscription tiers (Starter, Growth, and Pro). All paid fees are quoted in Indian Rupees (INR) and are subject to applicable taxes. Feature access and monthly quotas (including customer database capacity and monthly offer recipient limits) are enforced according to the selected plan tier.
             </p>
           </section>
 
@@ -202,7 +198,7 @@ export default function TermsPage() {
               No Warranty of Guaranteed Revenue or Footfall
             </h2>
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-              Ugrahak provides digital software tools designed to help merchants engage with their customers. <strong>We do NOT guarantee specific business growth, revenue numbers, footfall increases, customer return percentages, or merchant profitability.</strong> Business success depends on merchant product quality, pricing, store location, and external retail market factors.
+              U-Grahak provides digital software tools designed to help merchants engage with their customers. <strong>We do NOT guarantee specific business growth, revenue numbers, footfall increases, customer return percentages, or merchant profitability.</strong> Business success depends on merchant product quality, pricing, store location, and external retail market factors.
             </p>
           </section>
 
@@ -215,7 +211,7 @@ export default function TermsPage() {
               Limitation of Liability
             </h2>
             <p className="text-slate-600">
-              To the maximum extent permitted by applicable Indian law, Ugrahak and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages, loss of profits, loss of customer goodwill, or service interruptions. Our total cumulative liability arising from any claim under these Terms shall not exceed the subscription amount paid by the merchant in the one (1) month immediately preceding the event.
+              To the maximum extent permitted by applicable Indian law, U-Grahak and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages, loss of profits, loss of customer goodwill, or service interruptions. Our total cumulative liability arising from any claim under these Terms shall not exceed the subscription amount paid by the merchant in the one (1) month immediately preceding the event.
             </p>
           </section>
 
@@ -255,7 +251,7 @@ export default function TermsPage() {
               For questions concerning these Terms &amp; Conditions or legal notices:
             </p>
             <div className="mt-4 p-4 rounded-2xl bg-white border border-indigo-100 text-xs sm:text-sm space-y-1.5">
-              <p><strong>Entity:</strong> Ugrahak</p>
+              <p><strong>Entity:</strong> U-Grahak</p>
               <p><strong>Support Email:</strong> <a href="mailto:supportugrahak@gmail.com" className="text-indigo-600 font-semibold hover:underline">supportugrahak@gmail.com</a></p>
               <p><strong>Operating Hours:</strong> Monday – Saturday, 10:00 AM – 6:00 PM IST</p>
             </div>

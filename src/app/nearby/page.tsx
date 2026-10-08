@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Store, Navigation, MapPin, Sparkles, Tag, ArrowRight, Compass, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Footer } from "@/components/layout/Footer";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 interface NearbyShopOffer {
   shop_name: string;
@@ -87,12 +88,7 @@ export default function NearbyOffersPage() {
       <header className="border-b border-slate-200 bg-white sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold">
-              <Store className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <span className="font-bold text-base sm:text-lg text-slate-900 tracking-tight">
-              Ugrahak
-            </span>
+            <BrandLogo size="md" />
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">

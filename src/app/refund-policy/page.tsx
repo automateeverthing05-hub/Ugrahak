@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Store, RefreshCw, CheckCircle2, Clock, CreditCard, HelpCircle, ArrowLeft, Mail } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 export const metadata: Metadata = {
-  title: "Refund & Cancellation Policy | Ugrahak",
+  title: "Refund & Cancellation Policy | U-Grahak",
   description:
-    "Refund and Cancellation Policy for Ugrahak SaaS subscriptions and merchant plans.",
+    "Refund and Cancellation Policy for U-Grahak SaaS subscriptions and merchant plans.",
 };
 
 export default function RefundPolicyPage() {
@@ -18,12 +19,7 @@ export default function RefundPolicyPage() {
       <header className="border-b border-slate-200 bg-white sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-xs">
-              <Store className="w-5 h-5" />
-            </div>
-            <span className="font-extrabold text-lg text-slate-900 tracking-tight">
-              Ugrahak
-            </span>
+            <BrandLogo size="md" />
           </Link>
 
           <div className="flex items-center gap-3">

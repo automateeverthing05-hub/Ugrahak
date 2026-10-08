@@ -5,7 +5,11 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { ScratchCard } from "@/components/shop/ScratchCard";
-import { requestNotificationPermissionAndToken } from "@/lib/firebase/client";
+import {
+  requestNotificationPermissionAndToken,
+  isPushNotificationSupported,
+  requestNativePermission,
+} from "@/lib/firebase/client";
 import {
   Gift,
   Sparkles,
@@ -102,7 +106,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   useEffect(() => {
     try {
       if (typeof window !== "undefined") {
-        if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+        if (!isPushNotificationSupported()) {
           setPermissionState("unsupported");
         } else if (Notification.permission === "granted") {
           setPermissionState("granted");
@@ -123,7 +127,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           // If already granted or unsupported, unlock scratch card
           if (
             typeof window !== "undefined" &&
-            ("Notification" in window ? Notification.permission === "granted" : true)
+            (isPushNotificationSupported() ? Notification.permission === "granted" : true)
           ) {
             setIsScratchCardUnlocked(true);
             setStep("REVEALED");
@@ -156,64 +160,36 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   };
 
   /**
-   * Execute backend checkin, push token registration, and unlock scratch card
+   * Background task: Resolve FCM token & register with backend without blocking UI
    */
-  const executeCheckinAndUnlock = async (customerName: string, preFetchedToken?: string | null) => {
+  const handleBackgroundTokenRegistration = async (customerId: string) => {
     try {
-      const checkinResponse = await fetch("/api/shop/checkin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug,
-          name: customerName,
-        }),
-      });
-
-      const data = await checkinResponse.json();
-
-      if (!checkinResponse.ok) {
-        setError(data.error || "Failed to record your visit. Please try again.");
-        setIsSubmitting(false);
+      if (typeof window === "undefined" || !isPushNotificationSupported()) {
+        setPermissionState("unsupported");
         return;
       }
 
-      setCheckinData(data);
-
-      // Register FCM push token if available
-      let tokenToRegister = preFetchedToken || fcmToken;
-      if (!tokenToRegister && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-        try {
-          const tokenRes = await requestNotificationPermissionAndToken();
-          if (tokenRes.token) {
-            tokenToRegister = tokenRes.token;
-            setFcmToken(tokenRes.token);
-          }
-        } catch {
-          // Non-blocking token retrieval
+      if (Notification.permission === "granted") {
+        setPermissionState("granted");
+        const tokenRes = await requestNotificationPermissionAndToken();
+        if (tokenRes.token) {
+          setFcmToken(tokenRes.token);
+          await registerPushToken(customerId, tokenRes.token);
         }
+      } else if (Notification.permission === "denied") {
+        setPermissionState("denied");
       }
-
-      if (tokenToRegister && data.customer?.id) {
-        await registerPushToken(data.customer.id, tokenToRegister);
-      }
-
-      // Unlock scratch card
-      setIsScratchCardUnlocked(true);
-      setStep("REVEALED");
-
-      try {
-        sessionStorage.setItem(storageKey, JSON.stringify(data));
-      } catch {}
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
-    } finally {
-      setIsSubmitting(false);
+    } catch {
+      // Non-blocking background error
     }
   };
 
   /**
-   * DIRECT USER CLICK HANDLER: "Enable Offers & Get Reward"
-   * Triggers browser native notification permission prompt synchronously on user gesture.
+   * DIRECT USER CLICK HANDLER: "Offers Enable Karein"
+   * 1. Synchronously requests native browser notification permission on user gesture
+   * 2. Parallelizes customer check-in API request
+   * 3. Instantly reveals scratch card reward upon check-in response
+   * 4. Asynchronously obtains and registers FCM token in background
    */
   const handleCheckinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,55 +212,63 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
     setName(trimmedName);
     setIsSubmitting(true);
 
-    // If notifications are unsupported in browser, proceed directly to checkin
-    if (typeof window === "undefined" || !("Notification" in window) || !("serviceWorker" in navigator)) {
-      setPermissionState("unsupported");
-      await executeCheckinAndUnlock(trimmedName);
-      return;
-    }
-
-    // If already granted, perform check-in directly
-    if (Notification.permission === "granted") {
-      setPermissionState("granted");
-      await executeCheckinAndUnlock(trimmedName);
-      return;
-    }
-
-    // If already denied, switch to settings guidance view
-    if (Notification.permission === "denied") {
-      setPermissionState("denied");
-      setPermissionError(
-        "Please enable Offers in your browser settings to get your reward."
-      );
-      setStep("ALLOW_OFFERS");
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Permission is 'default': Trigger native browser prompt IMMEDIATELY on this user gesture
-    try {
-      const fcmRes = await requestNotificationPermissionAndToken();
-
-      if (fcmRes.status === "granted") {
-        setPermissionState("granted");
-        if (fcmRes.token) {
-          setFcmToken(fcmRes.token);
-        }
-        await executeCheckinAndUnlock(trimmedName, fcmRes.token);
-      } else if (fcmRes.status === "denied") {
-        setPermissionState("denied");
-        setPermissionError(
-          "Please enable Offers in your browser settings to get your reward."
-        );
-        setStep("ALLOW_OFFERS");
-        setIsSubmitting(false);
-      } else {
-        setPermissionState("default");
-        setError("Please enable Offers in your browser settings to get your reward.");
-        setIsSubmitting(false);
+    // 1. Synchronously initiate native browser permission prompt on this click gesture
+    let permissionPromise: Promise<NotificationPermission> | null = null;
+    if (typeof window !== "undefined" && isPushNotificationSupported() && Notification.permission === "default") {
+      try {
+        permissionPromise = requestNativePermission();
+      } catch {
+        // Fallback gracefully
       }
+    }
+
+    // 2. Dispatch check-in API request immediately
+    try {
+      const checkinResponse = await fetch("/api/shop/checkin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug,
+          name: trimmedName,
+        }),
+      });
+
+      const data = await checkinResponse.json();
+
+      if (!checkinResponse.ok) {
+        setError(data.error || "Failed to record your visit. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 3. Instantly unlock scratch card and reveal reward UI
+      setCheckinData(data);
+      setIsScratchCardUnlocked(true);
+      setStep("REVEALED");
+      setIsSubmitting(false);
+
+      try {
+        sessionStorage.setItem(storageKey, JSON.stringify(data));
+      } catch {}
+
+      // 4. Background non-blocking FCM token resolution & registration
+      void (async () => {
+        if (permissionPromise) {
+          try {
+            const perm = await permissionPromise;
+            if (perm === "granted") {
+              setPermissionState("granted");
+            } else if (perm === "denied") {
+              setPermissionState("denied");
+            }
+          } catch {}
+        }
+        if (data.customer?.id) {
+          await handleBackgroundTokenRegistration(data.customer.id);
+        }
+      })();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Could not complete notification setup.");
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
       setIsSubmitting(false);
     }
   };
@@ -299,15 +283,11 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
     setError(null);
 
     try {
-      if (typeof window === "undefined" || !("Notification" in window)) {
+      if (!isPushNotificationSupported()) {
         setPermissionState("unsupported");
-        await executeCheckinAndUnlock(name.trim() || "Customer");
-        return;
-      }
-
-      if (Notification.permission === "granted") {
-        setPermissionState("granted");
-        await executeCheckinAndUnlock(name.trim() || "Customer");
+        setIsScratchCardUnlocked(true);
+        setStep("REVEALED");
+        setIsSubmitting(false);
         return;
       }
 
@@ -317,25 +297,32 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
         setPermissionState("granted");
         if (fcmRes.token) {
           setFcmToken(fcmRes.token);
+          if (checkinData?.customer?.id) {
+            await registerPushToken(checkinData.customer.id, fcmRes.token);
+          }
         }
-        await executeCheckinAndUnlock(name.trim() || "Customer", fcmRes.token);
+        setIsScratchCardUnlocked(true);
+        setStep("REVEALED");
       } else if (fcmRes.status === "denied") {
         setPermissionState("denied");
         setPermissionError(
           "Please enable Offers in your browser settings to get your reward."
         );
-        setIsSubmitting(false);
+      } else if (fcmRes.status === "unsupported") {
+        setPermissionState("unsupported");
+        setIsScratchCardUnlocked(true);
+        setStep("REVEALED");
       } else {
         setPermissionState("default");
         setPermissionError(
           "Please enable Offers in your browser settings to get your reward."
         );
-        setIsSubmitting(false);
       }
     } catch (err: unknown) {
       setPermissionError(
         err instanceof Error ? err.message : "Could not complete notification setup."
       );
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -417,7 +404,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   };
 
   // =========================================================================
-  // VIEW 2: SCRATCH CARD / REVEALED STATE ("🎁 Your Reward")
+  // VIEW 2: SCRATCH CARD / REVEALED STATE ("🎁 Aapka Reward")
   // =========================================================================
   if (step === "REVEALED" && checkinData && isScratchCardUnlocked) {
     return (
@@ -427,13 +414,13 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             <div className="text-center">
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                🎁 Your Reward
+                🎁 Aapka Reward
               </span>
               <h2 className="text-xl font-bold text-slate-900">
                 Welcome, {checkinData.customer.name}!
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Scratch to reveal your reward and show it at the counter.
+                Card ko scratch karke apna reward dekhein aur counter par dikhayein.
               </p>
             </div>
 
@@ -452,25 +439,37 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
               Welcome, {checkinData.customer.name}!
             </h2>
             <p className="text-xs text-slate-500">
-              Thank you for visiting {shopName}.
+              {shopName} par aane ke liye shukriya.
             </p>
           </div>
         )}
 
         {/* Status Badge */}
-        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center flex items-center justify-center gap-2 text-xs font-semibold text-emerald-800 shadow-xs">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-          <span>Offers Are Enabled • You will receive exclusive discounts</span>
-        </div>
+        {permissionState === "granted" ? (
+          <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center flex items-center justify-center gap-2 text-xs font-semibold text-emerald-800 shadow-xs">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <span>Offers Enable Ho Gaye • Aapko exclusive offers milenge</span>
+          </div>
+        ) : permissionState === "unsupported" ? (
+          <div className="p-3.5 rounded-2xl bg-indigo-50 border border-indigo-200 text-center flex items-center justify-center gap-2 text-xs font-semibold text-indigo-900 shadow-xs">
+            <CheckCircle2 className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+            <span>🎁 Reward Unlock Ho Gaya • Counter par code dikhayein</span>
+          </div>
+        ) : (
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center flex items-center justify-center gap-2 text-xs font-semibold text-slate-700 shadow-xs">
+            <CheckCircle2 className="w-4 h-4 text-slate-600 flex-shrink-0" />
+            <span>Reward Unlock Ho Gaya • Checkout counter par code dikhayein</span>
+          </div>
+        )}
 
         {/* Nearby Offers (100–200m) Card */}
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm text-center space-y-2.5">
           <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-800">
             <Navigation className="w-4 h-4 text-indigo-600" />
-            <span>Offers for Nearby Customers (100–200m)</span>
+            <span>Nearby Offers (100–200m)</span>
           </div>
           <p className="text-[11px] text-slate-500">
-            Allow location to receive offers when you are near this shop.
+            Location allow karein taaki shop ke paas aane par aapko offers milein.
           </p>
 
           <Button
@@ -483,7 +482,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             <span>
               {isCheckingNearby
                 ? "Checking Store Proximity..."
-                : "Check Offers Near Me"}
+                : "Offers Near Me Check Karein"}
             </span>
           </Button>
 
@@ -494,7 +493,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
                   <p className="font-bold text-emerald-800 flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>
-                      You&apos;re near this shop! 🎉 ({nearbyResult.distanceMeters}m away)
+                      Aap is shop ke paas hain! 🎉 ({nearbyResult.distanceMeters}m away)
                     </span>
                   </p>
                   {nearbyResult.offer && (
@@ -510,9 +509,9 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
 
               {nearbyResult.status === "OUT_OF_RANGE" && (
                 <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
-                  <p className="font-semibold">Outside Store Radius</p>
+                  <p className="font-semibold">Shop Radius Se Bahar</p>
                   <p className="text-[11px] mt-0.5">
-                    {nearbyResult.message || "No nearby offer available right now."}
+                    {nearbyResult.message || "Abhi koi nearby offer available nahi hai."}
                   </p>
                 </div>
               )}
@@ -530,7 +529,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
                 nearbyResult.status === "ERROR") && (
                 <div className="p-3 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-700">
                   <p className="font-semibold">
-                    {nearbyResult.message || "Location check completed."}
+                    {nearbyResult.message || "Location check complete ho gaya."}
                   </p>
                 </div>
               )}
@@ -543,10 +542,10 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200 shadow-sm text-center space-y-2">
             <div className="flex items-center justify-center gap-1.5 text-amber-900 font-bold text-xs">
               <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
-              <span>Enjoyed your experience?</span>
+              <span>Shop par achha laga?</span>
             </div>
             <p className="text-[11px] text-amber-800/80">
-              Make it easy to support our shop with a Google review!
+              Aapka review shop ke liye bahut helpful hoga!
             </p>
             <a
               href={googleMapsUrl}
@@ -555,7 +554,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
               className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 text-xs font-semibold text-amber-950 bg-amber-200 hover:bg-amber-300 rounded-xl transition-colors shadow-sm"
             >
               <MapPin className="w-3.5 h-3.5" />
-              <span>Leave a Google Review</span>
+              <span>Google Review Dein</span>
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>
@@ -568,7 +567,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             onClick={handleReset}
             className="text-xs text-slate-400 hover:text-slate-600"
           >
-            Check-in Another Person
+            Kisi aur customer ko check-in karein
           </Button>
         </div>
       </div>
@@ -588,13 +587,13 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
         <div>
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold mb-2">
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            🎁 Your Reward
+            🎁 Aapka Reward
           </span>
           <h2 className="text-xl font-extrabold text-slate-900">
-            Enable Offers to Get Your Reward
+            Reward Paane Ke Liye Offers Enable Karein
           </h2>
           <p className="text-xs text-slate-600 mt-1 max-w-xs mx-auto">
-            Please enable Offers in your browser settings to get your reward.
+            Please browser settings me Offers enable karein taaki aapko reward mil sake.
           </p>
         </div>
 
@@ -602,7 +601,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
         <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left flex items-start gap-2.5 text-xs text-amber-950">
           <ShieldAlert className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-bold">Please enable Offers in your browser settings to get your reward.</p>
+            <p className="font-bold">Offers enable karein aur reward paayein.</p>
             {permissionError && (
               <p className="text-[11px] text-amber-900 mt-0.5">{permissionError}</p>
             )}
@@ -617,20 +616,20 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 shadow-md text-sm min-h-[48px]"
           >
             <BellRing className="w-4 h-4 text-amber-300" />
-            <span>Enable Offers</span>
+            <span>Offers Enable Karein</span>
           </Button>
 
           {permissionState === "denied" && (
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 text-left space-y-1">
               <p className="font-semibold text-slate-800 flex items-center gap-1">
                 <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-                <span>How to enable offers in your browser:</span>
+                <span>Offers kaise enable karein:</span>
               </p>
               <ol className="list-decimal list-inside space-y-0.5 pl-1 text-[10px] text-slate-500">
-                <li>Tap the 🔒 lock icon near the address bar at the top.</li>
-                <li>Tap <strong>Site settings</strong> or <strong>Permissions</strong>.</li>
-                <li>Change <strong>Offers</strong> / <strong>Notifications</strong> to <strong>Allow</strong>.</li>
-                <li>Tap &quot;Enable Offers&quot; above.</li>
+                <li>Upar address bar ke paas 🔒 lock icon par tap karein.</li>
+                <li><strong>Site settings</strong> ya <strong>Permissions</strong> par tap karein.</li>
+                <li><strong>Offers</strong> / <strong>Notifications</strong> ko <strong>Allow</strong> karein.</li>
+                <li>Phir upar &quot;Offers Enable Karein&quot; dabayein.</li>
               </ol>
             </div>
           )}
@@ -641,7 +640,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             onClick={() => setStep("NAME")}
             className="text-xs text-slate-400 hover:text-slate-600"
           >
-            Back
+            Wapas Jayein
           </Button>
         </div>
       </div>
@@ -649,7 +648,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   }
 
   // =========================================================================
-  // VIEW 1: NAME ENTRY ("Enter Your Name" -> "Enable Offers")
+  // VIEW 1: NAME ENTRY ("Apna Naam Likhein" -> "Offers Enable Karein")
   // =========================================================================
   return (
     <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm">
@@ -658,10 +657,10 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           <Gift className="w-6 h-6" />
         </div>
         <h2 className="text-lg font-bold text-slate-900">
-          Claim Your Store Reward
+          Apna Store Reward Paayein
         </h2>
         <p className="text-xs text-slate-500 mt-0.5">
-          Enter your name to unlock your scratch card reward.
+          Apna naam likhein aur scratch card reward unlock karein.
         </p>
       </div>
 
@@ -670,8 +669,8 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
       <form onSubmit={handleCheckinSubmit} className="space-y-4 text-left">
         <div>
           <Input
-            label="Enter Your Name"
-            placeholder="e.g. Rahul Sharma"
+            label="Apna Naam Likhein"
+            placeholder="Jaise: Rahul Sharma"
             required
             maxLength={100}
             value={name}
@@ -686,7 +685,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           size="lg"
         >
           <Sparkles className="w-4 h-4 text-amber-300" />
-          <span>Enable Offers</span>
+          <span>Offers Enable Karein</span>
           <ArrowRight className="w-4 h-4" />
         </Button>
 
