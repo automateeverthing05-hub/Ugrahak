@@ -44,7 +44,7 @@ export const BUSINESS_GROWTH_SERVICES: GrowthService[] = [
   {
     id: "meta-ads",
     name: "Meta Ads & Lead Generation",
-    startingPrice: "Starting at ₹1,999/month",
+    startingPrice: "₹9,999/month",
     description: "Reach more local customers through Facebook and Instagram advertising.",
     included: [
       "Facebook + Instagram ad setup",

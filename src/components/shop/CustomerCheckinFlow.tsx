@@ -497,7 +497,16 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
                     </span>
                   </p>
                   {nearbyResult.offer && (
-                    <div className="mt-1.5 pt-1.5 border-t border-emerald-200 text-emerald-950">
+                    <div className="mt-1.5 pt-1.5 border-t border-emerald-200 text-emerald-950 space-y-1.5">
+                      {nearbyResult.offer.image_url && (
+                        <div className="w-full h-32 rounded-lg overflow-hidden bg-slate-100 border border-emerald-200">
+                          <img
+                            src={nearbyResult.offer.image_url}
+                            alt={nearbyResult.offer.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
                       <p className="font-bold text-xs">{nearbyResult.offer.title}</p>
                       <p className="text-[11px] text-emerald-800 mt-0.5">
                         {nearbyResult.offer.message}

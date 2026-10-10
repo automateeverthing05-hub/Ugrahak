@@ -92,7 +92,7 @@ async function runLiveProductionQA() {
     {
       id: "meta-ads",
       name: "Meta Ads & Lead Generation",
-      startingPrice: "Starting at ₹1,999/month",
+      startingPrice: "₹9,999/month",
       note: "Ad budget is separate.",
       expectedCta: "Start Ads on WhatsApp",
       prefilled: "Hi Ugrahak, I want to start Meta Ads & Lead Generation for my business.",

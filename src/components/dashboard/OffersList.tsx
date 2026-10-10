@@ -25,6 +25,7 @@ import {
   Store,
 } from "lucide-react";
 import { UpgradeOfferLimitModal } from "@/components/dashboard/UpgradeOfferLimitModal";
+import { OfferImageUploader } from "@/components/dashboard/OfferImageUploader";
 import type { Offer } from "@/lib/types/database";
 
 interface OfferStats {
@@ -426,6 +427,15 @@ export const OffersList: React.FC<OffersListProps> = ({
                     </div>
 
                     <div>
+                      {offer.image_url && (
+                        <div className="mb-3 w-full h-36 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
+                          <img
+                            src={offer.image_url}
+                            alt={offer.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
                       <h4 className="text-base font-bold text-slate-900 leading-snug">
                         {offer.title}
                       </h4>
@@ -633,6 +643,16 @@ export const OffersList: React.FC<OffersListProps> = ({
                   {confirmSendOffer.title}
                 </div>
 
+                {confirmSendOffer.image_url && (
+                  <div className="w-full h-32 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+                    <img
+                      src={confirmSendOffer.image_url}
+                      alt={confirmSendOffer.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
                 <div className="text-slate-700 whitespace-pre-line leading-relaxed font-normal bg-slate-50/70 p-2.5 rounded-lg border border-slate-100 text-xs">
                   <span className="text-indigo-600 font-medium">Hi [Customer Name],</span>
                   {"\n\n"}
@@ -729,32 +749,27 @@ export const OffersList: React.FC<OffersListProps> = ({
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-xs font-medium text-slate-700 mb-1">
-                        Status
-                      </label>
-                      <select
-                        value={status}
-                        onChange={(e) =>
-                          setStatus(e.target.value as "ACTIVE" | "INACTIVE")
-                        }
-                        className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-xl"
-                      >
-                        <option value="ACTIVE">Active</option>
-                        <option value="INACTIVE">Draft</option>
-                      </select>
-                    </div>
+                  {/* Image Upload / Camera Capture */}
+                  <OfferImageUploader
+                    currentImageUrl={imageUrl}
+                    onImageUploaded={(url) => setImageUrl(url || "")}
+                    disabled={isSaving}
+                  />
 
-                    <div>
-                      <Input
-                        label="3. Image URL (Opt)"
-                        placeholder="https://..."
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        className="text-xs"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">
+                      Offer Status
+                    </label>
+                    <select
+                      value={status}
+                      onChange={(e) =>
+                        setStatus(e.target.value as "ACTIVE" | "INACTIVE")
+                      }
+                      className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-xl"
+                    >
+                      <option value="ACTIVE">Active (Ready to send)</option>
+                      <option value="INACTIVE">Draft (Not active)</option>
+                    </select>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
@@ -802,6 +817,16 @@ export const OffersList: React.FC<OffersListProps> = ({
                       <p className="text-xs font-bold text-slate-900 leading-snug">
                         {title || "Offer Title will appear here"}
                       </p>
+
+                      {imageUrl && (
+                        <div className="w-full h-32 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                          <img
+                            src={imageUrl}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
 
                       <div className="text-[11px] text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50/70 p-2.5 rounded-lg border border-slate-100">
                         <span className="text-indigo-600 font-medium">Hi [Customer Name],</span>

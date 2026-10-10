@@ -60,7 +60,7 @@ async function runTests() {
   assert(
     !!s2 &&
       s2.name === "Meta Ads & Lead Generation" &&
-      s2.startingPrice === "Starting at ₹1,999/month" &&
+      s2.startingPrice === "₹9,999/month" &&
       s2.description === "Reach more local customers through Facebook and Instagram advertising." &&
       s2.note === "Ad budget is separate." &&
       s2.ctaText === "Start Ads on WhatsApp" &&

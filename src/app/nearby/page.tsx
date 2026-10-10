@@ -188,13 +188,24 @@ export default function NearbyOffersPage() {
                     </div>
 
                     {item.offer && (
-                      <div className="mt-3 pt-3 border-t border-slate-100">
-                        <span className="text-xs font-bold text-indigo-700">
-                          {item.offer.title}
-                        </span>
-                        <p className="text-xs text-slate-600 mt-0.5">
-                          {item.offer.message}
-                        </p>
+                      <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                        {item.offer.image_url && (
+                          <div className="w-full h-36 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                            <img
+                              src={item.offer.image_url}
+                              alt={item.offer.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <span className="text-xs font-bold text-indigo-700">
+                            {item.offer.title}
+                          </span>
+                          <p className="text-xs text-slate-600 mt-0.5">
+                            {item.offer.message}
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>

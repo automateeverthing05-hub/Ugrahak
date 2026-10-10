@@ -91,6 +91,16 @@ export default async function OfferDetailPage({ params }: OfferDetailPageProps) 
           </div>
         </div>
 
+        {offer.image_url && (
+          <div className="w-full max-w-md h-52 sm:h-64 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-xs">
+            <img
+              src={offer.image_url}
+              alt={offer.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
         <p className="text-sm text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-200">
           {offer.message}
         </p>
