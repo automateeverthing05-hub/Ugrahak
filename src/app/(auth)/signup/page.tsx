@@ -5,22 +5,12 @@ import { SignupForm } from "@/components/auth/SignupForm";
 import { Spinner } from "@/components/ui/Spinner";
 import { Footer } from "@/components/layout/Footer";
 import { BrandLogo } from "@/components/ui/BrandLogo";
-import {
-  Store,
-  QrCode,
-  Gift,
-  Send,
-  Users,
-  MapPin,
-  Star,
-  Sparkles,
-  CheckCircle2,
-} from "lucide-react";
+import { QrCode, Gift, Send, ShieldCheck } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Create Business Account | U-Grahak",
+  title: "मुफ्त अकाउंट बनाएं | U-Grahak बिज़नेस",
   description:
-    "Create your shop QR code and start building your customer list in minutes with U-Grahak.",
+    "कुछ आसान जानकारी भरें और अपनी दुकान के लिए QR तैयार करें। U-Grahak के साथ मुफ्त में ग्राहक सूची बनाएं।",
 };
 
 export default function SignupPage() {
@@ -36,117 +26,72 @@ export default function SignupPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="text-xs sm:text-sm font-bold text-slate-700 hover:text-indigo-600 px-3.5 py-2 rounded-xl transition-all"
+              className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-indigo-600 px-3.5 py-2 rounded-xl transition-all"
             >
-              Already have an account? Login
+              पहले से अकाउंट है? लॉग इन करें
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          {/* Left Column (Desktop 6 Cols / Mobile Stacked): Value Proposition */}
-          <div className="lg:col-span-6 space-y-6 sm:space-y-8">
+      {/* Main Content: 2-Column Responsive Layout */}
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-14 flex items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
+          {/* Left Column (Desktop 6 Cols / Hidden on Mobile): Value Proposition */}
+          <div className="hidden lg:block lg:col-span-6 space-y-6">
             <div className="space-y-3">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Free se shuru karein &bull; No Card Required</span>
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                Turn First-Time Customers Into{" "}
-                <span className="text-indigo-600">Repeat Customers</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold">
+                फ्री प्लान से शुरुआत करें
+              </span>
+              <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug">
+                अपना मुफ्त बिज़नेस अकाउंट बनाएं
               </h1>
-
-              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                Customers ko save karein, naye customer rewards dein, offers bhejein aur unhe dobara bulayein. 2 minute me apni shop setup karein.
+              <p className="text-sm text-slate-600 leading-relaxed">
+                कुछ आसान जानकारी भरें और अपनी दुकान के लिए QR तैयार करें।
               </p>
             </div>
 
-            {/* Visual 3-Step Flow */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-              <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
-                Ugrahak Kaise Kaam Karta Hai
-              </h3>
-
-              <div className="space-y-3.5">
-                <div className="flex items-start gap-3.5">
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-black text-sm flex items-center justify-center flex-shrink-0 mt-0.5">
-                    1
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">
-                      Customer Scans Your QR
-                    </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Customer shop par aakar QR scan karega aur apna naam likhega.
-                    </p>
-                  </div>
+            {/* 3 Steps */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <QrCode className="w-4 h-4" />
                 </div>
-
-                <div className="flex items-start gap-3.5">
-                  <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-black text-sm flex items-center justify-center flex-shrink-0 mt-0.5">
-                    2
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">
-                      Customer ko Reward Milega
-                    </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Customer ko turant scratch card reward aur discount code milega.
-                    </p>
-                  </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">1. दुकान का QR कोड बनाएं</h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5">काउंटर पर लगाने के लिए तैयार QR कोड तुरंत पाएं।</p>
                 </div>
+              </div>
 
-                <div className="flex items-start gap-3.5">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm flex items-center justify-center flex-shrink-0 mt-0.5">
-                    3
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">
-                      Offers Bhejkar Dobara Bulayein
-                    </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Offers bhejkar customers ko dobara apni shop par aane ka reason dein.
-                    </p>
-                  </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Gift className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">2. पहली खरीद पर डिजिटल इनाम</h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5">ग्राहक स्कैन करके नाम लिखेगा और इनाम पाएगा।</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Send className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">3. नए ऑफ़र भेजें</h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5">ग्राहकों को अपनी दुकान पर बार-बार बुलाएं।</p>
                 </div>
               </div>
             </div>
 
-            {/* What You Get Highlights */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs flex items-center gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span className="text-xs font-bold text-slate-800">
-                  Instant Shop QR Code
-                </span>
-              </div>
-              <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs flex items-center gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span className="text-xs font-bold text-slate-800">
-                  Custom Scratch Cards
-                </span>
-              </div>
-              <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs flex items-center gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span className="text-xs font-bold text-slate-800">
-                  Direct Offers Bhejein
-                </span>
-              </div>
-              <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs flex items-center gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span className="text-xs font-bold text-slate-800">
-                  Google Reviews Badhayein
-                </span>
-              </div>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <span>₹0/महीना &bull; कोई क्रेडिट कार्ड जरूरी नहीं &bull; सुरक्षित डेटा</span>
             </div>
           </div>
 
-          {/* Right Column (Desktop 6 Cols / Mobile Stacked): Create Merchant Account Form */}
-          <div className="lg:col-span-6 w-full">
+          {/* Right Column (Desktop 6 Cols / Mobile Dominant): Signup Form */}
+          <div className="lg:col-span-6 w-full max-w-md mx-auto">
             <Suspense fallback={<Spinner size="lg" />}>
               <SignupForm />
             </Suspense>
@@ -155,8 +100,7 @@ export default function SignupPage() {
       </main>
 
       {/* Global Footer */}
-      <Footer />
+      <Footer variant="simple" />
     </div>
   );
 }
-

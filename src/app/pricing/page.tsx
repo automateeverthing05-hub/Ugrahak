@@ -1,18 +1,49 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PLANS } from "@/lib/billing/plans";
-import { Store, Check, ArrowRight, ShieldCheck, Sparkles, FileText, RefreshCw } from "lucide-react";
+import { Check, ArrowRight, ShieldCheck, Sparkles, FileText, RefreshCw } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 
 export const metadata: Metadata = {
-  title: "Pricing Plans | U-Grahak",
+  title: "मूल्य और प्लान | U-Grahak बिज़नेस",
   description:
-    "Transparent pricing for local business owners. Free, Starter, Growth, and Pro plans for store rewards and bringing customers back.",
+    "स्थानीय दुकानदारों के लिए आसान और पारदर्शी प्लान। फ्री, स्टार्टर, ग्रोथ और प्रो प्लान।",
 };
 
 export default function PricingPage() {
   const planList = [PLANS.FREE, PLANS.STARTER, PLANS.GROWTH, PLANS.PRO];
+
+  const planHindiFeatures: Record<string, string[]> = {
+    FREE: [
+      "100 तक ग्राहक",
+      "हर महीने 100 तक ऑफ़र प्राप्तकर्ता",
+      "दुकान का QR कोड",
+      "डिजिटल स्क्रैच कार्ड",
+      "Google रिव्यू लिंक",
+    ],
+    STARTER: [
+      "1,500 तक ग्राहक",
+      "असीमित ऑफ़र भेजें",
+      "Google रिव्यू लिंक",
+      "ग्राहक विज़िट ट्रैकिंग",
+      "दुकान का QR कोड एवं स्क्रैच कार्ड",
+    ],
+    GROWTH: [
+      "5,000 तक ग्राहक",
+      "असीमित ऑफ़र भेजें",
+      "दुकान के पास आने पर ऑफ़र (Nearby Offers)",
+      "बिज़नेस ग्रोथ इनसाइट्स",
+      "Google रिव्यू लिंक",
+    ],
+    PRO: [
+      "10,000 तक ग्राहक",
+      "असीमित ऑफ़र भेजें",
+      "Nearby Offers एवं इनसाइट्स",
+      "प्राथमिकता सहायता",
+      "सभी सुविधाएं शामिल",
+    ],
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
@@ -28,13 +59,13 @@ export default function PricingPage() {
               href="/login"
               className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-indigo-600 px-3 py-1.5 transition-colors"
             >
-              Business Owner Login
+              लॉग इन
             </Link>
             <Link
               href="/signup"
               className="text-xs sm:text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl transition-colors shadow-xs"
             >
-              Get Started Free
+              मुफ्त शुरू करें
             </Link>
           </div>
         </div>
@@ -42,16 +73,16 @@ export default function PricingPage() {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 flex-1 w-full">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            Transparent Pricing for Local Businesses
+        <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+            स्थानीय कारोबार के लिए पारदर्शी मूल्य
           </span>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Simple Plans Built for Business Growth
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            शुरुआत मुफ्त में करें, जैसे दुकान बढ़े वैसे अपग्रेड करें
           </h1>
-          <p className="text-sm sm:text-base text-slate-600 mt-2">
-            Turn walk-in shoppers into repeat loyal customers with QR rewards, special offers, and nearby customer alerts.
+          <p className="text-sm sm:text-base text-slate-600">
+            QR रिवॉर्ड, विशेष ऑफ़र और ग्राहक सूची के साथ नए ग्राहकों को बार-बार अपनी दुकान पर बुलाएं।
           </p>
         </div>
 
@@ -60,6 +91,7 @@ export default function PricingPage() {
           {planList.map((plan) => {
             const isPopular = plan.id === "GROWTH";
             const isFree = plan.id === "FREE";
+            const features = planHindiFeatures[plan.id] || plan.features;
 
             return (
               <div
@@ -72,16 +104,18 @@ export default function PricingPage() {
               >
                 {isPopular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-sm">
-                    Most Popular
+                    सर्वाधिक लोकप्रिय
                   </div>
                 )}
 
                 <div>
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-slate-900">{plan.name}</h3>
+                    <h3 className="text-lg font-bold text-slate-900">
+                      {isFree ? "फ्री प्लान" : plan.name}
+                    </h3>
                     {isFree && (
-                      <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">
-                        Permanent Free
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                        हमेशा फ्री
                       </span>
                     )}
                   </div>
@@ -90,15 +124,15 @@ export default function PricingPage() {
                     <span className="text-3xl font-extrabold text-slate-900">
                       ₹{plan.priceINR.toLocaleString()}
                     </span>
-                    <span className="text-xs text-slate-500 font-medium">/ month</span>
+                    <span className="text-xs text-slate-500 font-medium">/ महीना</span>
                   </div>
 
                   <p className="text-xs text-indigo-600 font-semibold mt-2">
-                    Up to {plan.customerLimit.toLocaleString()} Customers
+                    {plan.customerLimit.toLocaleString()} ग्राहकों तक
                   </p>
 
-                  <ul className="mt-6 space-y-3 text-xs text-slate-600">
-                    {plan.features.map((feat, idx) => (
+                  <ul className="mt-6 space-y-2.5 text-xs text-slate-600">
+                    {features.map((feat, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
                         <span>{feat}</span>
@@ -118,7 +152,7 @@ export default function PricingPage() {
                         : "bg-slate-900 hover:bg-slate-800 text-white"
                     }`}
                   >
-                    <span>{isFree ? "Start Free" : `Choose ${plan.name}`}</span>
+                    <span>{isFree ? "मुफ्त शुरू करें" : `${plan.name} चुनें`}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
@@ -128,17 +162,17 @@ export default function PricingPage() {
         </div>
 
         {/* Feature Highlights Section */}
-        <div className="mt-14 bg-indigo-50/70 border border-indigo-200 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left max-w-6xl mx-auto">
+        <div className="mt-12 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left max-w-6xl mx-auto shadow-xs">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
               <h4 className="text-base font-bold text-slate-900">
-                Start Free &bull; Upgrade Whenever You Are Ready
+                मुफ्त से शुरुआत करें &bull; कभी भी अपग्रेड करें
               </h4>
               <p className="text-xs text-slate-600 mt-0.5">
-                Print your store QR code immediately, welcome customers with digital rewards, and scale to higher plans as your business expands.
+                तुरंत अपनी दुकान का QR कोड बनाएं, ग्राहकों को डिजिटल इनाम दें और जरूरत के अनुसार प्लान चुनें।
               </p>
             </div>
           </div>
@@ -147,36 +181,36 @@ export default function PricingPage() {
             href="/signup"
             className="px-6 py-3.5 bg-indigo-600 text-white rounded-2xl text-xs font-bold hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap min-h-[46px] flex items-center justify-center"
           >
-            Get Started Free
+            मुफ्त शुरू करें
           </Link>
         </div>
 
-        {/* Explicit Legal Links for Pricing & Subscriptions */}
-        <div className="mt-10 p-5 bg-white border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left max-w-6xl mx-auto">
-          <div className="text-xs text-slate-500">
-            <span className="font-semibold text-slate-700">Billing Terms &amp; Policies:</span> Start free with no credit card. Paid plans include monthly recurring subscription billing with flexible upgrades.
+        {/* Policy Links */}
+        <div className="mt-8 p-5 bg-white border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left max-w-6xl mx-auto text-xs text-slate-500">
+          <div>
+            <span className="font-semibold text-slate-700">बिलिंग नियम:</span> बिना क्रेडिट कार्ड फ्री प्लान से शुरुआत करें। सशुल्क प्लान में मासिक आधार पर सेवाएं मिलती हैं।
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-semibold text-indigo-600">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 font-semibold text-indigo-600">
             <Link href="/terms" className="hover:underline inline-flex items-center gap-1">
               <FileText className="w-3.5 h-3.5 text-slate-400" />
-              <span>Terms &amp; Conditions</span>
+              <span>नियम और शर्तें</span>
             </Link>
             <span className="text-slate-300">&bull;</span>
             <Link href="/refund-policy" className="hover:underline inline-flex items-center gap-1">
               <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
-              <span>Refund &amp; Cancellation Policy</span>
+              <span>रिफंड नीति</span>
             </Link>
             <span className="text-slate-300">&bull;</span>
             <Link href="/privacy-policy" className="hover:underline inline-flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-              <span>Privacy Policy</span>
+              <span>गोपनीयता नीति</span>
             </Link>
           </div>
         </div>
       </main>
 
       {/* Global Footer */}
-      <Footer />
+      <Footer variant="simple" />
     </div>
   );
 }

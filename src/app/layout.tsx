@@ -1,5 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
+
+const devanagariFont = Noto_Sans_Devanagari({
+  subsets: ["devanagari", "latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-devanagari",
+});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -11,9 +19,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "U-Grahak - Bring Customers Back to Your Shop",
+  title: "U-Grahak — एक बार आए ग्राहक को, बार-बार बुलाइए",
   description:
-    "Turn first-time shoppers into repeat loyal customers. Easy QR-based rewards for local businesses.",
+    "छोटे कारोबार के लिए स्मार्ट ग्राहक प्रबंधन। अपने ग्राहकों की सूची बनाएं, पहली खरीद पर इनाम दें और नए ऑफ़र भेजकर उन्हें वापस बुलाएं।",
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -30,8 +38,8 @@ export const metadata: Metadata = {
     title: "U-Grahak",
   },
   openGraph: {
-    title: "U-Grahak - Turn First-Time Customers Into Repeat Customers",
-    description: "Capture new customers, reward their first visit, and bring them back with offers and notifications.",
+    title: "U-Grahak — एक बार आए ग्राहक को, बार-बार बुलाइए",
+    description: "दुकानदार अपने ग्राहकों की सूची बनाए, डिजिटल इनाम दे और वापस बुलाने के लिए ऑफ़र भेजे।",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "U-Grahak" }],
   },
   formatDetection: {
@@ -45,8 +53,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
+    <html lang="hi" className={devanagariFont.variable}>
+      <body className={`${devanagariFont.className} min-h-screen bg-slate-50 text-slate-900 antialiased selection:bg-indigo-600 selection:text-white`}>
         {children}
       </body>
     </html>

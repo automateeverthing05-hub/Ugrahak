@@ -20,17 +20,23 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-slate-600">
+            <Link href="/pricing" className="hover:text-indigo-600 transition-colors">
+              मूल्य
+            </Link>
+            <Link href="/login" className="hover:text-indigo-600 transition-colors">
+              लॉग इन
+            </Link>
             <Link href="/privacy-policy" className="hover:text-indigo-600 transition-colors">
-              Privacy Policy
+              गोपनीयता नीति
             </Link>
             <Link href="/terms" className="hover:text-indigo-600 transition-colors">
-              Terms &amp; Conditions
+              नियम और शर्तें
             </Link>
             <Link href="/refund-policy" className="hover:text-indigo-600 transition-colors">
-              Refund &amp; Cancellation
+              रिफंड और कैंसिलेशन
             </Link>
             <Link href="/contact" className="hover:text-indigo-600 transition-colors">
-              Contact Support
+              संपर्क सहायता
             </Link>
           </div>
 

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { isValidEmail, isValidPassword } from "@/lib/utils/validation";
-import { Store, ShieldCheck, ArrowRight } from "lucide-react";
+import { Store, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 export const LoginForm: React.FC = () => {
   const router = useRouter();
@@ -17,6 +17,7 @@ export const LoginForm: React.FC = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,15 +25,15 @@ export const LoginForm: React.FC = () => {
     e.preventDefault();
     setError(null);
 
-    // Validation
-    if (!isValidEmail(email)) {
-      setError("Please enter a valid email address.");
+    // Validation in natural Hindi
+    if (!email.trim() || !isValidEmail(email)) {
+      setError("कृपया सही ईमेल पता दर्ज करें।");
       return;
     }
 
     const passCheck = isValidPassword(password);
     if (!passCheck.valid) {
-      setError(passCheck.message || "Invalid password.");
+      setError("पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।");
       return;
     }
 
@@ -71,7 +72,7 @@ export const LoginForm: React.FC = () => {
       }
 
       if (authError) {
-        setError(authError.message || "Invalid email or password.");
+        setError("ईमेल या पासवर्ड गलत है। कृपया दोबारा जांचें।");
         setIsLoading(false);
         return;
       }
@@ -79,78 +80,109 @@ export const LoginForm: React.FC = () => {
       if (data.user) {
         window.location.href = redirectTo;
       }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred during login.");
+    } catch {
+      setError("लॉग इन करते समय समस्या आई। कृपया अपना इंटरनेट कनेक्शन जांचें।");
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-      <div className="mb-6">
-        <div className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 mb-3">
-          <Store className="w-6 h-6" />
+    <div className="w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-5">
+      <div>
+        <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 mb-3">
+          <Store className="w-5 h-5" />
         </div>
-        <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-          Shop Owner Login
+        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          अपने बिज़नेस में लॉग इन करें
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Apne customers, rewards aur offers manage karne ke liye login karein.
+          अपने ग्राहकों और ऑफ़र को संभालने के लिए लॉग इन करें।
         </p>
       </div>
 
-      {error && <Alert type="error" message={error} className="mb-5 text-xs" />}
+      {error && <Alert type="error" message={error} className="text-xs" />}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Input
-            label="Email Address"
+            label="ईमेल"
             type="email"
             autoComplete="email"
             required
-            placeholder="owner@yourshop.com"
+            placeholder="अपना ईमेल दर्ज करें"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
           />
         </div>
 
-        <div>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-medium text-slate-700">
+              पासवर्ड
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-xs text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center gap-1"
+            >
+              {showPassword ? (
+                <>
+                  <EyeOff className="w-3.5 h-3.5" />
+                  <span>पासवर्ड छुपाएं</span>
+                </>
+              ) : (
+                <>
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>पासवर्ड दिखाएं</span>
+                </>
+              )}
+            </button>
+          </div>
           <Input
-            label="Password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             autoComplete="current-password"
             required
-            placeholder="••••••••"
+            placeholder="अपना पासवर्ड दर्ज करें"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
           />
+          <div className="text-right pt-0.5">
+            <Link
+              href="/contact"
+              className="text-xs text-slate-500 hover:text-indigo-600 font-medium"
+            >
+              पासवर्ड भूल गए?
+            </Link>
+          </div>
         </div>
 
         <Button
           type="submit"
-          className="w-full min-h-[46px] text-sm font-bold bg-indigo-600 hover:bg-indigo-700 shadow-sm"
+          className="w-full min-h-[46px] text-sm font-bold bg-indigo-600 hover:bg-indigo-700 shadow-xs"
           size="lg"
           isLoading={isLoading}
+          disabled={isLoading}
         >
-          Login Karein
+          लॉग इन करें
         </Button>
       </form>
 
-      <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col items-center gap-3 text-center">
+      <div className="pt-4 border-t border-slate-100 flex flex-col items-center gap-3 text-center">
         <p className="text-xs text-slate-600">
-          Naya business account banana hai?{" "}
+          नया अकाउंट बनाना है?{" "}
           <Link
             href="/signup"
             className="font-bold text-indigo-600 hover:text-indigo-700 underline"
           >
-            Free Account Banayein
+            मुफ्त अकाउंट बनाएं
           </Link>
         </p>
 
-        {/* Trust & Clarity Note */}
         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-          <span>Local retail shops, cafes, salons aur restaurants ke liye banaya gaya.</span>
+          <span>दुकानदारों के लिए आसान ग्राहक प्रबंधन</span>
         </div>
       </div>
     </div>
