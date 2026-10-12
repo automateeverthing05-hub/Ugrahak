@@ -1,5 +1,9 @@
 import { inngest } from "@/lib/inngest/client";
 import { processPendingReviewRequests } from "@/lib/reviews/reviewScheduler";
+import {
+  findAndScheduleInactiveCustomers,
+  processPendingReengagementCampaigns,
+} from "@/lib/automations/reengagementScheduler";
 import { logger } from "@/lib/observability/logger";
 
 /**
@@ -80,6 +84,47 @@ export const scheduledCustomerReviewReminderFunction = inngest.createFunction(
       merchantId: data.merchantId,
       customerId: data.customerId,
       summary,
+    };
+  }
+);
+
+/**
+ * Inngest Background Function: Process 30-Day Inactive Customer Re-engagement
+ * Runs daily at 10:00 AM IST (04:30 AM UTC) to scan and dispatch personalized offers.
+ */
+export const processInactiveCustomerReengagementFunction = inngest.createFunction(
+  {
+    id: "process-inactive-customer-reengagement",
+    name: "30-Day Inactive Customer Re-engagement Workflow",
+    retries: 2,
+    concurrency: {
+      limit: 5,
+    },
+    triggers: [
+      { cron: "30 4 * * *" }, // Daily at 10:00 AM IST (04:30 UTC)
+      { event: "merchant/reengagement.process" },
+    ],
+  },
+  async ({ step }: { step: any }) => {
+    // Step 1: Scan inactive customers and schedule campaigns
+    const scanSummary = await step.run("scan-inactive-customers", async () => {
+      return await findAndScheduleInactiveCustomers();
+    });
+
+    // Step 2: Process pending campaigns and dispatch personalized notifications
+    const dispatchSummary = await step.run("dispatch-reengagement-campaigns", async () => {
+      return await processPendingReengagementCampaigns();
+    });
+
+    logger.info("Inngest 30-day inactive re-engagement completed", {
+      operation: "INNGEST_30DAY_REENGAGEMENT",
+      metadata: { scanSummary, dispatchSummary },
+    });
+
+    return {
+      status: "COMPLETED",
+      scanSummary,
+      dispatchSummary,
     };
   }
 );

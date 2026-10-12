@@ -74,7 +74,7 @@ async function runTestSuite() {
 
   // Starter
   const starter = PLANS.STARTER;
-  assert(starter.priceINR === 999, "Starter plan is ₹999/month", `Got ${starter.priceINR}`);
+  assert(starter.priceINR === 499, "Starter plan is ₹499/month", `Got ${starter.priceINR}`);
   assert(starter.customerLimit === 1500, "Starter customer limit is 1,500", `Got ${starter.customerLimit}`);
   assert(starter.hasGoogleReviewRequests === true, "Starter plan includes Google Review Requests");
   assert(starter.hasBasicCustomerTracking === true, "Starter plan includes Basic Customer Tracking");
@@ -82,7 +82,7 @@ async function runTestSuite() {
 
   // Growth
   const growth = PLANS.GROWTH;
-  assert(growth.priceINR === 2999, "Growth plan is ₹2,999/month", `Got ${growth.priceINR}`);
+  assert(growth.priceINR === 1499, "Growth plan is ₹1,499/month", `Got ${growth.priceINR}`);
   assert(growth.customerLimit === 5000, "Growth customer limit is 5,000", `Got ${growth.customerLimit}`);
   assert(growth.hasGoogleReviewRequests === true, "Growth plan includes Google Review Requests");
   assert(growth.hasBasicCustomerTracking === true, "Growth plan includes Basic Customer Tracking");
@@ -90,13 +90,13 @@ async function runTestSuite() {
 
   // Pro
   const pro = PLANS.PRO;
-  assert(pro.priceINR === 6999, "Pro plan is ₹6,999/month", `Got ${pro.priceINR}`);
+  assert(pro.priceINR === 2999, "Pro plan is ₹2,999/month", `Got ${pro.priceINR}`);
   assert(pro.customerLimit === 10000, "Pro customer limit is 10,000", `Got ${pro.customerLimit}`);
   assert(pro.hasGoogleReviewRequests === true, "Pro plan includes Google Review Requests");
   assert(pro.hasBasicCustomerTracking === true, "Pro plan includes Advanced Customer Tracking");
   assert(pro.hasNearbyOffers === true, "Pro plan includes Nearby Offers (100–200m)");
   assert(pro.hasAdvancedAnalytics === true, "Pro plan includes Business Growth Insights");
-  assert(pro.hasStaffAccounts === true, "Pro plan includes Multiple Staff");
+  assert(pro.hasStaffAccounts === false, "Pro plan staff accounts safely disabled pending schema implementation");
 
   // TEST 4: Customer Database Limits for Each Plan
   console.log("\n▶ 4. Customer Database Limit Enforcement across all Plans:");
@@ -175,7 +175,7 @@ async function runTestSuite() {
   assert(!canUseMultipleStaff("FREE"), "Free cannot use Multiple Staff");
   assert(!canUseMultipleStaff("STARTER"), "Starter cannot use Multiple Staff");
   assert(!canUseMultipleStaff("GROWTH"), "Growth cannot use Multiple Staff");
-  assert(canUseMultipleStaff("PRO"), "Pro CAN use Multiple Staff");
+  assert(!canUseMultipleStaff("PRO"), "Pro Multiple Staff safely disabled pending schema");
 
   assert(!hasBasicCustomerTracking("FREE"), "Free does not have Customer Tracking advertised");
   assert(hasBasicCustomerTracking("STARTER"), "Starter has Basic Customer Tracking");

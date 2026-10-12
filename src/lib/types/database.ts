@@ -26,6 +26,11 @@ export interface Database {
           trial_ends_at: string;
           subscription_started_at: string | null;
           subscription_ends_at: string | null;
+          is_review_request_enabled: boolean;
+          is_reengagement_enabled: boolean;
+          reengagement_offer_id: string | null;
+          reengagement_message_template: string | null;
+          reengagement_cooldown_days: number;
           created_at: string;
           updated_at: string;
         };
@@ -45,6 +50,11 @@ export interface Database {
           trial_ends_at?: string;
           subscription_started_at?: string | null;
           subscription_ends_at?: string | null;
+          is_review_request_enabled?: boolean;
+          is_reengagement_enabled?: boolean;
+          reengagement_offer_id?: string | null;
+          reengagement_message_template?: string | null;
+          reengagement_cooldown_days?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -64,6 +74,11 @@ export interface Database {
           trial_ends_at?: string;
           subscription_started_at?: string | null;
           subscription_ends_at?: string | null;
+          is_review_request_enabled?: boolean;
+          is_reengagement_enabled?: boolean;
+          reengagement_offer_id?: string | null;
+          reengagement_message_template?: string | null;
+          reengagement_cooldown_days?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -515,6 +530,70 @@ export interface Database {
           }
         ];
       };
+      inactive_customer_campaigns: {
+        Row: {
+          id: string;
+          merchant_id: string;
+          customer_id: string;
+          offer_id: string | null;
+          last_qualifying_visit_at: string;
+          scheduled_at: string;
+          sent_at: string | null;
+          status: "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "SKIPPED";
+          error_message: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          merchant_id: string;
+          customer_id: string;
+          offer_id?: string | null;
+          last_qualifying_visit_at: string;
+          scheduled_at: string;
+          sent_at?: string | null;
+          status?: "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "SKIPPED";
+          error_message?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          merchant_id?: string;
+          customer_id?: string;
+          offer_id?: string | null;
+          last_qualifying_visit_at?: string;
+          scheduled_at?: string;
+          sent_at?: string | null;
+          status?: "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "SKIPPED";
+          error_message?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inactive_customer_campaigns_merchant_id_fkey";
+            columns: ["merchant_id"];
+            isOneToOne: false;
+            referencedRelation: "merchants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inactive_customer_campaigns_customer_id_fkey";
+            columns: ["customer_id"];
+            isOneToOne: false;
+            referencedRelation: "customers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inactive_customer_campaigns_offer_id_fkey";
+            columns: ["offer_id"];
+            isOneToOne: false;
+            referencedRelation: "offers";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -550,6 +629,10 @@ export type ScratchCardRewardUpdate = Database["public"]["Tables"]["scratch_card
 export type ReviewRequest = Database["public"]["Tables"]["review_requests"]["Row"];
 export type ReviewRequestInsert = Database["public"]["Tables"]["review_requests"]["Insert"];
 export type ReviewRequestUpdate = Database["public"]["Tables"]["review_requests"]["Update"];
+
+export type InactiveCustomerCampaign = Database["public"]["Tables"]["inactive_customer_campaigns"]["Row"];
+export type InactiveCustomerCampaignInsert = Database["public"]["Tables"]["inactive_customer_campaigns"]["Insert"];
+export type InactiveCustomerCampaignUpdate = Database["public"]["Tables"]["inactive_customer_campaigns"]["Update"];
 
 export type CustomerVisit = Database["public"]["Tables"]["customer_visits"]["Row"];
 export type CustomerVisitInsert = Database["public"]["Tables"]["customer_visits"]["Insert"];

@@ -4,13 +4,13 @@ import { redirect } from "next/navigation";
 import { LandingPageClient } from "@/components/landing/LandingPageClient";
 
 export const metadata: Metadata = {
-  title: "U-Grahak — एक बार आए ग्राहक को, बार-बार बुलाइए",
+  title: "U-Grahak — एक बार आया Customer, दोबारा आने की वजह पाए",
   description:
-    "छोटे कारोबार के लिए स्मार्ट ग्राहक प्रबंधन। अपने ग्राहकों की सूची बनाएं, पहली खरीद पर इनाम दें और नए ऑफ़र भेजकर उन्हें अपनी दुकान पर वापस बुलाएं।",
+    "अपनी दुकान पर QR Code लगाएँ, Scratch Card Rewards दें और नए Products के Offers अपने eligible Customers तक पहुँचाएँ — एक आसान Dashboard से।",
   openGraph: {
-    title: "U-Grahak — एक बार आए ग्राहक को, बार-बार बुलाइए",
+    title: "U-Grahak — Smart Customer Retention for Local Businesses",
     description:
-      "दुकानदार अपने ग्राहकों की सूची बनाए, डिजिटल इनाम दे और वापस बुलाने के लिए ऑफ़र भेजे।",
+      "दुकान पर QR Code लगाएँ, Scratch Card Rewards दें और नए Products के Offers Customers तक पहुँचाएँ।",
     type: "website",
     url: "https://ugrahak.com",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "U-Grahak" }],

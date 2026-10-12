@@ -39,14 +39,14 @@ async function runTests() {
   }
 
   const admin = createAdminClient();
-  const { data: merchant } = await admin
+  const { data: merchant, error: mError } = await admin
     .from("merchants")
     .select("id, shop_name, slug")
     .limit(1)
     .single();
 
   if (!merchant) {
-    console.error("No merchant found in database to run tests with.");
+    console.error("No merchant found in database to run tests with. Query error:", mError);
     process.exit(1);
   }
 
@@ -90,6 +90,10 @@ async function runTests() {
 
   const checkinRes = await handleCheckin(checkinReq);
   const checkinData = await checkinRes.json();
+
+  if (checkinRes.status !== 200) {
+    console.log("Check-in failed response:", { status: checkinRes.status, checkinData });
+  }
 
   assert(checkinRes.status === 200, "Check-in API returns HTTP 200 OK");
   assert(checkinData.success === true, "Check-in response has success: true");

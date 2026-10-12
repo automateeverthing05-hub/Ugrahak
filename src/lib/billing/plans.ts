@@ -5,7 +5,7 @@ export interface PlanConfig {
   name: string;
   priceINR: number;
   period: "month";
-  customerLimit: number;
+  customerLimit: number | "unlimited";
   monthlyRecipientLimit: number | "unlimited";
   weeklyOfferLimit: number | "unlimited";
   hasNearbyOffers: boolean;
@@ -31,16 +31,18 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     hasBasicCustomerTracking: false,
     hasGoogleReviewRequests: true,
     features: [
-      "Maximum 100 customers",
-      "Maximum 100 Send Offer customer recipients per month",
-      "Google Review Requests",
-      "Store QR code & scratch cards",
+      "Up to 100 customers",
+      "QR code and customer check-in",
+      "New-customer scratch-card reward",
+      "Limited monthly Send Offers (100 recipients/mo)",
+      "Google Review invitation link",
+      "Basic dashboard and customer list",
     ],
   },
   STARTER: {
     id: "STARTER",
     name: "Starter",
-    priceINR: 999,
+    priceINR: 499,
     period: "month",
     customerLimit: 1500,
     monthlyRecipientLimit: "unlimited",
@@ -51,17 +53,19 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     hasBasicCustomerTracking: true,
     hasGoogleReviewRequests: true,
     features: [
-      "Maximum 1,500 customers",
-      "Send Offer",
-      "Google Review Requests",
-      "Basic Customer Tracking",
-      "Store QR code & scratch cards",
+      "Up to 1,500 customers",
+      "Monthly Send Offer campaigns",
+      "Google Review reminders for eligible customers",
+      "Customer visit history & tracking",
+      "Scratch-card rewards",
+      "Basic offer history",
+      "Standard support",
     ],
   },
   GROWTH: {
     id: "GROWTH",
     name: "Growth",
-    priceINR: 2999,
+    priceINR: 1499,
     period: "month",
     customerLimit: 5000,
     monthlyRecipientLimit: "unlimited",
@@ -72,35 +76,35 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     hasBasicCustomerTracking: true,
     hasGoogleReviewRequests: true,
     features: [
-      "Maximum 5,000 customers",
-      "Send Offer",
-      "Google Review Requests",
-      "Basic Customer Tracking",
+      "Up to 5,000 customers",
+      "Monthly Send Offer campaigns",
+      "Google Review reminders for eligible customers",
+      "Repeat customer tracking",
+      "Customer visit and reward history",
       "Nearby Offers (100–200m)",
-      "Priority offer sending",
     ],
   },
   PRO: {
     id: "PRO",
     name: "Pro",
-    priceINR: 6999,
+    priceINR: 2999,
     period: "month",
-    customerLimit: 10000,
+    customerLimit: 10000, // Safe technical safeguard ceiling for high-concurrency DB scaling
     monthlyRecipientLimit: "unlimited",
     weeklyOfferLimit: "unlimited",
     hasNearbyOffers: true,
     hasAdvancedAnalytics: true,
-    hasStaffAccounts: true,
+    hasStaffAccounts: false, // Flagged: Staff schema not implemented
     hasBasicCustomerTracking: true,
     hasGoogleReviewRequests: true,
     features: [
-      "Maximum 10,000 customers",
-      "Send Offer",
-      "Google Review Requests",
-      "Advanced Customer Tracking",
-      "Nearby Offers (100–200m)",
+      "Up to 10,000 customers (high capacity)",
+      "Send Offer campaigns",
+      "Google Review reminders for eligible customers",
+      "Advanced repeat customer tracking",
       "Business Growth Insights",
-      "Multiple Staff",
+      "Offer performance analytics",
+      "Nearby Offers (100–200m)",
     ],
   },
 };
@@ -149,10 +153,17 @@ export function getBillingPeriod(subscriptionStartedAt?: string | null): { start
  */
 export function isCustomerLimitReached(currentCustomerCount: number, planId?: string | null): {
   isReached: boolean;
-  limit: number;
+  limit: number | "unlimited";
   current: number;
 } {
   const config = getPlanConfig(planId);
+  if (config.customerLimit === "unlimited") {
+    return {
+      isReached: false,
+      limit: "unlimited",
+      current: currentCustomerCount,
+    };
+  }
   return {
     isReached: currentCustomerCount >= config.customerLimit,
     limit: config.customerLimit,

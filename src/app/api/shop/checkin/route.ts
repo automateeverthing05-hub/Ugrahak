@@ -107,6 +107,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Resilient TypeScript Fallback Path
+    // Select standard columns first to ensure backwards compatibility if retention migration hasn't been applied yet
     const { data: merchant, error: merchantError } = await admin
       .from("merchants")
       .select("id, shop_name, phone, google_maps_url, slug, plan")
@@ -211,7 +212,7 @@ export async function POST(request: NextRequest) {
         visit_type: "FIRST_VISIT",
         visited_at: now,
       }),
-      merchant.google_maps_url
+      merchant.google_maps_url && merchant.is_review_request_enabled !== false
         ? scheduleReviewRequest(
             merchantId,
             newCustomer.id,

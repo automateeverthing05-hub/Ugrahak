@@ -5,11 +5,13 @@ import { MerchantProfileForm } from "@/components/dashboard/MerchantProfileForm"
 import { QRCodeDisplay } from "@/components/dashboard/QRCodeDisplay";
 import { ScratchCardSettings } from "@/components/dashboard/ScratchCardSettings";
 import { GoogleReviewsSettings } from "@/components/dashboard/GoogleReviewsSettings";
+import { ReengagementSettings } from "@/components/dashboard/ReengagementSettings";
 import { PLANS, getPlanConfig } from "@/lib/billing/plans";
 import {
   Store,
   QrCode,
   Star,
+  Heart,
   MapPin,
   Gift,
   CreditCard,
@@ -27,7 +29,7 @@ interface SettingsViewProps {
   customerCount: number;
 }
 
-type SettingsTab = "profile" | "qr" | "reviews" | "nearby" | "scratch" | "billing";
+type SettingsTab = "profile" | "qr" | "reviews" | "reengagement" | "nearby" | "scratch" | "billing";
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   merchant,
@@ -36,15 +38,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
 
   const currentPlan = getPlanConfig(merchant?.plan);
-  const usagePct = Math.min(
-    Math.round((customerCount / currentPlan.customerLimit) * 100),
-    100
-  );
+  const isUnlimited = currentPlan.customerLimit === "unlimited";
+  const numericLimit = typeof currentPlan.customerLimit === "number" ? currentPlan.customerLimit : 10000;
+  const usagePct = isUnlimited
+    ? 0
+    : Math.min(Math.round((customerCount / numericLimit) * 100), 100);
 
   const tabs: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
     { id: "profile", label: "Shop Profile", icon: Store },
     { id: "qr", label: "Store QR Code", icon: QrCode },
-    { id: "reviews", label: "Google Reviews Badhayein", icon: Star },
+    { id: "reviews", label: "Google Reviews", icon: Star },
+    { id: "reengagement", label: "We Miss You (30-Day)", icon: Heart },
     { id: "nearby", label: "Nearby Offers (GPS)", icon: MapPin },
     { id: "scratch", label: "Scratch Card", icon: Gift },
     { id: "billing", label: "Plan & Billing", icon: CreditCard },
@@ -128,6 +132,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {activeTab === "reviews" && (
         <GoogleReviewsSettings
           initialGoogleMapsUrl={merchant?.google_maps_url || null}
+          initialIsEnabled={merchant?.is_review_request_enabled ?? true}
+          shopName={merchant?.shop_name || "Your Store"}
+        />
+      )}
+
+      {/* Tab: We Miss You (30-Day Re-engagement) */}
+      {activeTab === "reengagement" && (
+        <ReengagementSettings
+          initialIsEnabled={merchant?.is_reengagement_enabled ?? false}
+          initialOfferId={merchant?.reengagement_offer_id || null}
           shopName={merchant?.shop_name || "Your Store"}
         />
       )}
@@ -238,7 +252,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <div className="flex items-center justify-between text-xs text-slate-600 mb-1.5 font-medium">
                 <span>Customer Quota Usage</span>
                 <span className="font-bold text-slate-900">
-                  {customerCount.toLocaleString()} / {currentPlan.customerLimit.toLocaleString()} ({usagePct}%)
+                  {customerCount.toLocaleString()} /{" "}
+                  {isUnlimited ? "Unlimited" : numericLimit.toLocaleString()} (
+                  {usagePct}%)
                 </span>
               </div>
               <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">

@@ -20,14 +20,17 @@ import type { ReviewRequestWithCustomer } from "@/lib/reviews/reviewScheduler";
 
 interface GoogleReviewsSettingsProps {
   initialGoogleMapsUrl: string | null;
+  initialIsEnabled?: boolean;
   shopName: string;
 }
 
 export const GoogleReviewsSettings: React.FC<GoogleReviewsSettingsProps> = ({
   initialGoogleMapsUrl,
+  initialIsEnabled = true,
   shopName,
 }) => {
   const [googleMapsUrl, setGoogleMapsUrl] = useState(initialGoogleMapsUrl || "");
+  const [isEnabled, setIsEnabled] = useState(initialIsEnabled);
   const [requests, setRequests] = useState<ReviewRequestWithCustomer[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -47,6 +50,29 @@ export const GoogleReviewsSettings: React.FC<GoogleReviewsSettingsProps> = ({
       }
     } catch {
       // Ignore
+    }
+  };
+
+  const handleToggleAutomation = async (nextState: boolean) => {
+    setIsEnabled(nextState);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch("/api/merchant/automations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_review_request_enabled: nextState }),
+      });
+      if (res.ok) {
+        setSuccess(`Google Review automation is now ${nextState ? "enabled (Active)" : "paused (Disabled)"}.`);
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to update automation state.");
+        setIsEnabled(!nextState); // Rollback
+      }
+    } catch {
+      setError("Network error while updating automation toggle.");
+      setIsEnabled(!nextState); // Rollback
     }
   };
 
@@ -117,7 +143,7 @@ export const GoogleReviewsSettings: React.FC<GoogleReviewsSettingsProps> = ({
     <div className="space-y-6">
       {/* Main Configuration Card */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-5">
-        <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
               <Star className="w-6 h-6" />
@@ -132,16 +158,29 @@ export const GoogleReviewsSettings: React.FC<GoogleReviewsSettingsProps> = ({
             </div>
           </div>
 
-          <div>
+          <div className="flex items-center gap-3">
+            {/* On/Off Toggle Button */}
+            <button
+              type="button"
+              onClick={() => handleToggleAutomation(!isEnabled)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                isEnabled
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+              }`}
+            >
+              <span>{isEnabled ? "Automation: ON" : "Automation: OFF"}</span>
+            </button>
+
             {isConfigured ? (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>Review Link Configured</span>
+                <span>Link Ready</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
                 <AlertTriangle className="w-4 h-4 text-amber-600" />
-                <span>Link Not Configured</span>
+                <span>Link Missing</span>
               </span>
             )}
           </div>

@@ -137,18 +137,18 @@ async function runRazorpayQA() {
   const proPaise = pro.priceINR * 100;
 
   record(
-    "Starter Plan Order Spec (₹999/mo)",
-    starter.priceINR === 999 && starterPaise === 99900 ? "PASS" : "FAIL",
+    "Starter Plan Order Spec (₹499/mo)",
+    starter.priceINR === 499 && starterPaise === 49900 ? "PASS" : "FAIL",
     `Amount: ₹${starter.priceINR} (${starterPaise} paise), Customer Cap: ${starter.customerLimit}`
   );
   record(
-    "Growth Plan Order Spec (₹2,999/mo)",
-    growth.priceINR === 2999 && growthPaise === 299900 ? "PASS" : "FAIL",
+    "Growth Plan Order Spec (₹1,499/mo)",
+    growth.priceINR === 1499 && growthPaise === 149900 ? "PASS" : "FAIL",
     `Amount: ₹${growth.priceINR} (${growthPaise} paise), Customer Cap: ${growth.customerLimit}`
   );
   record(
-    "Pro Plan Order Spec (₹6,999/mo)",
-    pro.priceINR === 6999 && proPaise === 699900 ? "PASS" : "FAIL",
+    "Pro Plan Order Spec (₹2,999/mo)",
+    pro.priceINR === 2999 && proPaise === 299900 ? "PASS" : "FAIL",
     `Amount: ₹${pro.priceINR} (${proPaise} paise), Customer Cap: ${pro.customerLimit}`
   );
 

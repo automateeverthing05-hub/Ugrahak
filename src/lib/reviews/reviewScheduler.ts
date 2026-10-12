@@ -142,14 +142,47 @@ export async function processPendingReviewRequests(): Promise<{
         summary.skipped++;
         continue;
       }
-      // 1. Fetch Merchant to check Google Review URL
+      // 1. Fetch Merchant to check settings & Google Review URL
       const { data: merchant } = await admin
         .from("merchants")
-        .select("id, shop_name, google_maps_url")
+        .select("id, shop_name, google_maps_url, is_review_request_enabled, plan")
         .eq("id", req.merchant_id)
         .maybeSingle();
 
-      const reviewUrl = merchant?.google_maps_url || req.review_url;
+      if (!merchant) {
+        await updateRequestStatus(
+          req.id,
+          "SKIPPED",
+          null,
+          "Merchant account no longer exists."
+        );
+        summary.skipped++;
+        summary.details.push({
+          customerId: req.customer_id,
+          status: "SKIPPED",
+          reason: "Merchant not found",
+        });
+        continue;
+      }
+
+      // Check merchant on/off automation toggle
+      if (merchant.is_review_request_enabled === false) {
+        await updateRequestStatus(
+          req.id,
+          "SKIPPED",
+          null,
+          "Google review invitation automation disabled by merchant."
+        );
+        summary.skipped++;
+        summary.details.push({
+          customerId: req.customer_id,
+          status: "SKIPPED",
+          reason: "Automation disabled by merchant",
+        });
+        continue;
+      }
+
+      const reviewUrl = merchant.google_maps_url || req.review_url;
 
       // If merchant has no configured review URL, mark as SKIPPED
       if (!reviewUrl || !reviewUrl.trim() || !reviewUrl.startsWith("http")) {
@@ -183,15 +216,15 @@ export async function processPendingReviewRequests(): Promise<{
       if (validTokens.length === 0) {
         await updateRequestStatus(
           req.id,
-          "FAILED",
+          "SKIPPED",
           null,
-          "No active FCM push token found for customer device."
+          "No active FCM push token found. Customer device has not enabled push notifications."
         );
-        summary.failed++;
+        summary.skipped++;
         summary.details.push({
           customerId: req.customer_id,
-          status: "FAILED",
-          reason: "No FCM token",
+          status: "SKIPPED",
+          reason: "No active push token registered",
         });
         continue;
       }

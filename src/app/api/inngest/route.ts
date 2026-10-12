@@ -4,6 +4,7 @@ import { broadcastOfferFunction } from "@/lib/inngest/functions/broadcastOffer";
 import {
   processReviewRequestsFunction,
   scheduledCustomerReviewReminderFunction,
+  processInactiveCustomerReengagementFunction,
 } from "@/lib/inngest/functions/scheduledReviews";
 import { processCustomerCheckinAnalyticsFunction } from "@/lib/inngest/functions/checkinAnalytics";
 
@@ -13,6 +14,7 @@ export const { GET, POST, PUT } = serve({
     broadcastOfferFunction,
     processReviewRequestsFunction,
     scheduledCustomerReviewReminderFunction,
+    processInactiveCustomerReengagementFunction,
     processCustomerCheckinAnalyticsFunction,
   ],
 });
