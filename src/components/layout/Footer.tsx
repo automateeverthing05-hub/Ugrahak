@@ -55,16 +55,16 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
           {/* Brand & Purpose (5 Cols) */}
           <div className="md:col-span-5 space-y-4">
             <Link href="/" className="inline-flex items-center gap-2.5">
-              <BrandLogo size="md" />
+              <BrandLogo size="md" showTagline={true} />
             </Link>
 
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm">
-              Turn first-time customers into repeat loyal customers. Built specifically for local shops, cafes, salons, restaurants, and other businesses.
+              Local Business. Stronger Customers. अब हर नया Customer बनेगा Repeat Customer। भारतीय लोकल दुकानदारों के लिए आसान और भरोसेमंद SaaS।
             </p>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Free Plan Available &bull; ₹0/month</span>
+              <span>Free Plan Available &bull; ₹0/महीना</span>
             </div>
           </div>
 

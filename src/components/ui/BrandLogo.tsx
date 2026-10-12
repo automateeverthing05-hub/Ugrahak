@@ -12,17 +12,17 @@ interface BrandLogoProps {
 }
 
 const SIZE_MAP = {
-  sm: { width: 100, height: 44, imgClass: "h-7 w-auto" },
-  md: { width: 130, height: 58, imgClass: "h-9 w-auto" },
-  lg: { width: 160, height: 71, imgClass: "h-11 w-auto" },
-  xl: { width: 210, height: 93, imgClass: "h-14 w-auto" },
+  sm: { width: 90, height: 40, imgClass: "h-6 sm:h-7 w-auto" },
+  md: { width: 120, height: 53, imgClass: "h-7 sm:h-9 w-auto" },
+  lg: { width: 155, height: 68, imgClass: "h-9 sm:h-11 w-auto" },
+  xl: { width: 200, height: 88, imgClass: "h-12 sm:h-14 w-auto" },
 };
 
 export const BrandLogo: React.FC<BrandLogoProps> = ({
   className = "",
   size = "md",
   showTagline = false,
-  taglineText = "Local Retail SaaS",
+  taglineText = "Local Business. Stronger Customers.",
   href,
   priority = false,
 }) => {

@@ -112,7 +112,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                       prefetch={true}
                       className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 ${
                         item.active
-                          ? "bg-indigo-50 text-indigo-700 font-bold"
+                          ? "bg-emerald-50 text-emerald-700 font-bold"
                           : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                       }`}
                     >
@@ -131,7 +131,7 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                   href={`/shop/${merchant.slug}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl hover:bg-indigo-100 transition-colors shadow-2xs"
+                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors shadow-2xs"
                   title="Open Customer QR Check-in Page"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -168,10 +168,10 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
         <div className="md:hidden fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-xs flex justify-end">
           <div className="bg-white w-4/5 max-w-xs h-full shadow-2xl p-5 flex flex-col justify-between overflow-y-auto">
             <div className="space-y-4">
-              {/* Drawer Header */}
+                {/* Drawer Header */}
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xs">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-xs">
                     <Store className="w-4 h-4" />
                   </div>
                   <div>
@@ -196,12 +196,12 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-colors min-h-[44px] ${
                     pathname === "/dashboard"
-                      ? "bg-indigo-50 text-indigo-700"
+                      ? "bg-emerald-50 text-emerald-700"
                       : "text-slate-700 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Home className="w-4 h-4 text-indigo-600" />
+                    <Home className="w-4 h-4 text-emerald-600" />
                     <span>Dashboard Home</span>
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
@@ -212,12 +212,12 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-colors min-h-[44px] ${
                     pathname.startsWith("/dashboard/customers")
-                      ? "bg-indigo-50 text-indigo-700"
+                      ? "bg-emerald-50 text-emerald-700"
                       : "text-slate-700 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Users className="w-4 h-4 text-indigo-600" />
+                    <Users className="w-4 h-4 text-emerald-600" />
                     <span>Customer List</span>
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
@@ -228,12 +228,12 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-colors min-h-[44px] ${
                     pathname.startsWith("/dashboard/offers")
-                      ? "bg-indigo-50 text-indigo-700"
+                      ? "bg-emerald-50 text-emerald-700"
                       : "text-slate-700 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Send className="w-4 h-4 text-indigo-600" />
+                    <Send className="w-4 h-4 text-emerald-600" />
                     <span>Offer Bhejein</span>
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
@@ -244,12 +244,12 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-colors min-h-[44px] ${
                     pathname.startsWith("/dashboard/growth") || pathname.startsWith("/dashboard/business-growth")
-                      ? "bg-indigo-50 text-indigo-700"
+                      ? "bg-emerald-50 text-emerald-700"
                       : "text-slate-700 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <TrendingUp className="w-4 h-4 text-indigo-600" />
+                    <TrendingUp className="w-4 h-4 text-emerald-600" />
                     <span>Business Growth</span>
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
@@ -260,12 +260,12 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-colors min-h-[44px] ${
                     pathname === "/dashboard/analytics"
-                      ? "bg-indigo-50 text-indigo-700"
+                      ? "bg-emerald-50 text-emerald-700"
                       : "text-slate-700 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <BarChart3 className="w-4 h-4 text-indigo-600" />
+                    <BarChart3 className="w-4 h-4 text-emerald-600" />
                     <span>Business Insights</span>
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
@@ -276,12 +276,12 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-colors min-h-[44px] ${
                     pathname === "/dashboard/settings" || pathname === "/dashboard/profile" || pathname === "/dashboard/billing"
-                      ? "bg-indigo-50 text-indigo-700"
+                      ? "bg-emerald-50 text-emerald-700"
                       : "text-slate-700 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Settings className="w-4 h-4 text-indigo-600" />
+                    <Settings className="w-4 h-4 text-emerald-600" />
                     <span>Settings</span>
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
@@ -295,13 +295,13 @@ export const DashboardNav: React.FC<DashboardNavProps> = ({ merchant, userEmail 
                     href={`/shop/${merchant.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between px-3.5 py-3 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-bold min-h-[44px]"
+                    className="flex items-center justify-between px-3.5 py-3 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-bold min-h-[44px]"
                   >
                     <div className="flex items-center gap-2.5">
-                      <ExternalLink className="w-4 h-4 text-indigo-600" />
+                      <ExternalLink className="w-4 h-4 text-emerald-600" />
                       <span>Open Shop QR Page</span>
                     </div>
-                    <ChevronRight className="w-3.5 h-3.5 text-indigo-300" />
+                    <ChevronRight className="w-3.5 h-3.5 text-emerald-300" />
                   </a>
                 </div>
               )}

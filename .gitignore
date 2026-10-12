@@ -39,4 +39,5 @@ Thumbs.db
 .data/
 *.tsbuildinfo
 k6-*.json
+scripts/qa-screenshots/
 

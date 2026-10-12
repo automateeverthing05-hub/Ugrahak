@@ -156,15 +156,15 @@ export default async function DashboardPage() {
       />
 
       {/* Prominent Action Banner: Send New Offer & View Analytics */}
-      <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-emerald-900/40">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[11px] font-bold text-amber-200">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 backdrop-blur-md text-[11px] font-bold text-emerald-300 border border-emerald-400/30">
             <span>Aasan Process: Customers &rarr; Offer Bhejein &rarr; Repeat Visits</span>
           </div>
           <h2 className="text-lg sm:text-xl font-extrabold tracking-tight">
             Customers ko apni shop par wapas bulayein
           </h2>
-          <p className="text-xs text-indigo-100/90 max-w-md">
+          <p className="text-xs text-slate-300 max-w-md">
             Apne sabhi customers ko weekend discount ya festival offer ek click me bhejein.
           </p>
         </div>
@@ -172,18 +172,18 @@ export default async function DashboardPage() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-shrink-0">
           <Link
             href="/dashboard/offers"
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white text-indigo-700 font-extrabold text-xs sm:text-sm hover:bg-indigo-50 transition-colors shadow-sm min-h-[44px]"
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 text-white font-extrabold text-xs sm:text-sm hover:bg-emerald-500 transition-colors shadow-sm min-h-[44px]"
           >
-            <Send className="w-4 h-4 text-indigo-600" />
+            <Send className="w-4 h-4 text-white" />
             <span>Naya Offer Bhejein</span>
-            <ArrowRight className="w-4 h-4 text-indigo-600" />
+            <ArrowRight className="w-4 h-4 text-white" />
           </Link>
 
           <Link
             href="/dashboard/analytics"
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-2xl bg-indigo-800/80 hover:bg-indigo-800 text-white font-bold text-xs transition-colors border border-indigo-500/30 min-h-[44px]"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-2xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-colors border border-slate-700 min-h-[44px]"
           >
-            <BarChart3 className="w-4 h-4 text-amber-300" />
+            <BarChart3 className="w-4 h-4 text-emerald-400" />
             <span>Insights Dekhein</span>
           </Link>
         </div>
