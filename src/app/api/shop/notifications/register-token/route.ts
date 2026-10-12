@@ -39,7 +39,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!token || typeof token !== "string" || token.length < 20 || token.length > 500) {
+    const trimmedToken = typeof token === "string" ? token.trim() : "";
+    if (
+      !trimmedToken ||
+      trimmedToken.length < 20 ||
+      trimmedToken.length > 500 ||
+      trimmedToken.startsWith("fcm_web_token_") ||
+      trimmedToken.startsWith("fcm_web_granted_")
+    ) {
       return NextResponse.json(
         { error: "A valid FCM registration token is required." },
         { status: 400 }

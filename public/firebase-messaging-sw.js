@@ -3,6 +3,38 @@
 
 /* eslint-disable no-restricted-globals */
 
+// Initialize Firebase SDK inside Service Worker
+try {
+  importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
+  importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
+
+  const urlParams = new URLSearchParams(self.location.search);
+  const apiKey = urlParams.get('apiKey') || undefined;
+  const projectId = urlParams.get('projectId') || 'apnagrahak-107d4';
+  const messagingSenderId = urlParams.get('messagingSenderId') || undefined;
+  const appId = urlParams.get('appId') || undefined;
+
+  if (firebase && !firebase.apps.length) {
+    firebase.initializeApp({
+      apiKey,
+      projectId,
+      messagingSenderId,
+      appId,
+    });
+  }
+
+  if (firebase && firebase.messaging && firebase.messaging.isSupported()) {
+    const messaging = firebase.messaging();
+    // Background message handler
+    messaging.onBackgroundMessage((payload) => {
+      // Background message handled by Firebase or custom push event below
+    });
+  }
+} catch (swInitErr) {
+  // Service worker initialization fallback
+  console.warn('[SW] Firebase compat init warning:', swInitErr);
+}
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });

@@ -43,6 +43,7 @@ interface MerchantInfo {
 interface OffersListProps {
   initialOffers: Offer[];
   subscriberCount: number;
+  totalRegisteredDevices?: number;
   customerCount: number;
   monthlyRecipientsUsed: number;
   monthlyRecipientLimit: number | "unlimited";
@@ -53,6 +54,7 @@ interface OffersListProps {
 export const OffersList: React.FC<OffersListProps> = ({
   initialOffers,
   subscriberCount,
+  totalRegisteredDevices = 0,
   customerCount,
   monthlyRecipientsUsed,
   monthlyRecipientLimit,
@@ -614,12 +616,38 @@ export const OffersList: React.FC<OffersListProps> = ({
               </div>
             )}
 
-            {subscriberCount === 0 && (
-              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong>0 Customers Receiving Offers:</strong> Customers must first scan your shop QR code and enable offers to receive your messages.
+            {subscriberCount === 0 ? (
+              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-2">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="font-bold">0 Deliverable Customer Devices:</strong>
+                    <p className="text-[11px] text-amber-800 mt-0.5 leading-relaxed">
+                      Customers receive offers on devices where notifications are active.
+                      {totalRegisteredDevices > 0
+                        ? ` You have ${totalRegisteredDevices} device(s) registered previously, but device tokens become inactive when browser cache is cleared or permissions reset. When customers revisit your shop QR code, their active notification connection is refreshed automatically.`
+                        : " Customers must first scan your shop QR code and tap 'Offers Enable Karein' to receive your messages."}
+                    </p>
+                  </div>
                 </div>
+                <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-amber-200/60 text-[10px] font-medium text-amber-900">
+                  <span className="bg-white/80 px-2 py-0.5 rounded-md border border-amber-300">
+                    Total Customers: <strong>{customerCount}</strong>
+                  </span>
+                  <span className="bg-white/80 px-2 py-0.5 rounded-md border border-amber-300">
+                    Registered Devices: <strong>{totalRegisteredDevices}</strong>
+                  </span>
+                  <span className="bg-white/80 px-2 py-0.5 rounded-md border border-amber-300">
+                    Active Deliverable: <strong>0</strong>
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>
+                  <strong>{subscriberCount}</strong> active customer device(s) ready to receive this notification.
+                </span>
               </div>
             )}
 
@@ -644,24 +672,35 @@ export const OffersList: React.FC<OffersListProps> = ({
                 </div>
 
                 {confirmSendOffer.image_url && (
-                  <div className="w-full h-32 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
-                    <img
-                      src={confirmSendOffer.image_url}
-                      alt={confirmSendOffer.title}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="space-y-1">
+                    <div className="w-full h-32 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+                      <img
+                        src={confirmSendOffer.image_url}
+                        alt={confirmSendOffer.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="text-[9px] text-slate-400 text-right">
+                      Attached Offer Banner
+                    </div>
                   </div>
                 )}
 
                 <div className="text-slate-700 whitespace-pre-line leading-relaxed font-normal bg-slate-50/70 p-2.5 rounded-lg border border-slate-100 text-xs">
-                  <span className="text-indigo-600 font-medium">Hi [Customer Name],</span>
+                  <span className="text-indigo-600 font-semibold">
+                    Hi Rahul Sharma (Sample Customer),
+                  </span>
                   {"\n\n"}
                   {confirmSendOffer.message}
                   {"\n\n"}
                   <span className="text-slate-500 font-medium">
-                    Shop: {merchantInfo.shopName}
+                    Shop: {merchantInfo.shopName || "Your Shop"}
                     {merchantInfo.phone ? `\nContact: ${merchantInfo.phone}` : ""}
                   </span>
+                </div>
+
+                <div className="text-[10px] text-slate-400 italic">
+                  * Dynamic preview: Each customer receives their own name automatically upon delivery.
                 </div>
               </div>
             </div>

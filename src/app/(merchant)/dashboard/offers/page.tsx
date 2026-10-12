@@ -15,10 +15,11 @@ export default async function OffersPage() {
     redirect("/login");
   }
 
-  // Fetch offers, push tokens, notification logs, customer count, and merchant profile in parallel
+  // Fetch offers, active push tokens, total push tokens, notification logs, customer count, and merchant profile in parallel
   const [
     { data: offers },
     { data: pushTokens },
+    { count: totalTokensCount },
     { data: logs },
     { count: customerCount },
     { data: merchant },
@@ -33,6 +34,10 @@ export default async function OffersPage() {
       .select("id")
       .eq("merchant_id", user.id)
       .eq("is_valid", true),
+    supabase
+      .from("push_tokens")
+      .select("*", { count: "exact", head: true })
+      .eq("merchant_id", user.id),
     supabase
       .from("notification_logs")
       .select("offer_id, status")
@@ -50,6 +55,7 @@ export default async function OffersPage() {
 
   const typedOffers = (offers || []) as Offer[];
   const subscriberCount = pushTokens?.length || 0;
+  const totalRegisteredDevices = totalTokensCount || 0;
   const typedLogs = (logs || []) as NotificationLog[];
   const totalCustomers = customerCount || 0;
 
@@ -126,6 +132,7 @@ export default async function OffersPage() {
       <OffersList
         initialOffers={typedOffers}
         subscriberCount={subscriberCount}
+        totalRegisteredDevices={totalRegisteredDevices}
         customerCount={totalCustomers}
         monthlyRecipientsUsed={monthlyRecipientsUsed}
         monthlyRecipientLimit={monthlyRecipientLimit}
