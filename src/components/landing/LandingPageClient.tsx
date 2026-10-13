@@ -297,7 +297,7 @@ export function LandingPageClient() {
           <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold tracking-wide">
               <Sparkles className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-              <span>स्थानीय दुकानदार के लिए डिजिटल समाधान</span>
+              <span>दुकानदार / बिज़नेस owner के लिए डिजिटल समाधान</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-[46px] xl:text-[50px] font-black text-slate-900 tracking-normal leading-[1.3] sm:leading-[1.25]">
@@ -335,20 +335,22 @@ export function LandingPageClient() {
               <span>₹0 से शुरुआत &middot; 100 ग्राहकों तक हमेशा फ्री &middot; कोई छुपा चार्ज नहीं</span>
             </div>
 
-            {/* Industry chips */}
-            <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs font-bold text-slate-700">
-              <span className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-2xs flex items-center gap-1.5">
-                <Store className="w-3.5 h-3.5 text-emerald-600" /> किराना
-              </span>
-              <span className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-2xs flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-sky-600" /> कपड़े की दुकान
-              </span>
-              <span className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-2xs flex items-center gap-1.5">
-                <Percent className="w-3.5 h-3.5 text-indigo-600" /> सैलून और पार्लर
-              </span>
-              <span className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-2xs flex items-center gap-1.5">
-                <Gift className="w-3.5 h-3.5 text-amber-600" /> कैफ़े और रेस्टोरेंट
-              </span>
+            {/* Industry heading and chips */}
+            <div className="pt-3 space-y-2">
+              <p className="text-xs sm:text-sm font-extrabold text-slate-700">
+                हर उस दुकान और बिज़नेस के लिए, जिसे दोबारा आने वाले ग्राहक चाहिए
+              </p>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5 sm:gap-2 text-xs font-bold text-slate-700 max-w-full">
+                {LANDING_CONFIG.TARGET_INDUSTRIES.map((industry, idx) => (
+                  <span
+                    key={idx}
+                    className="px-2.5 sm:px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-2xs flex items-center gap-1.5 whitespace-normal sm:whitespace-nowrap"
+                  >
+                    {idx === 0 && <Store className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />}
+                    {industry}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -380,7 +382,7 @@ export function LandingPageClient() {
               QR के बिना और QR के साथ
             </h2>
             <p className="text-sm sm:text-base text-slate-600">
-              देखें कैसे U-Grahak आपकी रोज़मर्रा की दुकानदारी को बदलता है।
+              देखें कैसे U-Grahak आपकी दुकान या बिज़नेस को बदलता है।
             </p>
           </div>
 
@@ -1315,10 +1317,10 @@ export function LandingPageClient() {
       <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white relative overflow-hidden">
         <div className="max-w-4xl mx-auto text-center space-y-5 relative z-10">
           <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-snug">
-            अब अपनी दुकान के ग्राहकों को दोबारा बुलाना शुरू करें।
+            अब अपनी दुकान या बिज़नेस के ग्राहकों को दोबारा बुलाना शुरू करें।
           </h2>
           <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
-            100 ग्राहकों तक हमेशा फ्री। बिना ऐप डाउनलोड किए आसान डिजिटल ग्राहक प्रबंधन।
+            100 ग्राहकों तक हमेशा फ्री। बिना ऐप डाउनलोड किए दुकानदार / बिज़नेस owner के लिए आसान डिजिटल ग्राहक प्रबंधन।
           </p>
           <div className="pt-2">
             <Link
@@ -1347,7 +1349,7 @@ export function LandingPageClient() {
                 हर ग्राहक दोबारा आए।
               </div>
               <p className="text-xs text-slate-600 leading-relaxed max-w-sm">
-                भारतीय स्थानीय दुकानदारों के लिए आसान QR चेक-इन और रिपीट कस्टमर समाधान।
+                हर लोकल बिज़नेस और दुकान के लिए आसान QR चेक-इन और रिपीट कस्टमर समाधान।
               </p>
             </div>
 

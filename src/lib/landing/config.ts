@@ -23,6 +23,20 @@ export const LANDING_CONFIG = {
   OFFER_CHANNEL_HINDI: "फ़ोन स्क्रीन पर डिजिटल अलर्ट",
   OFFER_CHANNEL_FULL_HINDI: "फ़ोन ब्राउज़र अलर्ट (बिना ऐप डाउनलोड)",
 
+  // Target Industries & Businesses (Generalized for all local retail/service businesses)
+  TARGET_INDUSTRIES: [
+    "किराना",
+    "कपड़े की दुकान",
+    "सैलून और पार्लर",
+    "कैफ़े और रेस्टोरेंट",
+    "मेडिकल स्टोर",
+    "मोबाइल और इलेक्ट्रॉनिक्स",
+    "बेकरी और स्वीट्स",
+    "जिम और फिटनेस",
+    "जनरल स्टोर",
+    "और हर लोकल बिज़नेस",
+  ],
+
   // Plan Limits (Strictly synchronized with src/lib/billing/plans.ts)
   PLANS: {
     FREE: {
