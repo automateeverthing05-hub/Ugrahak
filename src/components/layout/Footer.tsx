@@ -59,7 +59,7 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
             </Link>
 
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm">
-              Local Business. Stronger Customers. अब हर नया Customer बनेगा Repeat Customer। भारतीय लोकल दुकानदारों के लिए आसान और भरोसेमंद SaaS।
+              Local Business. Stronger Customers. नए ग्राहक जोड़ें और Repeat Visits को प्रोत्साहित करें। भारतीय लोकल दुकानदारों के लिए आसान और भरोसेमंद SaaS।
             </p>
 
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
@@ -157,7 +157,7 @@ export const Footer: React.FC<FooterProps> = ({ className = "", variant = "full"
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Your Customer List Is Private &bull; Your Data Is Securely Protected</span>
+            <span>Customer Data Is Private &bull; Multi-tenant Isolated</span>
           </div>
 
           <p className="text-[11px] text-slate-400">

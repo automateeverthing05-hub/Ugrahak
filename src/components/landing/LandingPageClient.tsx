@@ -104,43 +104,43 @@ export function LandingPageClient() {
   const faqs = [
     {
       q: "क्या Customer को कोई ऐप डाउनलोड करना होगा?",
-      a: "नहीं। Customer को कोई ऐप इंस्टॉल नहीं करना पड़ता। वे अपने फोन के सामान्य कैमरा या QR स्कैनर से काउंटर पर लगा QR कोड स्कैन करते हैं और तुरंत मोबाइल ब्राउज़र में चेक-इन करके उपलब्ध Scratch Card देख लेते हैं।",
+      a: "नहीं। Customer को कोई ऐप इंस्टॉल करने की ज़रूरत नहीं है। वे अपने फोन के कैमरे या किसी भी QR स्कैनर से दुकान के काउंटर पर रखा QR Code स्कैन करते हैं और सीधे मोबाइल ब्राउज़र में चेक-इन करके अपना Scratch Card Reward देख लेते हैं।",
     },
     {
       q: "क्या शुरुआत करने के लिए पैसे देने होंगे?",
-      a: "नहीं। U-Grahak का Free Plan ₹0/महीने में उपलब्ध है। इसमें 100 Customers तक की सुरक्षित लिस्ट, हर महीने 100 offer recipients, काउंटर QR कोड स्टैंडी, डिजिटल स्क्रैच कार्ड और Google Review लिंक शामिल हैं।",
+      a: "नहीं। U-Grahak का Free Plan ₹0/महीना में उपलब्ध है। इसमें 100 Stored Customers, हर महीने 100 Offer Recipients, दुकान का QR Code, डिजिटल Scratch Cards और Google Review Invitation लिंक शामिल हैं।",
     },
     {
       q: "क्या मैं मोबाइल से अपना Business Manage कर सकता हूँ?",
-      a: "हाँ। U-Grahak का Merchant Dashboard पूरी तरह मोबाइल-फ्रेंडली और रिस्पॉन्सिव है। आप अपने फोन से Customer List देख सकते हैं, नए Scratch Card Rewards तय कर सकते हैं, नए सामान की फोटो खींचकर Offer तैयार कर सकते हैं और वाउचर रिडीम कर सकते हैं।",
+      a: "हाँ। U-Grahak का Merchant Dashboard पूरी तरह मोबाइल-फ्रेंडली और रिस्पॉन्सिव है। आप अपने फोन से Customer List देख सकते हैं, नए Rewards तय कर सकते हैं, नए सामान की फोटो के साथ Offers भेज सकते हैं और काउंटर पर रिवॉर्ड वाउचर रिडीम कर सकते हैं।",
     },
     {
       q: "क्या मेरा Customer Data दूसरी दुकानों को दिखाई देगा?",
-      a: "कदापि नहीं। हर दुकानदार का डेटा पूरी तरह निजी और अलग (Isolated multi-tenant) रहता है। आपकी ग्राहक सूची और विज़िट रिकॉर्ड सिर्फ आपके सुरक्षित खाते में ही रहते हैं।",
+      a: "कदापि नहीं। हर दुकानदार का डेटा पूरी तरह निजी और अलग (Isolated Multi-tenant) रहता है। आपकी Customer List और विज़िट रिकॉर्ड सिर्फ आपके अपने सुरक्षित खाते में ही रहते हैं।",
     },
     {
       q: "Scratch Card Reward कैसे काम करता है?",
-      a: "दुकानदार अपने डैशबोर्ड में एक्टिव रिवॉर्ड्स (जैसे 10% डिस्काउंट, ₹50 छूट या कॉम्प्लिमेंट्री गिफ्ट) सेट करता है। ग्राहक QR स्कैन करके चेक-इन करता है, तो उसे डिजिटल स्क्रैच कार्ड मिलता है।",
+      a: "दुकानदार अपने Dashboard में एक्टिव Rewards (जैसे 10% छूट, ₹50 डिस्काउंट या कॉम्प्लिमेंट्री गिफ्ट) सेट करता है। ग्राहक QR Code स्कैन करके चेक-इन करता है, तो उसे डिजिटल Scratch Card मिलता है।",
     },
     {
       q: "Reward को दुकान पर कैसे Redeem किया जाता है?",
-      a: "कार्ड स्क्रैच करने पर Customer को एक यूनीक Reference Code (जैसे AG-9842) मिलता है। Customer बिलिंग के समय वह कोड काउंटर पर दिखाता है। दुकानदार अपने डैशबोर्ड के Redeem सेक्शन में कोड डालकर 1-क्लिक में वेरीफाई और रिडीम कर सकता है।",
+      a: "कार्ड स्क्रैच करने पर Customer को एक यूनीक Reference Code (जैसे AG-9842) मिलता है। Customer बिलिंग के समय वह कोड काउंटर पर दिखाता है। दुकानदार अपने Dashboard के Redeem सेक्शन में कोड डालकर एक क्लिक में वेरीफाई और रिडीम कर सकता है।",
     },
     {
       q: "Google Review Invitation कैसे काम करता है?",
-      a: "जब कोई ग्राहक पहली बार QR स्कैन करके चेक-इन पूरा करता है, तो सिस्टम 30 मिनट बाद उस ग्राहक को आपकी दुकान के Google Maps पेज पर ऑथेंटिक रिव्यू देने का सीधा लिंक प्रदान करता है, जिससे आपकी लोकल रैंकिंग तेज़ी से बढ़ती है।",
+      a: "जब कोई ग्राहक पहली बार QR Code स्कैन करके चेक-इन करता है, तो सिस्टम 30 मिनट बाद उस ग्राहक को आपकी दुकान के Google Maps पेज पर अपने वास्तविक अनुभव के आधार पर एक ईमानदार व वैकल्पिक रिव्यू देने का सीधा लिंक प्रदान करता है।",
     },
     {
       q: "अगर कोई ग्राहक 30 दिन तक न आए तो क्या होता है?",
-      a: "U-Grahak का 'We Miss You' ऑटोमेशन 30 दिनों तक दोबारा विज़िट न करने वाले योग्य ग्राहकों को आपकी दुकान का एक्सक्लूसिव ऑफर याद दिलाकर दोबारा आपकी दुकान पर बुलाने में मदद करता है।",
+      a: "U-Grahak का 'We Miss You' ऑटोमेशन 30 दिनों तक दोबारा विज़िट न करने वाले योग्य ग्राहकों को आपकी दुकान का एक्सक्लूसिव ऑफर भेजकर उन्हें दोबारा खरीदारी के लिए प्रोत्साहित करने में मदद करता है।",
     },
     {
       q: "नए Product के Offers Customers तक कैसे भेजें?",
-      a: "दुकानदार नए प्रोडक्ट की फोटो अपलोड करता है, ऑफर विवरण लिखता है और 'Send Offer' दबाता है। जिन Customers ने चेक-इन के दौरान नोटिफिकेशन की अनुमति दी है, उन्हें सीधे उनके फोन पर अलर्ट मिलता है (Free Plan में 100 recipients/माह सीमा लागू है)।",
+      a: "दुकानदार नए प्रोडक्ट की फोटो अपलोड करता है, ऑफर का विवरण लिखता है और 'Send Offer' दबाता है। जिन Customers ने चेक-इन के दौरान ऑफर्स प्राप्त करने की अनुमति दी है, उन्हें सीधे उनके फोन पर नोटिफिकेशन मिलता है (Free Plan में 100 Offer Recipients/महीना सीमा लागू है)।",
     },
     {
       q: "Free Plan की limits क्या हैं और Paid Plan में क्या मिलता है?",
-      a: "Free Plan में अधिकतम 100 Customers का डेटा और हर महीने 100 ऑफर नोटिफिकेशन शामिल हैं। जैसे-जैसे आपकी दुकान बढ़ती है, आप Starter (₹499/माह, 1,500 ग्राहक), Growth (₹1,499/माह, 5,000 ग्राहक) या Pro (₹2,999/माह, 10,000 ग्राहक) में आसानी से अपग्रेड कर सकते हैं।",
+      a: "Free Plan में 100 Stored Customers और हर महीने 100 Offer Recipients शामिल हैं। जैसे-जैसे आपकी दुकान का दायरा बढ़ता है, आप Starter (₹499/महीना, 1,500 Stored Customers), Growth (₹1,499/महीना, 5,000 Stored Customers) या Pro (₹2,999/महीना, 10,000 Stored Customers) में आसानी से अपग्रेड कर सकते हैं।",
     },
   ];
 
@@ -255,15 +255,15 @@ export function LandingPageClient() {
             </div>
 
             <h1 className="text-3xl sm:text-5xl lg:text-[52px] font-black text-slate-900 tracking-tight leading-[1.15]">
-              हर नया Customer{" "}
+              नए ग्राहक जोड़ें।{" "}
               <span className="block text-emerald-800">
-                Repeat Customer
+                Offers और Rewards से
               </span>
-              <span className="block">बनेगा</span>
+              <span className="block text-slate-900">उन्हें दोबारा आने के लिए प्रेरित करें।</span>
             </h1>
 
             <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              QR Code से Customers जोड़िए, Rewards दीजिए और नए Products के Offers अपने Customers तक आसानी से पहुँचाइए — एक ही Dashboard से।
+              QR Code से Customers जोड़ें, Digital Rewards दें और नए Products के Offers अपने eligible Customers तक आसानी से पहुँचाएँ — एक ही Dashboard से।
             </p>
 
             {/* Hero CTAs */}
@@ -287,7 +287,7 @@ export function LandingPageClient() {
             {/* Supporting Trust Line */}
             <div className="flex items-center justify-center lg:justify-start gap-2 pt-1 text-xs sm:text-sm font-semibold text-slate-600">
               <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>₹0 से शुरुआत &middot; Customer को ऐप डाउनलोड करने की ज़रूरत नहीं</span>
+              <span>₹0 से शुरुआत करें &middot; Customer को ऐप डाउनलोड करने की ज़रूरत नहीं</span>
             </div>
 
             {/* Business Types Badges */}
@@ -382,7 +382,7 @@ export function LandingPageClient() {
                   U-Grahak में Save होता है
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                  Customer अपना नाम और मोबाइल नंबर दर्ज करता है और U-Grahak में सेव हो जाता है।
+                  Customer अपना नाम दर्ज करता है और आपकी सुरक्षित Customer List में जुड़ जाता है।
                 </p>
               </div>
 
@@ -413,7 +413,7 @@ export function LandingPageClient() {
                   Offer भेजा जाता है
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                  आप नए Products के फोटो और Offer तैयार करके अपने eligible Customers को 1-क्लिक में भेज सकते हैं।
+                  आप नए Products के फोटो और Offer तैयार करके अपने eligible Customers को एक क्लिक में भेज सकते हैं।
                 </p>
               </div>
 
@@ -444,7 +444,7 @@ export function LandingPageClient() {
                   Reward मिलता है
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                  Customer को Scratch Card मिलता है और वह अपना Reward Code पाता है, जिसे काउंटर पर रिडीम किया जा सकता है।
+                  Customer को डिजिटल Scratch Card मिलता है और वह अपना Reward Code पाता है, जिसे बिलिंग के समय रिडीम किया जा सकता है।
                 </p>
               </div>
 
@@ -472,10 +472,10 @@ export function LandingPageClient() {
                   5
                 </div>
                 <h3 className="text-sm font-black text-slate-900 mb-1.5 leading-snug">
-                  Repeat Customer बनता है
+                  Repeat Visits को बढ़ावा मिलता है
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                  अब Customer आपके Offers पाता रहेगा, रिव्यू देगा और बार-बार आपकी दुकान पर आएगा।
+                  Customer आपके Offers पाता है, ईमानदार रिव्यू देता है और आपकी दुकान पर दोबारा खरीदारी के लिए प्रेरित होता है।
                 </p>
               </div>
 
@@ -501,15 +501,15 @@ export function LandingPageClient() {
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-6 border-t border-slate-200 text-xs font-bold text-slate-700">
             <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-2.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>Customer Data सुरक्षित और प्राइवेट</span>
+              <span>Customer Data सुरक्षित और Multi-tenant Isolated</span>
             </div>
             <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-2.5">
               <Star className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>Google Review Invitation (पहली QR check-in के 30 मिनट बाद)</span>
+              <span>Google Review Invitation (पहली QR check-in के 30 मिनट बाद ऑथेंटिक लिंक)</span>
             </div>
             <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-2.5">
               <RotateCcw className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>We Miss You Offer (30 दिन बाद, अगर दोबारा विज़िट न हो)</span>
+              <span>We Miss You Offer (30 दिन बाद, यदि दोबारा विज़िट न हो)</span>
             </div>
             <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-2.5">
               <Smartphone className="w-4 h-4 text-emerald-600 flex-shrink-0" />
@@ -553,10 +553,10 @@ export function LandingPageClient() {
                 <div className="pt-2 p-4 bg-emerald-50/60 border border-emerald-100 rounded-2xl space-y-2">
                   <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
                     <Gift className="w-4 h-4 text-emerald-600" />
-                    <span>Solution: Repeat Customer System</span>
+                    <span>Solution: Repeat Visits System</span>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Scratch Card Rewards और Special Offers के ज़रिए Customers को दोबारा खरीदारी के लिए प्रेरित करें।
+                    Scratch Card Rewards और Special Offers के ज़रिए Customers को दोबारा खरीदारी के लिए प्रोत्साहित करें।
                   </p>
                 </div>
               </div>
@@ -596,7 +596,7 @@ export function LandingPageClient() {
                     <span>Solution: Product Offers Broadcast</span>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    नए Products की Photos और Offers एक क्लिक में अपने उपलब्ध Customer audience तक पहुँचाएँ।
+                    नए Products की Photos और Offers एक क्लिक में अपने opted-in Customers तक पहुँचाएँ।
                   </p>
                 </div>
               </div>
@@ -636,7 +636,7 @@ export function LandingPageClient() {
                     <span>Solution: All-in-One Dashboard</span>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Customer List और उपलब्ध Offers को एक ही Dashboard से Manage करें।
+                    Customer List और उपलब्ध Offers को एक ही Dashboard से आसानी से Manage करें।
                   </p>
                 </div>
               </div>
@@ -673,10 +673,10 @@ export function LandingPageClient() {
                 <div className="pt-2 p-4 bg-emerald-50/60 border border-emerald-100 rounded-2xl space-y-2">
                   <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
                     <Star className="w-4 h-4 text-emerald-600" />
-                    <span>Solution: 30-Minute Google Review Automation</span>
+                    <span>Solution: Google Review Invitation Link</span>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    चेक-इन के 30 मिनट बाद ऑथेंटिक रिव्यू लिंक भेजकर दुकान की ऑनलाइन रेटिंग बढ़ाएँ।
+                    चेक-इन के 30 मिनट बाद Customers को उनके वास्तविक अनुभव पर आधारित ईमानदार और वैकल्पिक Google Review देने का सीधा लिंक भेजें।
                   </p>
                 </div>
               </div>
@@ -688,7 +688,7 @@ export function LandingPageClient() {
                   </div>
                   <div>
                     <div className="text-xs font-bold text-slate-900">Google Review Invitation</div>
-                    <div className="text-[11px] text-slate-500">Auto-sent 30 mins after check-in</div>
+                    <div className="text-[11px] text-slate-500">Sent 30 mins after customer check-in</div>
                   </div>
                 </div>
                 <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-md">
@@ -772,10 +772,10 @@ export function LandingPageClient() {
                   Customer Experience (ग्राहक)
                 </div>
                 <h3 className="text-xl font-black text-slate-900">
-                  बिना ऐप डाउनलोड किए 10-सेकंड चेक-इन
+                  बिना ऐप डाउनलोड किए आसान QR चेक-इन
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  ग्राहक सामान्य कैमरे से काउंटर QR स्कैन करता है, अपना नाम भरता है, डिजिटल कार्ड स्क्रैच करता है और कोड काउंटर पर दिखाता है।
+                  ग्राहक सामान्य कैमरे से काउंटर QR Code स्कैन करता है, अपना नाम भरता है, डिजिटल Scratch Card स्क्रैच करता है और कोड काउंटर पर दिखाता है।
                 </p>
               </div>
 
@@ -802,7 +802,7 @@ export function LandingPageClient() {
                 <div className="p-3 bg-amber-50/60 border border-amber-200/80 rounded-xl flex items-center justify-between">
                   <div className="text-[11px] font-bold text-amber-950 flex items-center gap-1.5">
                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                    <span>Rate us on Google Maps (Automated)</span>
+                    <span>Google Review Invitation (Optional)</span>
                   </div>
                   <span className="text-[10px] font-bold text-amber-900 underline">
                     Review Link &rarr;
@@ -852,13 +852,13 @@ export function LandingPageClient() {
                 </div>
 
                 <p className="text-xs text-emerald-700 font-bold mt-2">
-                  100 तक Stored Customers
+                  100 Stored Customers
                 </p>
 
                 <ul className="mt-6 space-y-3 text-xs text-slate-700 font-medium">
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>100 तक Stored Customers</span>
+                    <span>दुकान का QR Code और कस्टमर चेक-इन</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
@@ -866,15 +866,15 @@ export function LandingPageClient() {
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>दुकान का QR Code</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>डिजिटल Scratch Cards</span>
+                    <span>नए कस्टमर के लिए Scratch Card Reward</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
                     <span>Google Review Invitation Link</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <span>बेसिक Dashboard और Customer List</span>
                   </li>
                 </ul>
               </div>
@@ -905,13 +905,13 @@ export function LandingPageClient() {
                 </div>
 
                 <p className="text-xs text-slate-700 font-bold mt-2">
-                  1,500 तक Stored Customers
+                  1,500 Stored Customers
                 </p>
 
                 <ul className="mt-6 space-y-3 text-xs text-slate-600 font-medium">
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>1,500 तक Stored Customers</span>
+                    <span>1,500 Stored Customers</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
@@ -919,7 +919,7 @@ export function LandingPageClient() {
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Google Review रिमाइंडर</span>
+                    <span>Google Review रिमाइंडर (Eligible Customers)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
@@ -961,13 +961,13 @@ export function LandingPageClient() {
                 </div>
 
                 <p className="text-xs text-emerald-700 font-bold mt-2">
-                  5,000 तक Stored Customers
+                  5,000 Stored Customers
                 </p>
 
                 <ul className="mt-6 space-y-3 text-xs text-slate-600 font-medium">
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>5,000 तक Stored Customers</span>
+                    <span>5,000 Stored Customers</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
@@ -1014,13 +1014,17 @@ export function LandingPageClient() {
                 </div>
 
                 <p className="text-xs text-slate-700 font-bold mt-2">
-                  10,000 तक Customers (सुरक्षित क्षमता)
+                  10,000 Stored Customers
                 </p>
 
                 <ul className="mt-6 space-y-3 text-xs text-slate-600 font-medium">
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>10,000 तक Stored Customers</span>
+                    <span>10,000 Stored Customers</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <span>Send Offer कैंपेन</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
@@ -1167,7 +1171,7 @@ export function LandingPageClient() {
                   <span>U-Grahak Local Retail Platform</span>
                 </div>
                 <p>
-                  स्थानिक भारतीय दुकानदारों के लिए विश्वसनीय और सुरक्षित ग्राहक प्रबंधन सॉफ्टवेयर।
+                  स्थानीय भारतीय दुकानदारों के लिए भरोसेमंद और सुरक्षित ग्राहक प्रबंधन सॉफ्टवेयर।
                 </p>
               </div>
             </div>
@@ -1328,7 +1332,7 @@ export function LandingPageClient() {
           </div>
 
           <p className="text-xs sm:text-sm font-semibold text-slate-400">
-            ₹0 से शुरुआत करें &middot; 100 Customers तक हमेशा फ्री
+            ₹0 से शुरुआत करें &middot; 100 Stored Customers तक हमेशा फ्री
           </p>
         </div>
       </section>
@@ -1452,7 +1456,7 @@ export function LandingPageClient() {
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Customer Data Is Private &bull; Securely Protected</span>
+              <span>Customer Data Is Private &bull; Multi-tenant Isolated</span>
             </div>
 
             <p className="text-[11px] text-slate-400">
