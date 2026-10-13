@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/Input";
@@ -13,6 +13,15 @@ import { Store, ShieldCheck, Sparkles, Eye, EyeOff } from "lucide-react";
 
 export const SignupForm: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const rawPlan = searchParams.get("plan")?.toLowerCase();
+
+  const planNameMap: Record<string, string> = {
+    starter: "Starter",
+    growth: "Growth",
+    pro: "Pro",
+  };
+  const selectedPlanName = rawPlan && planNameMap[rawPlan] ? planNameMap[rawPlan] : null;
 
   const [ownerName, setOwnerName] = useState("");
   const [shopName, setShopName] = useState("");
@@ -183,6 +192,12 @@ export const SignupForm: React.FC = () => {
           <span>फ्री प्लान &bull; ₹0/महीना</span>
         </div>
       </div>
+
+      {selectedPlanName && (
+        <div className="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-200 text-xs text-indigo-900 leading-relaxed font-medium">
+          आपने <span className="font-bold underline">{selectedPlanName}</span> चुना है। पहले Free account बनाएँ, फिर Dashboard से {selectedPlanName} में upgrade करें।
+        </div>
+      )}
 
       {error && <Alert type="error" message={error} className="text-xs" />}
 

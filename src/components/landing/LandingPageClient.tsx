@@ -16,22 +16,23 @@ import {
   Check,
   Menu,
   X,
-  TrendingUp,
-  Smartphone,
-  Camera,
   Store,
   Clock,
   Mail,
   HelpCircle,
-  FileCheck,
   RotateCcw,
   Percent,
+  MessageCircle,
+  Play,
+  HeartHandshake,
 } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import { LANDING_CONFIG } from "@/lib/landing/config";
 
 export function LandingPageClient() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [demoTab, setDemoTab] = useState<"merchant" | "customer">("merchant");
 
   // Contact Form State
   const [contactName, setContactName] = useState("");
@@ -56,16 +57,22 @@ export function LandingPageClient() {
     setContactStatus("loading");
     setContactErrorText("");
 
+    if (!contactName.trim() || !contactInfo.trim() || !contactMsg.trim()) {
+      setContactStatus("error");
+      setContactErrorText("कृपया अपना नाम, संपर्क विवरण और संदेश भरें।");
+      return;
+    }
+
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: contactName,
-          businessName: contactBusinessName,
-          contact: contactInfo,
-          topic: contactTopic,
-          message: contactMsg,
+          name: contactName.trim(),
+          businessName: contactBusinessName.trim(),
+          contact: contactInfo.trim(),
+          topic: contactTopic.trim(),
+          message: contactMsg.trim(),
         }),
       });
 
@@ -77,7 +84,9 @@ export function LandingPageClient() {
       setContactStatus("success");
       setContactResponseMsg(
         data.message ||
-          "आपकी पूछताछ सफलतापूर्वक दर्ज कर ली गई है। हमारी सहायता टीम (supportugrahak@gmail.com) 24–48 घंटों में आपसे संपर्क करेगी।"
+          (LANDING_CONFIG.SUPPORT_EMAIL
+            ? `आपकी पूछताछ दर्ज कर ली गई है। हमारी टीम (${LANDING_CONFIG.SUPPORT_EMAIL}) 24–48 घंटों में संपर्क करेगी।`
+            : "आपकी पूछताछ दर्ज कर ली गई है। हमारी सहायता टीम 24–48 घंटों में संपर्क करेगी।")
       );
       setContactName("");
       setContactBusinessName("");
@@ -88,119 +97,142 @@ export function LandingPageClient() {
       setContactErrorText(
         err instanceof Error
           ? err.message
-          : "संदेश नहीं भेजा जा सका। कृपया पुनः प्रयास करें या supportugrahak@gmail.com पर संपर्क करें।"
+          : (LANDING_CONFIG.SUPPORT_EMAIL
+            ? `संदेश नहीं भेजा जा सका। कृपया पुनः प्रयास करें या ${LANDING_CONFIG.SUPPORT_EMAIL} पर संपर्क करें।`
+            : "संदेश नहीं भेजा जा सका। कृपया पुनः प्रयास करें।")
       );
     }
   };
 
   const navLinks = [
-    { label: "Product", href: "#how-it-works" },
-    { label: "Problems & Solutions", href: "#problems" },
+    { label: "समस्या-समाधान", href: "#problems" },
+    { label: "कैसे काम करता है", href: "#how-it-works" },
+    { label: "Demo", href: "#demo" },
     { label: "Pricing", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
-    { label: "Contact", href: "#contact" },
+    { label: "संपर्क", href: "#contact" },
   ];
 
   const faqs = [
     {
-      q: "क्या Customer को कोई ऐप डाउनलोड करना होगा?",
-      a: "नहीं। Customer को कोई ऐप इंस्टॉल करने की ज़रूरत नहीं है। वे अपने फोन के कैमरे या किसी भी QR स्कैनर से दुकान के काउंटर पर रखा QR Code स्कैन करते हैं और सीधे मोबाइल ब्राउज़र में चेक-इन करके अपना Scratch Card Reward देख लेते हैं।",
+      q: "क्या ग्राहक को कोई ऐप डाउनलोड करना होगा?",
+      a: "नहीं। ग्राहक को कोई ऐप इंस्टॉल नहीं करना पड़ता। वे अपने साधारण फ़ोन कैमरे से काउंटर का QR कोड स्कैन करते हैं और सीधे मोबाइल ब्राउज़र में नाम दर्ज करके Scratch Card रिवॉर्ड पा लेते हैं।",
     },
     {
       q: "क्या शुरुआत करने के लिए पैसे देने होंगे?",
-      a: "नहीं। U-Grahak का Free Plan ₹0/महीना में उपलब्ध है। इसमें 100 Stored Customers, हर महीने 100 Offer Recipients, दुकान का QR Code, डिजिटल Scratch Cards और Google Review Invitation लिंक शामिल हैं।",
+      a: "नहीं। U-Grahak का Free Plan ₹0/महीना में उपलब्ध है। इसमें 100 ग्राहकों की सुरक्षित लिस्ट, दुकान का QR कोड, नए ग्राहक को Scratch Card और मासिक 100 offer recipients शामिल हैं।",
     },
     {
-      q: "क्या मैं मोबाइल से अपना Business Manage कर सकता हूँ?",
-      a: "हाँ। U-Grahak का Merchant Dashboard पूरी तरह मोबाइल-फ्रेंडली और रिस्पॉन्सिव है। आप अपने फोन से Customer List देख सकते हैं, नए Rewards तय कर सकते हैं, नए सामान की फोटो के साथ Offers भेज सकते हैं और काउंटर पर रिवॉर्ड वाउचर रिडीम कर सकते हैं।",
+      q: "क्या मैं मोबाइल से अपनी दुकान संभाल सकता हूँ?",
+      a: "हाँ। दुकानदार का Dashboard पूरी तरह मोबाइल-फ्रेंडली है। आप अपने फ़ोन से ग्राहक लिस्ट देख सकते हैं, काउंटर पर वाउचर रिडीम कर सकते हैं और नए सामान के offers भेज सकते हैं।",
     },
     {
-      q: "क्या मेरा Customer Data दूसरी दुकानों को दिखाई देगा?",
-      a: "कदापि नहीं। हर दुकानदार का डेटा पूरी तरह निजी और अलग (Isolated Multi-tenant) रहता है। आपकी Customer List और विज़िट रिकॉर्ड सिर्फ आपके अपने सुरक्षित खाते में ही रहते हैं।",
+      q: "क्या मेरा ग्राहक डेटा दूसरी दुकानों को दिखाई देगा?",
+      a: "कदापि नहीं। आपका डेटा सिर्फ आपका है। हर दुकान का डेटा पूरी तरह अलग और निजी रहता है; कोई दूसरी दुकान आपकी लिस्ट या विज़िट रिकॉर्ड नहीं देख सकती।",
     },
     {
       q: "Scratch Card Reward कैसे काम करता है?",
-      a: "दुकानदार अपने Dashboard में एक्टिव Rewards (जैसे 10% छूट, ₹50 डिस्काउंट या कॉम्प्लिमेंट्री गिफ्ट) सेट करता है। ग्राहक QR Code स्कैन करके चेक-इन करता है, तो उसे डिजिटल Scratch Card मिलता है।",
+      a: "दुकानदार अपने Dashboard में मनपसंद रिवॉर्ड (जैसे 10% छूट या ₹50 डिस्काउंट) तय करता है। ग्राहक QR स्कैन करते ही डिजिटल कार्ड स्क्रैच करके कोड पाता है।",
     },
     {
-      q: "Reward को दुकान पर कैसे Redeem किया जाता है?",
-      a: "कार्ड स्क्रैच करने पर Customer को एक यूनीक Reference Code (जैसे AG-9842) मिलता है। Customer बिलिंग के समय वह कोड काउंटर पर दिखाता है। दुकानदार अपने Dashboard के Redeem सेक्शन में कोड डालकर एक क्लिक में वेरीफाई और रिडीम कर सकता है।",
+      q: "Reward बिल पर कैसे Redeem होता है?",
+      a: "स्क्रैच करने पर ग्राहक को एक यूनीक कोड (जैसे AG-9842) मिलता है। ग्राहक बिलिंग के समय यह कोड दिखाता है और दुकानदार अपने Dashboard में कोड डालकर तुरंत वेरीफाई कर लेता है।",
     },
     {
-      q: "Google Review Invitation कैसे काम करता है?",
-      a: "जब कोई ग्राहक पहली बार QR Code स्कैन करके चेक-इन करता है, तो सिस्टम 30 मिनट बाद उस ग्राहक को आपकी दुकान के Google Maps पेज पर अपने वास्तविक अनुभव के आधार पर एक ईमानदार व वैकल्पिक रिव्यू देने का सीधा लिंक प्रदान करता है।",
+      q: "Google Review लिंक कैसे जाता है?",
+      a: "चेक-इन के 30 मिनट बाद ग्राहक को आपकी दुकान के Google Maps पेज पर ईमानदार रिव्यू देने का वैकल्पिक लिंक जाता है। Reward के लिए review ज़रूरी नहीं है; review पूरी तरह ईमानदार और स्वैच्छिक होता है।",
     },
     {
-      q: "अगर कोई ग्राहक 30 दिन तक न आए तो क्या होता है?",
-      a: "U-Grahak का 'We Miss You' ऑटोमेशन 30 दिनों तक दोबारा विज़िट न करने वाले योग्य ग्राहकों को आपकी दुकान का एक्सक्लूसिव ऑफर भेजकर उन्हें दोबारा खरीदारी के लिए प्रोत्साहित करने में मदद करता है।",
+      q: "जो ग्राहक 30 दिन तक न आएँ, उन्हें कैसे वापस बुलाएँ?",
+      a: "U-Grahak का ऑटोमेशन 30 दिन तक न आने वाले उन ग्राहकों को 'आपकी याद आ रही है' विशेष offer अपने आप भेजता है जिन्होंने अनुमति दी है।",
     },
     {
-      q: "नए Product के Offers Customers तक कैसे भेजें?",
-      a: "दुकानदार नए प्रोडक्ट की फोटो अपलोड करता है, ऑफर का विवरण लिखता है और 'Send Offer' दबाता है। जिन Customers ने चेक-इन के दौरान ऑफर्स प्राप्त करने की अनुमति दी है, उन्हें सीधे उनके फोन पर नोटिफिकेशन मिलता है (Free Plan में 100 Offer Recipients/महीना सीमा लागू है)।",
+      q: "नए सामान के Offers ग्राहकों तक कैसे पहुँचते हैं?",
+      a: "दुकानदार नए सामान की फोटो और विवरण डालकर एक क्लिक में भेजता है। ऑफ़र केवल उन्हीं ग्राहकों के फ़ोन पर ब्राउज़र अलर्ट (Push Notification) के रूप में पहुँचते हैं जिन्होंने अलर्ट की स्पष्ट अनुमति दी है; जिन्होंने अनुमति ब्लॉक की है, उन्हें अलर्ट नहीं भेजा जा सकता। Android पर यह सीधे ब्राउज़र में काम करता है, जबकि iPhone (iOS) पर वेब अलर्ट पाने के लिए ग्राहक को दुकान के पेज को होम स्क्रीन पर जोड़ना (Add to Home Screen) होता है।",
     },
     {
-      q: "Free Plan की limits क्या हैं और Paid Plan में क्या मिलता है?",
-      a: "Free Plan में 100 Stored Customers और हर महीने 100 Offer Recipients शामिल हैं। जैसे-जैसे आपकी दुकान का दायरा बढ़ता है, आप Starter (₹499/महीना, 1,500 Stored Customers), Growth (₹1,499/महीना, 5,000 Stored Customers) या Pro (₹2,999/महीना, 10,000 Stored Customers) में आसानी से अपग्रेड कर सकते हैं।",
+      q: "Free Plan की सीमा क्या है और Paid Plan में क्या अंतर है?",
+      a: "Free Plan में 100 ग्राहक और 100 मासिक offer recipients मिलते हैं। दुकान बढ़ने पर आप Starter (₹499), Growth (₹1,499) या Pro (₹2,999) में अपग्रेड कर सकते हैं।",
     },
   ];
 
+  const hasWhatsApp = Boolean(LANDING_CONFIG.WHATSAPP_NUMBER && LANDING_CONFIG.WHATSAPP_NUMBER.trim());
+  const whatsappHref = hasWhatsApp
+    ? `https://wa.me/${LANDING_CONFIG.WHATSAPP_NUMBER.trim()}?text=${encodeURIComponent(
+        LANDING_CONFIG.WHATSAPP_PREFILLED_MESSAGE
+      )}`
+    : "";
+
+  const hasSupportEmail = Boolean(LANDING_CONFIG.SUPPORT_EMAIL && LANDING_CONFIG.SUPPORT_EMAIL.trim());
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900 selection:bg-emerald-600 selection:text-white font-sans antialiased">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900 selection:bg-emerald-600 selection:text-white font-sans antialiased overflow-x-clip">
       {/* ------------------------------------------------------------- */}
-      {/* HEADER & NAVIGATION (Navy / Green Brand Palette)              */}
+      {/* 1. HEADER & NAVIGATION                                        */}
       {/* ------------------------------------------------------------- */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <BrandLogo size="md" priority={true} />
           </Link>
 
-          {/* Center: Desktop Navigation CTAs */}
+          {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8" aria-label="Main Navigation">
             {navLinks.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="text-xs font-bold text-slate-700 hover:text-emerald-700 transition-colors py-1 scroll-smooth"
+                className="text-xs font-bold text-slate-700 hover:text-emerald-700 transition-colors py-2"
               >
                 {item.label}
               </a>
             ))}
           </nav>
 
-          {/* Right: Auth CTAs with Emerald Green Primary */}
+          {/* Desktop Right CTAs */}
           <div className="hidden lg:flex items-center gap-3">
+            {hasWhatsApp && (
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 px-3.5 py-2.5 rounded-xl transition-colors min-h-[44px]"
+              >
+                <MessageCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>WhatsApp पर बात करें</span>
+              </a>
+            )}
             <Link
               href="/login"
-              className="text-xs font-bold text-slate-700 hover:text-emerald-700 px-3.5 py-2 transition-colors rounded-xl"
+              className="text-xs font-bold text-slate-700 hover:text-emerald-700 px-3.5 py-2.5 transition-colors rounded-xl min-h-[44px] flex items-center"
             >
-              Login
+              लॉग इन
             </Link>
             <Link
               href="/signup"
-              className="inline-flex items-center gap-1.5 text-xs font-extrabold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] px-5 py-2.5 rounded-xl shadow-xs hover:shadow transition-all"
+              className="inline-flex items-center gap-1.5 text-xs font-extrabold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] px-5 py-2.5 rounded-xl shadow-xs hover:shadow transition-all min-h-[44px]"
             >
-              <span>Start Free →</span>
+              <span>मुफ़्त में शुरू करें</span>
             </Link>
           </div>
 
-          {/* Mobile Navigation Header */}
-          <div className="flex items-center gap-1.5 sm:gap-2 lg:hidden">
+          {/* Mobile Right Controls */}
+          <div className="flex items-center gap-2 lg:hidden">
             <Link
               href="/signup"
-              className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl whitespace-nowrap"
+              className="inline-flex items-center gap-1 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-2 rounded-xl min-h-[44px] shadow-xs"
             >
-              <span>Start Free →</span>
+              <span>शुरू करें</span>
             </Link>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 sm:p-2 rounded-xl text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              aria-label="Toggle navigation menu"
+              className="p-2 rounded-xl text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Navigation Menu"
               aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
@@ -214,7 +246,7 @@ export function LandingPageClient() {
                   key={item.href}
                   href={item.href}
                   onClick={handleNavClick}
-                  className="py-2.5 text-sm font-semibold text-slate-800 hover:text-emerald-700 flex items-center justify-between"
+                  className="py-3 text-sm font-semibold text-slate-800 hover:text-emerald-700 flex items-center justify-between min-h-[48px]"
                 >
                   <span>{item.label}</span>
                   <ArrowRight className="w-4 h-4 text-slate-400" />
@@ -222,98 +254,111 @@ export function LandingPageClient() {
               ))}
             </nav>
 
-            <div className="pt-3 border-t border-slate-200 flex flex-col gap-2">
-              <Link
-                href="/login"
-                onClick={handleNavClick}
-                className="w-full py-2.5 text-center text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                href="/signup"
-                onClick={handleNavClick}
-                className="w-full py-3 text-center text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
-              >
-                <span>Start Free →</span>
-              </Link>
+            <div className="pt-3 border-t border-slate-200 flex flex-col gap-2.5">
+              {hasWhatsApp && (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleNavClick}
+                  className="w-full py-3 px-4 text-center text-sm font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-center gap-2 min-h-[48px]"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  <span>WhatsApp पर बात करें</span>
+                </a>
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/login"
+                  onClick={handleNavClick}
+                  className="w-full py-3 text-center text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors min-h-[48px] flex items-center justify-center"
+                >
+                  लॉग इन
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={handleNavClick}
+                  className="w-full py-3 text-center text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-all min-h-[48px] flex items-center justify-center"
+                >
+                  मुफ़्त में शुरू करें
+                </Link>
+              </div>
             </div>
           </div>
         )}
       </header>
 
       {/* ------------------------------------------------------------- */}
-      {/* HERO SECTION (Reference Image Visual Style)                   */}
+      {/* 2. HERO SECTION                                               */}
       {/* ------------------------------------------------------------- */}
-      <section className="relative pt-8 sm:pt-14 lg:pt-16 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-emerald-50/30 via-white to-slate-50 border-b border-slate-200/80">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-          {/* Left: Main Copy & Dual CTAs */}
+      <section className="relative pt-10 sm:pt-14 lg:pt-16 pb-14 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-emerald-50/40 via-white to-slate-50 border-b border-slate-200/80">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          {/* Left: Main Copy & CTAs */}
           <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold tracking-wide">
               <Sparkles className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-              <span>LOCAL BUSINESS. STRONGER CUSTOMERS.</span>
+              <span>स्थानीय दुकानदार के लिए डिजिटल समाधान</span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-[52px] font-black text-slate-900 tracking-tight leading-[1.15]">
-              नए ग्राहक जोड़ें।{" "}
-              <span className="block text-emerald-800">
-                Offers और Rewards से
+            <h1 className="text-3xl sm:text-4xl lg:text-[46px] xl:text-[50px] font-black text-slate-900 tracking-normal leading-[1.3] sm:leading-[1.25]">
+              पहली बार आए ग्राहक को{" "}
+              <span className="inline-block sm:block text-emerald-800">
+                REPEAT ग्राहक बनाएँ।
               </span>
-              <span className="block text-slate-900">उन्हें दोबारा आने के लिए प्रेरित करें।</span>
             </h1>
 
-            <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              QR Code से Customers जोड़ें, Digital Rewards दें और नए Products के Offers अपने eligible Customers तक आसानी से पहुँचाएँ — एक ही Dashboard से।
+            <p className="text-base sm:text-lg text-slate-700 leading-relaxed max-w-xl mx-auto lg:mx-0">
+              ग्राहक QR स्कैन करे, Scratch Card जीते, और आप अपने offers सीधे उन ग्राहकों के फ़ोन पर भेजें जिन्होंने अनुमति दी है। ग्राहक को कोई ऐप डाउनलोड नहीं करना।
             </p>
 
             {/* Hero CTAs */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3.5 pt-1">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base shadow-md hover:shadow-emerald-600/25 transition-all active:scale-[0.98]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base shadow-md hover:shadow-emerald-600/25 transition-all active:scale-[0.98] min-h-[52px]"
               >
-                <span>Start Free →</span>
+                <span>मुफ़्त में शुरू करें</span>
+                <ArrowRight className="w-5 h-5" />
               </Link>
 
               <a
                 href="#how-it-works"
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 font-bold text-base shadow-xs hover:border-slate-300 transition-all active:scale-[0.98]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 font-bold text-base shadow-xs hover:border-slate-300 transition-all active:scale-[0.98] min-h-[52px]"
               >
-                <span className="w-0 h-0 border-y-4 border-y-transparent border-l-[7px] border-l-slate-800 mr-1" />
                 <span>देखें कैसे काम करता है</span>
               </a>
             </div>
 
-            {/* Supporting Trust Line */}
-            <div className="flex items-center justify-center lg:justify-start gap-2 pt-1 text-xs sm:text-sm font-semibold text-slate-600">
+            {/* Trust line under buttons */}
+            <div className="flex items-center justify-center lg:justify-start gap-2 pt-1 text-xs sm:text-sm font-bold text-slate-700">
               <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>₹0 से शुरुआत करें &middot; Customer को ऐप डाउनलोड करने की ज़रूरत नहीं</span>
+              <span>₹0 से शुरुआत &middot; 100 ग्राहकों तक हमेशा फ्री &middot; कोई छुपा चार्ज नहीं</span>
             </div>
 
-            {/* Business Types Badges */}
-            <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs font-semibold text-slate-600">
-              <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg shadow-2xs flex items-center gap-1.5">
-                <Store className="w-3.5 h-3.5 text-blue-600" /> Kirana Stores
+            {/* Industry chips */}
+            <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs font-bold text-slate-700">
+              <span className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-2xs flex items-center gap-1.5">
+                <Store className="w-3.5 h-3.5 text-emerald-600" /> किराना
               </span>
-              <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg shadow-2xs flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-sky-600" /> Clothing Shops
+              <span className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-2xs flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-sky-600" /> कपड़े की दुकान
               </span>
-              <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg shadow-2xs flex items-center gap-1.5">
-                <Percent className="w-3.5 h-3.5 text-indigo-600" /> Salons &amp; Parlors
+              <span className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-2xs flex items-center gap-1.5">
+                <Percent className="w-3.5 h-3.5 text-indigo-600" /> सैलून और पार्लर
               </span>
-              <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg shadow-2xs flex items-center gap-1.5">
-                <Gift className="w-3.5 h-3.5 text-amber-600" /> Cafés &amp; Restaurants
+              <span className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-2xs flex items-center gap-1.5">
+                <Gift className="w-3.5 h-3.5 text-amber-600" /> कैफ़े और रेस्टोरेंट
               </span>
             </div>
           </div>
 
-          {/* Right: Hero Composition matching reference image */}
+          {/* Right: Hero Composition Visual */}
           <div className="lg:col-span-6 relative">
-            <div className="relative rounded-3xl overflow-hidden border border-slate-200/90 shadow-2xl bg-white">
-              <div className="relative w-full aspect-[655/312] sm:aspect-[655/312]">
+            <div className="relative rounded-3xl overflow-hidden border border-slate-200/90 shadow-xl bg-white">
+              <div className="relative w-full aspect-[655/330]">
                 <Image
                   src="/hero-reference-composition.webp"
-                  alt="Customer scanning U-Grahak QR code at shop counter with smiling merchant"
+                  alt="दुकान के काउंटर पर QR स्टैंडी स्कैन करता ग्राहक और दुकानदार"
                   fill
                   sizes="(max-width: 768px) 100vw, 650px"
                   className="object-cover object-center"
@@ -326,753 +371,721 @@ export function LandingPageClient() {
       </section>
 
       {/* ------------------------------------------------------------- */}
-      {/* 5-STEP HOW IT WORKS SECTION (Matching Reference Image)        */}
+      {/* 3. BEFORE / AFTER BLOCK                                       */}
       {/* ------------------------------------------------------------- */}
-      <section id="how-it-works" className="scroll-mt-24 py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-left mb-12 space-y-2">
-            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-              कैसे काम करता है?
+      <section className="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              QR के बिना और QR के साथ
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 font-medium">
-              सिर्फ 5 आसान स्टेप्स में अपने Customers को जोड़ें, Rewards दें और Offers भेजें।
+            <p className="text-sm sm:text-base text-slate-600">
+              देखें कैसे U-Grahak आपकी रोज़मर्रा की दुकानदारी को बदलता है।
             </p>
           </div>
 
-          {/* 5 Connected Step Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-3.5 items-stretch">
-            {/* Step 1 */}
-            <div className="bg-slate-50/70 border border-slate-200/90 rounded-3xl p-4.5 flex flex-col justify-between hover:shadow-md hover:border-emerald-300 transition-all">
-              <div>
-                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shadow-xs mb-3">
-                  1
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+            {/* Left Card: बिना U-Grahak */}
+            <div className="bg-rose-50/50 border-2 border-rose-200 rounded-3xl p-6 sm:p-8 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-rose-100 text-rose-800 text-xs font-black">
+                बिना U-Grahak
+              </div>
+              <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                ग्राहक आया, सामान लिया और चला गया
+              </h3>
+              <p className="text-sm text-slate-700 leading-relaxed">
+                दुकान पर रोज़ लोग आते हैं, पर आप उन्हें दोबारा बुला नहीं सकते। कोई लिस्ट नहीं, कोई सीधा संपर्क नहीं।
+              </p>
+              <div className="p-4 bg-white/80 rounded-2xl border border-rose-100 text-xs text-rose-800 font-medium">
+                ✕ नया माल आने पर खबर देने का कोई साधन नहीं<br />
+                ✕ कौन सा ग्राहक कब आया, कोई हिसाब नहीं
+              </div>
+            </div>
+
+            {/* Right Card: U-Grahak के साथ */}
+            <div className="bg-emerald-50/60 border-2 border-emerald-300 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-black">
+                U-Grahak के साथ
+              </div>
+              <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                हर ग्राहक आपकी private लिस्ट में जुड़ा रहता है
+              </h3>
+              <p className="text-sm text-slate-700 leading-relaxed">
+                हर आने वाले ग्राहक का नाम आपकी private लिस्ट में जुड़ जाता है। नया माल आए या ग्राहक 30 दिन न आए, आप एक क्लिक में उन ग्राहकों को offer भेजते हैं जिन्होंने अनुमति दी है।
+              </p>
+              <div className="p-4 bg-white rounded-2xl border border-emerald-200 text-xs text-emerald-800 font-medium space-y-1">
+                <div className="flex items-center gap-1.5 font-bold">
+                  <Check className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <span>एक क्लिक में नए सामान का offer भेजें</span>
                 </div>
-                <h3 className="text-sm font-black text-slate-900 mb-1.5 leading-snug">
-                  Customer QR Scan करता है
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                  Customer काउंटर पर रखे QR Code को अपने फ़ोन के कैमरे से स्कैन करता है। कोई ऐप डाउनलोड करने की ज़रूरत नहीं।
+                <div className="flex items-center gap-1.5 font-bold">
+                  <Check className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <span>30 दिन न आने वाले ग्राहक को अपने आप संदेश</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Conditional Numeric Strip (Renders ONLY when genuine metrics provided) */}
+          {LANDING_CONFIG.METRIC_STRIP && (
+            <div className="mt-8 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center text-xs sm:text-sm font-bold text-slate-700">
+              {LANDING_CONFIG.METRIC_STRIP.dailyCustomersPlaceholder} &rarr; {LANDING_CONFIG.METRIC_STRIP.monthlyNumbersPlaceholder}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------- */}
+      {/* 4. PROBLEMS AND SOLUTIONS (Exactly 5 compact cards)           */}
+      {/* ------------------------------------------------------------- */}
+      <section id="problems" className="scroll-mt-24 py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-50/80 border-b border-slate-200">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold uppercase">
+              समस्या और समाधान
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              दुकानदार की 5 बड़ी समस्याएँ, आसान समाधान
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {/* Card 1 */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+              <div className="space-y-2">
+                <span className="text-[11px] font-black text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-md inline-block">
+                  समस्या 1
+                </span>
+                <h3 className="text-base font-black text-slate-900">ग्राहक दोबारा नहीं आते</h3>
+                <p className="text-xs sm:text-sm text-slate-600">नया ग्राहक खरीदारी करके चला जाता है और दोबारा आने का कोई कारण नहीं रहता।</p>
+              </div>
+              <div className="mt-4 p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl">
+                <p className="text-xs font-bold text-emerald-900">
+                  समाधान: Scratch Card reward देकर दोबारा आने की वजह दें।
                 </p>
               </div>
+            </div>
 
-              {/* Graphical Preview Card */}
-              <div className="mt-2 rounded-2xl overflow-hidden border border-slate-200 bg-white p-2 text-center">
-                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 mb-2">
-                  <Image
-                    src="/step1-scan-qr.webp"
-                    alt="Step 1 QR code scan"
-                    fill
-                    sizes="200px"
-                    className="object-contain p-2"
-                  />
-                </div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                  Scan Standee
+            {/* Card 2 */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+              <div className="space-y-2">
+                <span className="text-[11px] font-black text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-md inline-block">
+                  समस्या 2
                 </span>
+                <h3 className="text-base font-black text-slate-900">नए माल की खबर ग्राहक तक नहीं पहुँचती</h3>
+                <p className="text-xs sm:text-sm text-slate-600">दुकान पर नया स्टॉक आने पर ग्राहकों को तुरंत बताने का सीधा रास्ता नहीं होता।</p>
+              </div>
+              <div className="mt-4 p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl">
+                <p className="text-xs font-bold text-emerald-900">
+                  समाधान: नए Product की photo और offer एक क्लिक में उन ग्राहकों तक पहुँचाएँ जिन्होंने अनुमति दी है।
+                </p>
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+              <div className="space-y-2">
+                <span className="text-[11px] font-black text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-md inline-block">
+                  समस्या 3
+                </span>
+                <h3 className="text-base font-black text-slate-900">ग्राहकों का डेटा डायरी में खो जाता है</h3>
+                <p className="text-xs sm:text-sm text-slate-600">कागज़ की डायरियों और पर्चियों में ग्राहकों के नाम खो जाते हैं।</p>
+              </div>
+              <div className="mt-4 p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl">
+                <p className="text-xs font-bold text-emerald-900">
+                  समाधान: एक Dashboard में सारी लिस्ट, visits और offers संभालें।
+                </p>
+              </div>
+            </div>
+
+            {/* Card 4 */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+              <div className="space-y-2">
+                <span className="text-[11px] font-black text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-md inline-block">
+                  समस्या 4
+                </span>
+                <h3 className="text-base font-black text-slate-900">Google Review माँगने में झिझक होती है</h3>
+                <p className="text-xs sm:text-sm text-slate-600">काउंटर पर खड़े ग्राहक से सीधे रिव्यू माँगना असहज लगता है।</p>
+              </div>
+              <div className="mt-4 p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl">
+                <p className="text-xs font-bold text-emerald-900">
+                  समाधान: Check-in के 30 मिनट बाद Google Review का सीधा लिंक अपने आप जाता है।
+                </p>
+              </div>
+            </div>
+
+            {/* Card 5 (Full Problem Card for We Miss You) */}
+            <div className="bg-white border-2 border-emerald-200 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col justify-between md:col-span-2 lg:col-span-1">
+              <div className="space-y-2">
+                <span className="text-[11px] font-black text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-md inline-block">
+                  समस्या 5 &middot; विशेष सुविधा
+                </span>
+                <h3 className="text-base font-black text-slate-900">जो ग्राहक आना बंद कर दें, उन्हें कैसे वापस बुलाएँ?</h3>
+                <p className="text-xs sm:text-sm text-slate-600">ग्राहक 1-2 महीने से नहीं आया, पर आपको पता ही नहीं चलता।</p>
+              </div>
+              <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-2xl">
+                <p className="text-xs font-bold text-emerald-900">
+                  समाधान: 30 दिन न आने पर &apos;आपकी याद आ रही है&apos; offer अपने आप जाता है।
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------- */}
+      {/* 5. HOW IT WORKS (6 Short Steps in Exact Order)                 */}
+      {/* ------------------------------------------------------------- */}
+      <section id="how-it-works" className="scroll-mt-24 py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              कैसे काम करता है?
+            </h2>
+            <p className="text-sm sm:text-base text-slate-600">
+              सिर्फ 6 आसान स्टेप्स — काउंटर से लेकर repeat बिक्री तक।
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5 items-stretch">
+            {/* Step 1 */}
+            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-4 flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-black text-xs flex items-center justify-center mb-2.5">
+                  1
+                </div>
+                <h3 className="text-sm font-bold text-slate-900 mb-1">
+                  ग्राहक काउंटर का QR स्कैन करता है
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  सामान्य फ़ोन कैमरे से (कोई ऐप नहीं)।
+                </p>
+              </div>
+              <div className="mt-3 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">
+                No App Download
               </div>
             </div>
 
             {/* Step 2 */}
-            <div className="bg-slate-50/70 border border-slate-200/90 rounded-3xl p-4.5 flex flex-col justify-between hover:shadow-md hover:border-sky-300 transition-all">
+            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-4 flex flex-col justify-between">
               <div>
-                <div className="w-9 h-9 rounded-xl bg-sky-600 text-white font-black text-sm flex items-center justify-center shadow-xs mb-3">
+                <div className="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-xs flex items-center justify-center mb-2.5">
                   2
                 </div>
-                <h3 className="text-sm font-black text-slate-900 mb-1.5 leading-snug">
-                  U-Grahak में Save होता है
+                <h3 className="text-sm font-bold text-slate-900 mb-1">
+                  नाम आपकी private लिस्ट में save होता है
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                  Customer अपना नाम दर्ज करता है और आपकी सुरक्षित Customer List में जुड़ जाता है।
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  ग्राहक का नाम सुरक्षित दर्ज हो जाता है।
                 </p>
               </div>
-
-              {/* Graphical Preview Card */}
-              <div className="mt-2 rounded-2xl overflow-hidden border border-slate-200 bg-white p-2 text-center">
-                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 mb-2">
-                  <Image
-                    src="/step2-save-customer.webp"
-                    alt="Step 2 customer check-in save"
-                    fill
-                    sizes="200px"
-                    className="object-contain p-2"
-                  />
-                </div>
-                <span className="text-[10px] font-bold text-sky-700 uppercase tracking-wider block">
-                  Auto Check-in
-                </span>
+              <div className="mt-3 text-[11px] font-bold text-sky-700 bg-sky-50 px-2 py-1 rounded-lg">
+                Safe Customer List
               </div>
             </div>
 
             {/* Step 3 */}
-            <div className="bg-slate-50/70 border border-slate-200/90 rounded-3xl p-4.5 flex flex-col justify-between hover:shadow-md hover:border-indigo-300 transition-all">
+            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-4 flex flex-col justify-between">
               <div>
-                <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-xs mb-3">
+                <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-black text-xs flex items-center justify-center mb-2.5">
                   3
                 </div>
-                <h3 className="text-sm font-black text-slate-900 mb-1.5 leading-snug">
-                  Offer भेजा जाता है
+                <h3 className="text-sm font-bold text-slate-900 mb-1">
+                  ग्राहक को Scratch Card मिलता है
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                  आप नए Products के फोटो और Offer तैयार करके अपने eligible Customers को एक क्लिक में भेज सकते हैं।
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  कार्ड स्क्रैच करके code बिल पर redeem होता है।
                 </p>
               </div>
-
-              {/* Graphical Preview Card */}
-              <div className="mt-2 rounded-2xl overflow-hidden border border-slate-200 bg-white p-2 text-center">
-                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 mb-2">
-                  <Image
-                    src="/step3-send-offer.webp"
-                    alt="Step 3 send product offer notification"
-                    fill
-                    sizes="200px"
-                    className="object-contain p-2"
-                  />
-                </div>
-                <span className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block">
-                  Product Alert
-                </span>
+              <div className="mt-3 text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded-lg">
+                Scratch &amp; Redeem
               </div>
             </div>
 
             {/* Step 4 */}
-            <div className="bg-slate-50/70 border border-slate-200/90 rounded-3xl p-4.5 flex flex-col justify-between hover:shadow-md hover:border-amber-300 transition-all">
+            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-4 flex flex-col justify-between">
               <div>
-                <div className="w-9 h-9 rounded-xl bg-amber-500 text-white font-black text-sm flex items-center justify-center shadow-xs mb-3">
+                <div className="w-8 h-8 rounded-xl bg-amber-500 text-white font-black text-xs flex items-center justify-center mb-2.5">
                   4
                 </div>
-                <h3 className="text-sm font-black text-slate-900 mb-1.5 leading-snug">
-                  Reward मिलता है
+                <h3 className="text-sm font-bold text-slate-900 mb-1">
+                  30 मिनट बाद वैकल्पिक Google Review लिंक जाता है
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                  Customer को डिजिटल Scratch Card मिलता है और वह अपना Reward Code पाता है, जिसे बिलिंग के समय रिडीम किया जा सकता है।
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  ग्राहक अपने मन से सच्चा रिव्यू दे सकता है।
                 </p>
               </div>
-
-              {/* Graphical Preview Card */}
-              <div className="mt-2 rounded-2xl overflow-hidden border border-slate-200 bg-white p-2 text-center">
-                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 mb-2">
-                  <Image
-                    src="/step4-reward-unlocked.webp"
-                    alt="Step 4 reward scratch card unlocked"
-                    fill
-                    sizes="200px"
-                    className="object-contain p-2"
-                  />
-                </div>
-                <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider block">
-                  Scratch &amp; Win
-                </span>
+              <div className="mt-3 text-[11px] font-bold text-amber-800 bg-amber-50 px-2 py-1 rounded-lg">
+                Honest Google Review
               </div>
             </div>
 
             {/* Step 5 */}
-            <div className="bg-slate-50/70 border border-slate-200/90 rounded-3xl p-4.5 flex flex-col justify-between hover:shadow-md hover:border-rose-300 transition-all">
+            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-4 flex flex-col justify-between">
               <div>
-                <div className="w-9 h-9 rounded-xl bg-rose-500 text-white font-black text-sm flex items-center justify-center shadow-xs mb-3">
+                <div className="w-8 h-8 rounded-xl bg-rose-500 text-white font-black text-xs flex items-center justify-center mb-2.5">
                   5
                 </div>
-                <h3 className="text-sm font-black text-slate-900 mb-1.5 leading-snug">
-                  Repeat Visits को बढ़ावा मिलता है
+                <h3 className="text-sm font-bold text-slate-900 mb-1">
+                  Offers + We Miss You
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                  Customer आपके Offers पाता है, ईमानदार रिव्यू देता है और आपकी दुकान पर दोबारा खरीदारी के लिए प्रेरित होता है।
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  नए माल के offers भेजें; 30 दिन न आने वाले को &apos;आपकी याद आ रही है&apos; offer जाता है (जिन्होंने अनुमति दी है)।
                 </p>
               </div>
+              <div className="mt-3 text-[11px] font-bold text-rose-700 bg-rose-50 px-2 py-1 rounded-lg">
+                Automatic Re-engagement
+              </div>
+            </div>
 
-              {/* Graphical Preview Card */}
-              <div className="mt-2 rounded-2xl overflow-hidden border border-slate-200 bg-white p-2 text-center">
-                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 mb-2">
-                  <Image
-                    src="/step5-repeat-customer.webp"
-                    alt="Step 5 loyal repeat customer visit"
-                    fill
-                    sizes="200px"
-                    className="object-contain p-2"
-                  />
+            {/* Step 6 */}
+            <div className="bg-emerald-50/70 border-2 border-emerald-300 rounded-3xl p-4 flex flex-col justify-between">
+              <div>
+                <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-black text-xs flex items-center justify-center mb-2.5">
+                  6
                 </div>
-                <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider block">
-                  Repeat Footfall
-                </span>
+                <h3 className="text-sm font-bold text-emerald-950 mb-1">
+                  ग्राहक दोबारा दुकान पर आता है
+                </h3>
+                <p className="text-xs text-emerald-900 leading-relaxed">
+                  Repeat बिक्री बढ़ती है और ग्राहक वफादार बनता है।
+                </p>
+              </div>
+              <div className="mt-3 text-[11px] font-bold text-emerald-800 bg-white px-2 py-1 rounded-lg border border-emerald-200">
+                Repeat Customer!
               </div>
             </div>
           </div>
 
-          {/* Bottom 4 Feature Trust Chips matching reference */}
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-6 border-t border-slate-200 text-xs font-bold text-slate-700">
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-2.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>Customer Data सुरक्षित और Multi-tenant Isolated</span>
+          {/* Privacy & Compliance Highlight */}
+          <div className="mt-10 p-4 sm:p-5 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm font-bold text-slate-700">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              <span>आपका डेटा सिर्फ आपका है, दूसरी दुकानें नहीं देख सकतीं।</span>
             </div>
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-2.5">
-              <Star className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>Google Review Invitation (पहली QR check-in के 30 मिनट बाद ऑथेंटिक लिंक)</span>
-            </div>
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-2.5">
-              <RotateCcw className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>We Miss You Offer (30 दिन बाद, यदि दोबारा विज़िट न हो)</span>
-            </div>
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-2.5">
-              <Smartphone className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>Simple Dashboard &middot; Mobile Friendly</span>
+            <div className="text-emerald-700 font-semibold text-xs">
+              ग्राहक की अनुमति (consent) के बाद ही offers भेजे जाते हैं।
             </div>
           </div>
         </div>
       </section>
 
       {/* ------------------------------------------------------------- */}
-      {/* PROBLEMS & SOLUTIONS (ID: problems)                           */}
+      {/* 6. DEMO SECTION (Tabs: दुकानदार का Dashboard & ग्राहक की स्क्रीन) */}
       {/* ------------------------------------------------------------- */}
-      <section id="problems" className="scroll-mt-24 py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50/80 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold tracking-wide uppercase">
-              Problems &amp; Solutions
+      <section id="demo" className="scroll-mt-24 py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-50/80 border-b border-slate-200">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase">
+              लाइव अनुभव
             </span>
-            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-              Local Business की 4 बड़ी Problems, एक आसान Solution
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              देखें U-Grahak कैसे दिखता है
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              Customers से जुड़े रहना, Repeat Visits बढ़ाना और नए Products के Offers पहुँचाना आसान बनाएँ।
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-            {/* Problem 1 */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold">
-                  Problem 1
-                </div>
-                <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                  Customers दोबारा नहीं आते
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600">
-                  नया ग्राहक एक बार सामान खरीदकर चला जाता है और दोबारा आने का कोई ठोस कारण नहीं रहता।
-                </p>
-
-                <div className="pt-2 p-4 bg-emerald-50/60 border border-emerald-100 rounded-2xl space-y-2">
-                  <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                    <Gift className="w-4 h-4 text-emerald-600" />
-                    <span>Solution: Repeat Visits System</span>
-                  </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Scratch Card Rewards और Special Offers के ज़रिए Customers को दोबारा खरीदारी के लिए प्रोत्साहित करें।
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-200 flex items-center justify-center font-bold text-emerald-700">
-                    <Gift className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">Digital Scratch Card</div>
-                    <div className="text-[11px] text-slate-500">Scratch &amp; Win Reward on Bill</div>
-                  </div>
-                </div>
-                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-md">
-                  Active Reward
-                </span>
-              </div>
-            </div>
-
-            {/* Problem 2 */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold">
-                  Problem 2
-                </div>
-                <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                  नए Products की जानकारी Customers तक नहीं पहुँचती
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600">
-                  दुकान पर नया माल आने पर ग्राहकों को सूचित करने का कोई तेज़ व सीधा साधन नहीं होता।
-                </p>
-
-                <div className="pt-2 p-4 bg-emerald-50/60 border border-emerald-100 rounded-2xl space-y-2">
-                  <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                    <Send className="w-4 h-4 text-emerald-600" />
-                    <span>Solution: Product Offers Broadcast</span>
-                  </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    नए Products की Photos और Offers एक क्लिक में अपने opted-in Customers तक पहुँचाएँ।
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center font-bold text-teal-700">
-                    <Camera className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">Product Photo &amp; Offer</div>
-                    <div className="text-[11px] text-slate-500">Sent to opted-in customers</div>
-                  </div>
-                </div>
-                <span className="text-[11px] font-bold text-teal-700 bg-teal-100 px-2.5 py-1 rounded-md">
-                  Broadcast
-                </span>
-              </div>
-            </div>
-
-            {/* Problem 3 */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold">
-                  Problem 3
-                </div>
-                <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                  Customer Data और Offers Manage करना मुश्किल है
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600">
-                  कागज़ की डायरियों या बिखरे फोन नंबरों में ग्राहक डेटा खो जाता है और फॉलो-अप नहीं हो पाता।
-                </p>
-
-                <div className="pt-2 p-4 bg-emerald-50/60 border border-emerald-100 rounded-2xl space-y-2">
-                  <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                    <Users className="w-4 h-4 text-emerald-600" />
-                    <span>Solution: All-in-One Dashboard</span>
-                  </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Customer List और उपलब्ध Offers को एक ही Dashboard से आसानी से Manage करें।
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center font-bold text-emerald-700">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">Customer Management</div>
-                    <div className="text-[11px] text-slate-500">Search, Track Visits &amp; Redeem</div>
-                  </div>
-                </div>
-                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-md">
-                  Clean Records
-                </span>
-              </div>
-            </div>
-
-            {/* Problem 4 */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold">
-                  Problem 4
-                </div>
-                <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                  Customers से Google Reviews माँगना मुश्किल है
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600">
-                  ग्राहकों से सीधे रिव्यू मांगने में झिझक होती है और अधिकांश ग्राहक भूल जाते हैं।
-                </p>
-
-                <div className="pt-2 p-4 bg-emerald-50/60 border border-emerald-100 rounded-2xl space-y-2">
-                  <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                    <Star className="w-4 h-4 text-emerald-600" />
-                    <span>Solution: Google Review Invitation Link</span>
-                  </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    चेक-इन के 30 मिनट बाद Customers को उनके वास्तविक अनुभव पर आधारित ईमानदार और वैकल्पिक Google Review देने का सीधा लिंक भेजें।
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center font-bold text-amber-600">
-                    <Star className="w-5 h-5 fill-amber-500" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">Google Review Invitation</div>
-                    <div className="text-[11px] text-slate-500">Sent 30 mins after customer check-in</div>
-                  </div>
-                </div>
-                <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-md">
-                  Automated
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------- */}
-      {/* REAL PRODUCT DEMO SECTION (ID: product-demo)                  */}
-      {/* ------------------------------------------------------------- */}
-      <section id="product-demo" className="scroll-mt-24 py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold tracking-wide uppercase">
-              Product Demo
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-              दुकानदार और Customer — दोनों के लिए आसान
-            </h2>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              दुकानदार के लिए सरल मैनेजमेंट और ग्राहक के लिए बिना ऐप डाउनलोड किए सहज चेक-इन अनुभव।
-            </p>
+          {/* Tab Switcher */}
+          <div className="flex items-center justify-center gap-2 mb-8">
+            <button
+              type="button"
+              onClick={() => setDemoTab("merchant")}
+              className={`px-5 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all min-h-[48px] ${
+                demoTab === "merchant"
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+              }`}
+            >
+              दुकानदार का Dashboard
+            </button>
+            <button
+              type="button"
+              onClick={() => setDemoTab("customer")}
+              className={`px-5 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all min-h-[48px] ${
+                demoTab === "customer"
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+              }`}
+            >
+              ग्राहक की स्क्रीन
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
-            {/* Column A: Merchant Experience */}
-            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-6">
-              <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold">
-                  Merchant Experience (दुकानदार)
-                </div>
-                <h3 className="text-xl font-black text-slate-900">
-                  एक Dashboard से पूरा बिज़नेस कंट्रोल
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  ग्राहक सूची देखना, काउंटर वाउचर रिडीम करना, नए रिवॉर्ड्स सेट करना और नए सामान के ऑफर्स भेजना सब कुछ फोन से संभव है।
-                </p>
-              </div>
-
-              {/* Realistic Merchant Mockup */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3 text-xs">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 font-bold text-slate-800">
-                  <span>Merchant Portal Preview</span>
-                  <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-600 uppercase">
-                    Live Dashboard View
+          {/* Tab Content */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs max-w-3xl mx-auto">
+            {demoTab === "merchant" ? (
+              <div className="space-y-5">
+                <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                  <div className="font-black text-slate-900 text-base">
+                    दुकानदार का Dashboard
+                  </div>
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg">
+                    आसान मैनेजमेंट
                   </span>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+                    <span className="text-xs text-slate-500 font-medium block">कुल ग्राहक</span>
+                    <span className="text-lg font-black text-slate-900">124</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+                    <span className="text-xs text-slate-500 font-medium block">आज के चेक-इन</span>
+                    <span className="text-lg font-black text-emerald-700">18</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+                    <span className="text-xs text-slate-500 font-medium block">Active Rewards</span>
+                    <span className="text-lg font-black text-indigo-700">10% Off</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
                     <div>
-                      <div className="font-bold text-slate-900">Redeem Reference Code</div>
-                      <div className="text-[11px] text-slate-500">Customer bill verification</div>
+                      <div className="font-bold text-slate-900">Reward Code Redeem करें</div>
+                      <div className="text-slate-500 text-[11px]">ग्राहक का कोड जाँचें (उदा. AG-9842)</div>
                     </div>
-                    <div className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-bold text-[11px]">
-                      Verify AG-9842
-                    </div>
+                    <span className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl font-bold">
+                      Verify &amp; Redeem
+                    </span>
                   </div>
-
-                  <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between">
+                  <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
                     <div>
-                      <div className="font-bold text-slate-900">Send New Offer</div>
-                      <div className="text-[11px] text-slate-500">Photo + discount description</div>
+                      <div className="font-bold text-slate-900">नया Offer भेजें</div>
+                      <div className="text-slate-500 text-[11px]">अनुमति प्राप्त ग्राहकों को photo + छूट का विवरण</div>
                     </div>
-                    <div className="px-3 py-1.5 bg-slate-900 text-white rounded-lg font-bold text-[11px]">
-                      Send Broadcast
-                    </div>
+                    <span className="px-3 py-1.5 bg-slate-900 text-white rounded-xl font-bold">
+                      Send Offer
+                    </span>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Column B: Customer Experience */}
-            <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-6">
-              <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-teal-100 text-teal-800 text-xs font-bold">
-                  Customer Experience (ग्राहक)
-                </div>
-                <h3 className="text-xl font-black text-slate-900">
-                  बिना ऐप डाउनलोड किए आसान QR चेक-इन
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  ग्राहक सामान्य कैमरे से काउंटर QR Code स्कैन करता है, अपना नाम भरता है, डिजिटल Scratch Card स्क्रैच करता है और कोड काउंटर पर दिखाता है।
-                </p>
-              </div>
-
-              {/* Realistic Customer Mockup */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3 text-xs">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 font-bold text-slate-800">
-                  <span>Storefront Mobile View</span>
-                  <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-600 uppercase">
-                    Customer Screen
+            ) : (
+              <div className="space-y-5">
+                <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                  <div className="font-black text-slate-900 text-base">
+                    ग्राहक की मोबाइल स्क्रीन
+                  </div>
+                  <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg">
+                    बिना किसी ऐप के
                   </span>
                 </div>
 
-                <div className="p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl text-center space-y-1.5">
-                  <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">
-                    🎁 Your Reward Unlocked
+                <div className="p-5 bg-gradient-to-tr from-amber-50 to-orange-50 border border-amber-200 rounded-2xl text-center space-y-2">
+                  <span className="text-xs font-black text-amber-900 uppercase tracking-wider block">
+                    🎁 आपका स्क्रैच कार्ड रिवॉर्ड
                   </span>
-                  <div className="text-sm font-black text-amber-950">10% Off On Your Purchase</div>
-                  <div className="inline-block px-3 py-1 bg-white border border-amber-200 rounded font-mono font-bold text-slate-900 text-xs">
+                  <div className="text-lg font-black text-amber-950">
+                    10% Off आपकी खरीदारी पर
+                  </div>
+                  <div className="inline-block px-4 py-1.5 bg-white border border-amber-300 rounded-xl font-mono font-black text-slate-900 text-sm shadow-xs">
                     AG-9842
                   </div>
-                  <p className="text-[10px] text-amber-800">Show this code at counter during checkout</p>
+                  <p className="text-[11px] text-amber-800">बिलिंग के समय यह कोड काउंटर पर दिखाएँ</p>
                 </div>
 
-                <div className="p-3 bg-amber-50/60 border border-amber-200/80 rounded-xl flex items-center justify-between">
-                  <div className="text-[11px] font-bold text-amber-950 flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                    <span>Google Review Invitation (Optional)</span>
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    <div>
+                      <div className="font-bold text-slate-900">Google Review (वैकल्पिक)</div>
+                      <div className="text-[11px] text-slate-500">Reward के लिए review ज़रूरी नहीं है</div>
+                    </div>
                   </div>
-                  <span className="text-[10px] font-bold text-amber-900 underline">
-                    Review Link &rarr;
-                  </span>
+                  <span className="font-bold text-slate-600 underline">Review Link &rarr;</span>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Video Demo Slot (Renders ONLY if real embed URL is configured) */}
+            {LANDING_CONFIG.DEMO_VIDEO_URL && (
+              <div className="mt-6 pt-6 border-t border-slate-100">
+                <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-900">
+                  <iframe
+                    src={LANDING_CONFIG.DEMO_VIDEO_URL}
+                    title="U-Grahak Video Demo"
+                    className="w-full h-full border-0"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* ------------------------------------------------------------- */}
-      {/* PRICING (ID: pricing)                                         */}
+      {/* 7. TESTIMONIALS (Conditional - Renders ONLY when non-empty)    */}
       {/* ------------------------------------------------------------- */}
-      <section id="pricing" className="scroll-mt-24 py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50/80 border-b border-slate-200">
+      {LANDING_CONFIG.TESTIMONIALS.length > 0 && (
+        <section className="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                दुकानदारों का अनुभव
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {LANDING_CONFIG.TESTIMONIALS.map((item, idx) => (
+                <div key={idx} className="p-6 rounded-3xl bg-slate-50 border border-slate-200 space-y-3">
+                  <p className="text-sm text-slate-700 italic">&ldquo;{item.quote}&rdquo;</p>
+                  <div className="text-xs font-bold text-slate-900">
+                    {item.ownerName} &middot; <span className="text-slate-500">{item.shopName}, {item.city}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* 8. PRICING (4 Plans strictly matching src/lib/billing/plans.ts)*/}
+      {/* ------------------------------------------------------------- */}
+      <section id="pricing" className="scroll-mt-24 py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold tracking-wide uppercase">
-              Pricing Plans
+          <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase">
+              पारदर्शी मूल्य
             </span>
             <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-              मुफ्त में शुरू करें। Business के साथ आगे बढ़ें।
+              मुफ़्त में शुरू करें। दुकान के साथ आगे बढ़ें।
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              पारदर्शी मासिक शुल्क। कोई छुपा हुआ चार्ज नहीं।
+            <p className="text-sm sm:text-base text-slate-600 font-semibold">
+              एक महीने में एक repeat ग्राहक की बिक्री से ही आपके plan का पैसा निकल सकता है।
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-            {/* Plan 1: Free */}
-            <div className="bg-white border-2 border-emerald-600 rounded-3xl p-6 sm:p-7 shadow-lg flex flex-col justify-between relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-xs">
-                हमेशा फ्री &middot; Zero Cost
-              </div>
-
+            {/* Free Plan */}
+            <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 flex flex-col justify-between shadow-xs">
               <div>
-                <div className="flex items-center justify-between pt-1">
-                  <h3 className="text-lg font-black text-slate-900">Free Plan</h3>
-                  <span className="text-[11px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
-                    ₹0 / महीना
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-black text-slate-900">Free</h3>
+                  <span className="text-[11px] bg-emerald-50 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    हमेशा फ्री
                   </span>
                 </div>
 
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-black text-slate-900">₹0</span>
+                <div className="mt-3 flex items-baseline gap-1">
+                  <span className="text-3xl font-black text-slate-900">₹0</span>
                   <span className="text-xs font-semibold text-slate-500">/ महीना</span>
                 </div>
 
                 <p className="text-xs text-emerald-700 font-bold mt-2">
-                  100 Stored Customers
+                  100 ग्राहक की लिस्ट
                 </p>
 
-                <ul className="mt-6 space-y-3 text-xs text-slate-700 font-medium">
+                <ul className="mt-6 space-y-2.5 text-xs text-slate-700">
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>दुकान का QR Code और कस्टमर चेक-इन</span>
+                    <span>दुकान का QR और check-in</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>हर महीने 100 Offer Recipients</span>
+                    <span>महीने में 100 offer recipients</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>नए कस्टमर के लिए Scratch Card Reward</span>
+                    <span>नए ग्राहक को Scratch Card</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Google Review Invitation Link</span>
+                    <span>Google Review लिंक</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>बेसिक Dashboard और Customer List</span>
+                    <span>Basic Dashboard</span>
                   </li>
                 </ul>
               </div>
 
               <div className="pt-8">
                 <Link
-                  href="/signup"
-                  className="w-full py-3.5 px-4 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                  href={LANDING_CONFIG.PLANS.FREE.ctaHref}
+                  className="w-full py-3.5 px-4 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs min-h-[48px]"
                 >
-                  <span>Start Free →</span>
+                  <span>{LANDING_CONFIG.PLANS.FREE.ctaText}</span>
                 </Link>
               </div>
             </div>
 
-            {/* Plan 2: Starter */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col justify-between">
+            {/* Starter Plan */}
+            <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 flex flex-col justify-between shadow-xs">
               <div>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-black text-slate-900">Starter Plan</h3>
+                  <h3 className="text-lg font-black text-slate-900">Starter</h3>
                   <span className="text-[11px] bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-full">
                     स्मॉल स्टोर
                   </span>
                 </div>
 
-                <div className="mt-4 flex items-baseline gap-1">
+                <div className="mt-3 flex items-baseline gap-1">
                   <span className="text-3xl font-black text-slate-900">₹499</span>
                   <span className="text-xs font-semibold text-slate-500">/ महीना</span>
                 </div>
 
                 <p className="text-xs text-slate-700 font-bold mt-2">
-                  1,500 Stored Customers
+                  1,500 ग्राहक की लिस्ट
                 </p>
 
-                <ul className="mt-6 space-y-3 text-xs text-slate-600 font-medium">
-                  <li className="flex items-start gap-2">
+                <ul className="mt-6 space-y-2.5 text-xs text-slate-700">
+                  <li className="flex items-start gap-2 font-bold text-slate-900">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>1,500 Stored Customers</span>
+                    <span>Free की सभी सुविधाएँ +</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>मासिक Send Offer कैंपेन</span>
+                    <span>मासिक offer campaigns (1,500 ग्राहकों तक)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Google Review रिमाइंडर (Eligible Customers)</span>
+                    <span>ग्राहक विज़िट हिस्ट्री व ट्रैकिंग</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Customer Visit History व Tracking</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Store QR Code &amp; Scratch Cards</span>
+                    <span>ऑफ़र हिस्ट्री और स्टैंडर्ड सपोर्ट</span>
                   </li>
                 </ul>
               </div>
 
               <div className="pt-8">
                 <Link
-                  href="/signup"
-                  className="w-full py-3.5 px-4 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors bg-slate-900 hover:bg-slate-800 text-white shadow-xs"
+                  href={LANDING_CONFIG.PLANS.STARTER.ctaHref}
+                  className="w-full py-3.5 px-4 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors bg-slate-900 hover:bg-slate-800 text-white shadow-xs min-h-[48px]"
                 >
-                  <span>Start Free →</span>
+                  <span>{LANDING_CONFIG.PLANS.STARTER.ctaText}</span>
                 </Link>
               </div>
             </div>
 
-            {/* Plan 3: Growth (Recommended) */}
-            <div className="bg-white border-2 border-emerald-600 rounded-3xl p-6 sm:p-7 shadow-md flex flex-col justify-between relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-xs">
-                सर्वाधिक लोकप्रिय (Recommended)
+            {/* Growth Plan (सबसे लोकप्रिय) */}
+            <div className="bg-white border-2 border-emerald-600 rounded-3xl p-6 flex flex-col justify-between shadow-md relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-0.5 rounded-full shadow-xs">
+                सबसे लोकप्रिय
               </div>
+
               <div>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-black text-slate-900">Growth Plan</h3>
+                  <h3 className="text-lg font-black text-slate-900">Growth</h3>
                   <span className="text-[11px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full">
                     ग्रोइंग स्टोर
                   </span>
                 </div>
 
-                <div className="mt-4 flex items-baseline gap-1">
+                <div className="mt-3 flex items-baseline gap-1">
                   <span className="text-3xl font-black text-slate-900">₹1,499</span>
                   <span className="text-xs font-semibold text-slate-500">/ महीना</span>
                 </div>
 
                 <p className="text-xs text-emerald-700 font-bold mt-2">
-                  5,000 Stored Customers
+                  5,000 ग्राहक की लिस्ट
                 </p>
 
-                <ul className="mt-6 space-y-3 text-xs text-slate-600 font-medium">
-                  <li className="flex items-start gap-2">
+                <ul className="mt-6 space-y-2.5 text-xs text-slate-700">
+                  <li className="flex items-start gap-2 font-bold text-slate-900">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>5,000 Stored Customers</span>
+                    <span>Starter की सभी सुविधाएँ +</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>मासिक Send Offer कैंपेन</span>
+                    <span>मासिक offer campaigns (5,000 ग्राहकों तक)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Nearby Offers (100–200m)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Repeat Customer Tracking</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Google Review रिमाइंडर</span>
+                    <div>
+                      <span>Nearby Offers (दुकान से 100–200m)</span>
+                      <span className="block text-[11px] text-slate-500 mt-0.5">
+                        ग्राहक दुकान के पास पहुँचकर दुकान का पेज खोले और लोकेशन की अनुमति दे, तो उसे offer दिखता है।
+                      </span>
+                    </div>
                   </li>
                 </ul>
               </div>
 
               <div className="pt-8">
                 <Link
-                  href="/signup"
-                  className="w-full py-3.5 px-4 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                  href={LANDING_CONFIG.PLANS.GROWTH.ctaHref}
+                  className="w-full py-3.5 px-4 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs min-h-[48px]"
                 >
-                  <span>Start Free →</span>
+                  <span>{LANDING_CONFIG.PLANS.GROWTH.ctaText}</span>
                 </Link>
               </div>
             </div>
 
-            {/* Plan 4: Pro */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col justify-between">
+            {/* Pro Plan */}
+            <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 flex flex-col justify-between shadow-xs">
               <div>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-black text-slate-900">Pro Plan</h3>
+                  <h3 className="text-lg font-black text-slate-900">Pro</h3>
                   <span className="text-[11px] bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-full">
-                    लार्ज स्टोर
+                    बड़ी दुकान
                   </span>
                 </div>
 
-                <div className="mt-4 flex items-baseline gap-1">
+                <div className="mt-3 flex items-baseline gap-1">
                   <span className="text-3xl font-black text-slate-900">₹2,999</span>
                   <span className="text-xs font-semibold text-slate-500">/ महीना</span>
                 </div>
 
                 <p className="text-xs text-slate-700 font-bold mt-2">
-                  10,000 Stored Customers
+                  10,000 ग्राहक की लिस्ट
                 </p>
 
-                <ul className="mt-6 space-y-3 text-xs text-slate-600 font-medium">
-                  <li className="flex items-start gap-2">
+                <ul className="mt-6 space-y-2.5 text-xs text-slate-700">
+                  <li className="flex items-start gap-2 font-bold text-slate-900">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>10,000 Stored Customers</span>
+                    <span>Growth की सभी सुविधाएँ +</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Send Offer कैंपेन</span>
+                    <span>मासिक offer campaigns (10,000 ग्राहकों तक)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Nearby Offers (100–200m)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Business Growth Insights</span>
+                    <div>
+                      <span>Business Growth Insights</span>
+                      <span className="block text-[11px] text-slate-500 mt-0.5">
+                        &quot;कौन कितनी बार आया, कौन गायब है&quot; रिपोर्ट
+                      </span>
+                    </div>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
                     <span>उन्नत Repeat Customer Tracking</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Google Review रिमाइंडर</span>
                   </li>
                 </ul>
               </div>
 
               <div className="pt-8">
                 <Link
-                  href="/signup"
-                  className="w-full py-3.5 px-4 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors bg-slate-900 hover:bg-slate-800 text-white shadow-xs"
+                  href={LANDING_CONFIG.PLANS.PRO.ctaHref}
+                  className="w-full py-3.5 px-4 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors bg-slate-900 hover:bg-slate-800 text-white shadow-xs min-h-[48px]"
                 >
-                  <span>Start Free →</span>
+                  <span>{LANDING_CONFIG.PLANS.PRO.ctaText}</span>
                 </Link>
               </div>
             </div>
+          </div>
+
+          {/* Refund policy compliance disclaimer */}
+          <div className="mt-8 text-center text-xs text-slate-500">
+            कोई छुपा चार्ज नहीं &middot; कभी भी बंद करें (महीने के अंत तक सेवा चालू रहेगी)
           </div>
         </div>
       </section>
 
       {/* ------------------------------------------------------------- */}
-      {/* FAQ ACCORDION (ID: faq)                                       */}
+      {/* 9. FAQ ACCORDION                                              */}
       {/* ------------------------------------------------------------- */}
-      <section id="faq" className="scroll-mt-24 py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200">
+      <section id="faq" className="scroll-mt-24 py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-50/80 border-b border-slate-200">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold tracking-wide uppercase">
-              Frequently Asked Questions
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase">
+              FAQ
             </span>
-            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-              U-Grahak के बारे में अक्सर पूछे जाने वाले सवाल
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              अक्सर पूछे जाने वाले सवाल
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              दुकानदारों के महत्वपूर्ण सवालों के प्रामाणिक और स्पष्ट जवाब।
-            </p>
           </div>
 
           <div className="space-y-3">
@@ -1081,12 +1094,12 @@ export function LandingPageClient() {
               return (
                 <div
                   key={idx}
-                  className="border border-slate-200 rounded-2xl overflow-hidden transition-colors bg-slate-50/60"
+                  className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs transition-colors"
                 >
                   <button
                     type="button"
                     onClick={() => toggleFaq(idx)}
-                    className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-slate-900 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-2xl transition-colors"
+                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-slate-900 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors min-h-[48px]"
                     aria-expanded={isOpen}
                   >
                     <span>{faq.q}</span>
@@ -1097,7 +1110,7 @@ export function LandingPageClient() {
                     />
                   </button>
                   {isOpen && (
-                    <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-white animate-in fade-in duration-200">
+                    <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/50">
                       {faq.a}
                     </div>
                   )}
@@ -1109,105 +1122,102 @@ export function LandingPageClient() {
       </section>
 
       {/* ------------------------------------------------------------- */}
-      {/* CONTACT & SUPPORT (ID: contact)                               */}
+      {/* 10. CONTACT / SUPPORT SECTION                                 */}
       {/* ------------------------------------------------------------- */}
-      <section id="contact" className="scroll-mt-24 py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50/80 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold tracking-wide uppercase">
-              Contact &amp; Support
+      <section id="contact" className="scroll-mt-24 py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase">
+              संपर्क सहायता
             </span>
-            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-              हम आपकी मदद के लिए यहाँ हैं
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              हम आपकी दुकान की मदद के लिए तैयार हैं
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              U-Grahak शुरू करने, अपने Business को सेट करने या किसी तकनीकी सवाल के लिए संपर्क करें।
-            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left: Official Support Desk Details */}
-            <div className="lg:col-span-5 space-y-5">
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-slate-900">
-                    Official Support Desk
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    अपने तकनीकी सवाल, QR कोड सेटअप या बिलिंग सहायता के लिए संपर्क करें।
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
-                    Support Email
+            {/* Left Column: Direct Channels (Rendered ONLY if user configures them) */}
+            <div className="lg:col-span-5 space-y-4">
+              {/* WhatsApp Support Card */}
+              {hasWhatsApp && (
+                <div className="p-6 rounded-3xl bg-emerald-50/70 border border-emerald-200 space-y-3">
+                  <div className="flex items-center gap-2 text-emerald-800 font-bold text-base">
+                    <MessageCircle className="w-5 h-5 text-emerald-600" />
+                    <span>WhatsApp पर तुरंत बात करें</span>
+                  </div>
+                  <p className="text-xs text-slate-600">
+                    QR कोड, Scratch Card सेटअप या किसी भी सवाल के लिए हमें WhatsApp करें।
                   </p>
                   <a
-                    href="mailto:supportugrahak@gmail.com"
-                    className="text-sm font-bold text-emerald-700 font-mono mt-1 break-all hover:underline block"
+                    href={whatsappHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors min-h-[48px]"
                   >
-                    supportugrahak@gmail.com
+                    <MessageCircle className="w-4 h-4" />
+                    <span>WhatsApp चैट शुरू करें &rarr;</span>
                   </a>
                 </div>
+              )}
 
-                <div className="space-y-2 text-xs text-slate-600 pt-1">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    <span>काम के घंटे: सोमवार से शनिवार, 10:00 AM &ndash; 6:00 PM IST</span>
+              {/* Email Support Card */}
+              {hasSupportEmail && (
+                <div className="p-6 rounded-3xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                    <Mail className="w-4 h-4 text-emerald-600" />
+                    <span>Email Support Desk</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    <span>जवाब समय: 24–48 घंटों के अंदर</span>
+                  <a
+                    href={`mailto:${LANDING_CONFIG.SUPPORT_EMAIL}`}
+                    className="text-xs font-bold text-emerald-700 font-mono block hover:underline"
+                  >
+                    {LANDING_CONFIG.SUPPORT_EMAIL}
+                  </a>
+                  <div className="text-[11px] text-slate-500 space-y-1 pt-1">
+                    <div>समय: सोमवार से शनिवार, 10:00 AM &ndash; 6:00 PM IST</div>
+                    <div>जवाब: 24–48 घंटों के भीतर</div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs text-xs text-slate-600 space-y-2">
+              {/* Operating Info */}
+              <div className="p-5 rounded-3xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1.5">
                 <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
                   <Store className="w-4 h-4 text-emerald-600" />
-                  <span>U-Grahak Local Retail Platform</span>
+                  <span>U-Grahak बिज़नेस सहायता</span>
                 </div>
                 <p>
-                  स्थानीय भारतीय दुकानदारों के लिए भरोसेमंद और सुरक्षित ग्राहक प्रबंधन सॉफ्टवेयर।
+                  काउंटर QR स्टैंडी डाउनलोड करने, स्क्रैच कार्ड तय करने या बिलिंग से जुड़े किसी भी सवाल के लिए संपर्क फ़ॉर्म भरें।
                 </p>
               </div>
             </div>
 
-            {/* Right: Validated Contact Form */}
-            <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs">
-              <h3 className="text-lg font-black text-slate-900 mb-1">
-                संदेश भेजें
-              </h3>
-              <p className="text-xs text-slate-500 mb-6">
-                कृपया अपनी जानकारी भरें। हमारी सपोर्ट टीम आपकी दुकान की सहायता के लिए तैयार है।
+            {/* Right Column: Validated Contact Form */}
+            <div className="lg:col-span-7 bg-slate-50/60 border border-slate-200 rounded-3xl p-6 sm:p-8">
+              <h3 className="text-lg font-black text-slate-900 mb-1">संदेश भेजें</h3>
+              <p className="text-xs text-slate-500 mb-5">
+                अपनी जानकारी भरें, हमारी सहायता टीम आपसे संपर्क करेगी।
               </p>
 
               {contactStatus === "success" ? (
-                <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-3">
-                  <div className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center mx-auto">
-                    <Check className="w-6 h-6" />
+                <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-2">
+                  <div className="w-10 h-10 bg-emerald-600 text-white rounded-full flex items-center justify-center mx-auto">
+                    <Check className="w-5 h-5" />
                   </div>
-                  <h4 className="text-base font-bold text-emerald-900">
-                    संदेश सफलतापूर्वक प्राप्त हुआ!
-                  </h4>
-                  <p className="text-xs text-emerald-700 max-w-md mx-auto">
-                    {contactResponseMsg}
-                  </p>
+                  <h4 className="text-sm font-bold text-emerald-900">संदेश प्राप्त हुआ!</h4>
+                  <p className="text-xs text-emerald-800">{contactResponseMsg}</p>
                   <button
                     type="button"
                     onClick={() => setContactStatus("idle")}
-                    className="mt-3 text-xs font-bold text-emerald-800 underline hover:text-emerald-900"
+                    className="mt-2 text-xs font-bold text-emerald-800 underline"
                   >
-                    नया संदेश भेजें
+                    नया संदेश लिखें
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleContactSubmit} className="space-y-4">
                   {contactStatus === "error" && (
-                    <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium">
+                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium">
                       {contactErrorText}
                     </div>
                   )}
@@ -1223,20 +1233,19 @@ export function LandingPageClient() {
                         value={contactName}
                         onChange={(e) => setContactName(e.target.value)}
                         placeholder="उदा. राहुल शर्मा"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/50"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white min-h-[44px]"
                       />
                     </div>
-
                     <div>
                       <label className="block text-xs font-bold text-slate-700 mb-1">
-                        दुकान / Business Name
+                        दुकान का नाम
                       </label>
                       <input
                         type="text"
                         value={contactBusinessName}
                         onChange={(e) => setContactBusinessName(e.target.value)}
-                        placeholder="उदा. शर्मा किराना स्टोर"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/50"
+                        placeholder="उदा. शर्मा किराना"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white min-h-[44px]"
                       />
                     </div>
                   </div>
@@ -1244,56 +1253,54 @@ export function LandingPageClient() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Email या मोबाइल नंबर <span className="text-rose-500">*</span>
+                        मोबाइल या Email <span className="text-rose-500">*</span>
                       </label>
                       <input
                         type="text"
                         required
                         value={contactInfo}
                         onChange={(e) => setContactInfo(e.target.value)}
-                        placeholder="yourname@gmail.com या 9876543210"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/50"
+                        placeholder="संपर्क विवरण (फोन या ईमेल)"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white min-h-[44px]"
                       />
                     </div>
-
                     <div>
                       <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Help Topic
+                        सहायता विषय
                       </label>
                       <select
                         value={contactTopic}
                         onChange={(e) => setContactTopic(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/50 text-slate-800"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-800 min-h-[44px]"
                       >
-                        <option value="QR Code & Scratch Card Setup">QR Code &amp; Scratch Card Setup</option>
-                        <option value="Send Offer & Product Photos">Send Offer &amp; Product Photos</option>
-                        <option value="Billing & Plans">Billing &amp; Plans</option>
-                        <option value="Google Reviews Setup">Google Reviews Setup</option>
-                        <option value="Other Assistance">Other Assistance</option>
+                        <option value="QR Code & Scratch Card Setup">QR कोड व Scratch Card</option>
+                        <option value="Send Offer & Product Photos">Offers भेजना</option>
+                        <option value="Billing & Plans">प्लान और बिलिंग</option>
+                        <option value="Other Assistance">अन्य सहायता</option>
                       </select>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">
-                      संदेश (Message) <span className="text-rose-500">*</span>
+                      संदेश <span className="text-rose-500">*</span>
                     </label>
                     <textarea
                       required
-                      rows={4}
+                      rows={3}
                       value={contactMsg}
                       onChange={(e) => setContactMsg(e.target.value)}
-                      placeholder="आपकी दुकान के बारे में सवाल या जो मदद चाहिए..."
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50/50"
+                      placeholder="आपकी दुकान के बारे में सवाल..."
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={contactStatus === "loading"}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold text-sm shadow-xs transition-colors"
+                    className="w-full sm:w-auto px-7 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold text-sm shadow-xs transition-colors min-h-[48px]"
                   >
-                    <span>{contactStatus === "loading" ? "भेजा जा रहा है..." : "संदेश भेजें →"}</span>
+                    {contactStatus === "loading" ? "भेजा जा रहा है..." : "संदेश भेजें →"}
                   </button>
                 </form>
               )}
@@ -1303,168 +1310,102 @@ export function LandingPageClient() {
       </section>
 
       {/* ------------------------------------------------------------- */}
-      {/* FINAL BOTTOM CTA                                              */}
+      {/* 11. FINAL HIGH-CONTRAST CTA                                   */}
       {/* ------------------------------------------------------------- */}
-      <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-emerald-600/20 blur-[100px] rounded-full -z-0 pointer-events-none" />
-
-        <div className="max-w-4xl mx-auto text-center space-y-6 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 text-xs font-bold">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>GROW YOUR LOCAL BUSINESS TODAY</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.2]">
-            अब अपने Customers को दोबारा बुलाना शुरू करें।
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white relative overflow-hidden">
+        <div className="max-w-4xl mx-auto text-center space-y-5 relative z-10">
+          <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-snug">
+            अब अपनी दुकान के ग्राहकों को दोबारा बुलाना शुरू करें।
           </h2>
-
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto">
-            U-Grahak के साथ Customer Relationships बेहतर बनाएँ, नए Products के Offers पहुँचाएँ और अपने Local Business को आगे बढ़ाने के नए अवसर पाएँ।
+          <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
+            100 ग्राहकों तक हमेशा फ्री। बिना ऐप डाउनलोड किए आसान डिजिटल ग्राहक प्रबंधन।
           </p>
-
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="pt-2">
             <Link
               href="/signup"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-base shadow-lg shadow-emerald-600/30 transition-all active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base shadow-lg shadow-emerald-600/30 transition-all active:scale-[0.98] min-h-[52px]"
             >
-              <span>Start Free →</span>
+              <span>मुफ़्त में शुरू करें</span>
+              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
-
-          <p className="text-xs sm:text-sm font-semibold text-slate-400">
-            ₹0 से शुरुआत करें &middot; 100 Stored Customers तक हमेशा फ्री
-          </p>
         </div>
       </section>
 
       {/* ------------------------------------------------------------- */}
-      {/* FOOTER                                                        */}
+      {/* 12. FOOTER                                                    */}
       {/* ------------------------------------------------------------- */}
-      <footer className="border-t border-slate-200 bg-white text-slate-600">
+      <footer className="border-t border-slate-200 bg-white text-slate-600 pb-20 sm:pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-slate-100">
             {/* Brand & Purpose */}
-            <div className="md:col-span-5 space-y-4">
+            <div className="md:col-span-5 space-y-3">
               <Link href="/" className="inline-flex items-center gap-2.5">
                 <BrandLogo size="md" />
               </Link>
-
-              <div>
-                <h3 className="text-sm font-extrabold text-slate-900">
-                  U-Grahak — Local Business. Stronger Customers.
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-1 max-w-sm">
-                  अपने Customers से बेहतर जुड़ें, Offers Manage करें और Repeat Visits को प्रोत्साहित करें।
-                </p>
+              <div className="text-sm font-bold text-slate-900">
+                हर ग्राहक दोबारा आए।
               </div>
-
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-800 text-xs font-bold">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Free Plan Available &bull; ₹0/month</span>
-              </div>
+              <p className="text-xs text-slate-600 leading-relaxed max-w-sm">
+                भारतीय स्थानीय दुकानदारों के लिए आसान QR चेक-इन और रिपीट कस्टमर समाधान।
+              </p>
             </div>
 
-            {/* Product Links */}
-            <div className="md:col-span-3 space-y-3">
-              <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
-                Product Links
+            {/* Links */}
+            <div className="md:col-span-3 space-y-2">
+              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                सुविधाएँ
               </h4>
-              <ul className="space-y-2 text-xs font-medium text-slate-600">
-                <li>
-                  <a href="#problems" className="hover:text-emerald-700 transition-colors">
-                    Problems &amp; Solutions
-                  </a>
-                </li>
-                <li>
-                  <a href="#how-it-works" className="hover:text-emerald-700 transition-colors">
-                    कैसे काम करता है?
-                  </a>
-                </li>
-                <li>
-                  <a href="#product-demo" className="hover:text-emerald-700 transition-colors">
-                    Product Demo
-                  </a>
-                </li>
-                <li>
-                  <a href="#pricing" className="hover:text-emerald-700 transition-colors">
-                    Pricing
-                  </a>
-                </li>
-                <li>
-                  <a href="#faq" className="hover:text-emerald-700 transition-colors">
-                    FAQ
-                  </a>
-                </li>
-                <li>
-                  <Link href="/login" className="hover:text-emerald-700 transition-colors">
-                    Login
-                  </Link>
-                </li>
+              <ul className="space-y-2 text-xs font-semibold text-slate-600">
+                <li><a href="#problems" className="hover:text-emerald-700">समस्या-समाधान</a></li>
+                <li><a href="#how-it-works" className="hover:text-emerald-700">कैसे काम करता है</a></li>
+                <li><a href="#demo" className="hover:text-emerald-700">Demo</a></li>
+                <li><a href="#pricing" className="hover:text-emerald-700">Pricing</a></li>
+                <li><a href="#faq" className="hover:text-emerald-700">FAQ</a></li>
               </ul>
             </div>
 
-            {/* Legal & Support Links */}
-            <div className="md:col-span-4 space-y-3">
-              <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
-                Legal &amp; Support
+            {/* Legal */}
+            <div className="md:col-span-4 space-y-2">
+              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                कानूनी और सहायता
               </h4>
-              <ul className="space-y-2 text-xs font-medium text-slate-600">
-                <li>
-                  <Link
-                    href="/privacy-policy"
-                    className="hover:text-emerald-700 transition-colors inline-flex items-center gap-1.5"
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Privacy Policy</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/terms"
-                    className="hover:text-emerald-700 transition-colors inline-flex items-center gap-1.5"
-                  >
-                    <span>Terms &amp; Conditions</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/refund-policy"
-                    className="hover:text-emerald-700 transition-colors inline-flex items-center gap-1.5"
-                  >
-                    <span>Refund &amp; Cancellation Policy</span>
-                  </Link>
-                </li>
-                <li>
-                  <a
-                    href="#contact"
-                    className="hover:text-emerald-700 transition-colors inline-flex items-center gap-1.5"
-                  >
-                    <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Contact Us</span>
-                  </a>
-                </li>
+              <ul className="space-y-2 text-xs font-semibold text-slate-600">
+                <li><Link href="/privacy-policy" className="hover:text-emerald-700">गोपनीयता नीति (Privacy Policy)</Link></li>
+                <li><Link href="/terms" className="hover:text-emerald-700">नियम और शर्तें (Terms)</Link></li>
+                <li><Link href="/refund-policy" className="hover:text-emerald-700">रिफंड नीति (Refund Policy)</Link></li>
+                <li><Link href="/contact" className="hover:text-emerald-700">संपर्क (Contact)</Link></li>
+                <li><Link href="/login" className="hover:text-emerald-700">लॉग इन (Login)</Link></li>
               </ul>
-
-              <div className="pt-2 text-[11px] text-slate-400 leading-normal flex items-start gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                <span>Business support available Mon–Sat (10:00 AM – 6:00 PM IST).</span>
-              </div>
             </div>
           </div>
 
-          {/* Bottom Bar */}
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Customer Data Is Private &bull; Multi-tenant Isolated</span>
+              <span>डेटा सुरक्षा: आपका डेटा सिर्फ आपका है, दूसरी दुकानें नहीं देख सकतीं।</span>
             </div>
-
             <p className="text-[11px] text-slate-400">
-              &copy; {new Date().getFullYear()} U-Grahak. Built for Local Businesses in India.
+              &copy; {new Date().getFullYear()} U-Grahak. All rights reserved.
             </p>
           </div>
         </div>
       </footer>
+
+      {/* ------------------------------------------------------------- */}
+      {/* 13. FLOATING WHATSAPP BUTTON (Rendered ONLY when hasWhatsApp) */}
+      {/* ------------------------------------------------------------- */}
+      {hasWhatsApp && (
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-5 right-5 z-40 bg-emerald-600 hover:bg-emerald-700 text-white p-3.5 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center min-h-[52px] min-w-[52px] active:scale-95"
+          aria-label="WhatsApp सहायता"
+        >
+          <MessageCircle className="w-6 h-6" />
+        </a>
+      )}
     </div>
   );
 }
