@@ -53,3 +53,4 @@ WHERE n.nspname = 'public'
   AND r.rolname IN ('anon', 'authenticated', 'public')
   AND has_function_privilege(r.rolname, p.oid, 'EXECUTE')
 ORDER BY p.proname, r.rolname;
+

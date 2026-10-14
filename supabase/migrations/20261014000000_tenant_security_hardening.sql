@@ -79,13 +79,18 @@ GRANT EXECUTE ON FUNCTION public.process_customer_checkin(TEXT, TEXT, TEXT) TO s
 
 -- ------------------------------------------------------------------------------
 -- 3. Harden support_tickets:
---    Add validation CHECK constraints and restrict access strictly to service_role
+--    Add validation CHECK constraints (NOT VALID first, then VALIDATE) and restrict access strictly to service_role
 -- ------------------------------------------------------------------------------
 ALTER TABLE public.support_tickets
-    ADD CONSTRAINT chk_support_tickets_name_len CHECK (length(trim(name)) > 0 AND length(name) <= 100),
-    ADD CONSTRAINT chk_support_tickets_contact_len CHECK (length(trim(contact_info)) > 0 AND length(contact_info) <= 255),
-    ADD CONSTRAINT chk_support_tickets_message_len CHECK (length(trim(message)) > 0 AND length(message) <= 2000),
-    ADD CONSTRAINT chk_support_tickets_topic_len CHECK (length(topic) <= 100);
+    ADD CONSTRAINT chk_support_tickets_name_len CHECK (length(trim(name)) > 0 AND length(name) <= 100) NOT VALID,
+    ADD CONSTRAINT chk_support_tickets_contact_len CHECK (length(trim(contact_info)) > 0 AND length(contact_info) <= 255) NOT VALID,
+    ADD CONSTRAINT chk_support_tickets_message_len CHECK (length(trim(message)) > 0 AND length(message) <= 2000) NOT VALID,
+    ADD CONSTRAINT chk_support_tickets_topic_len CHECK (length(topic) <= 100) NOT VALID;
+
+ALTER TABLE public.support_tickets VALIDATE CONSTRAINT chk_support_tickets_name_len;
+ALTER TABLE public.support_tickets VALIDATE CONSTRAINT chk_support_tickets_contact_len;
+ALTER TABLE public.support_tickets VALIDATE CONSTRAINT chk_support_tickets_message_len;
+ALTER TABLE public.support_tickets VALIDATE CONSTRAINT chk_support_tickets_topic_len;
 
 REVOKE ALL ON public.support_tickets FROM PUBLIC, anon, authenticated;
 GRANT ALL ON public.support_tickets TO service_role;

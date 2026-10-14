@@ -644,7 +644,33 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      process_customer_checkin: {
+        Args: {
+          p_slug: string;
+          p_name: string;
+          p_reference_code: string;
+        };
+        Returns: {
+          success: boolean;
+          status_code: number;
+          error?: string;
+          isFirstVisit?: boolean;
+          visitCount?: number;
+          customer?: {
+            id: string;
+            name: string;
+            merchant_id: string;
+          };
+          reward?: {
+            id: string;
+            title: string;
+            description: string;
+            reference_code: string;
+            expires_at: string;
+            status: string;
+          };
+        };
+      };
     };
     Enums: {
       [_ in never]: never;

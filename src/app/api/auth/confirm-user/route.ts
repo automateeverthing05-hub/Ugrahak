@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     // Check if error code indicates email unconfirmed; if credentials are wrong, return generic unauthorized
     const isUnconfirmed = credError && (
-      (credError as any).code === "email_not_confirmed" ||
+      ("code" in credError && (credError as { code?: string }).code === "email_not_confirmed") ||
       credError.message.toLowerCase().includes("email not confirmed")
     );
 

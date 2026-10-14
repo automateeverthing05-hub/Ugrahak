@@ -13,7 +13,11 @@ import { Store, ShieldCheck, Eye, EyeOff } from "lucide-react";
 export const LoginForm: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+  const rawRedirect = searchParams.get("redirectTo") || "/dashboard";
+  // Strict open-redirect defense: only allow relative URLs starting with / (excluding //)
+  const redirectTo = (rawRedirect.startsWith("/") && !rawRedirect.startsWith("//"))
+    ? rawRedirect
+    : "/dashboard";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

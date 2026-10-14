@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Primary High-Performance Path: Atomic Database Function (RPC)
     try {
-      const { data: rpcResult, error: rpcError } = await (admin as any).rpc(
+      const { data: rpcResult, error: rpcError } = await admin.rpc(
         "process_customer_checkin",
         {
           p_slug: normalizedSlug,
@@ -74,34 +74,36 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Asynchronous non-critical background analytics event via Inngest
-        try {
-          inngest
-            .send({
-              name: "merchant/customer.checked_in",
-              data: {
-                merchantId: rpcResult.customer.merchant_id,
-                customerId: rpcResult.customer.id,
-                isFirstVisit: true,
-                visitCount: 1,
-                visitedAt: new Date().toISOString(),
-              },
-            })
-            .catch(() => {});
-        } catch {
-          // Failure of secondary telemetry never blocks check-in response
-        }
+        if (rpcResult.customer) {
+          // Asynchronous non-critical background analytics event via Inngest
+          try {
+            inngest
+              .send({
+                name: "merchant/customer.checked_in",
+                data: {
+                  merchantId: rpcResult.customer.merchant_id,
+                  customerId: rpcResult.customer.id,
+                  isFirstVisit: true,
+                  visitCount: 1,
+                  visitedAt: new Date().toISOString(),
+                },
+              })
+              .catch(() => {});
+          } catch {
+            // Failure of secondary telemetry never blocks check-in response
+          }
 
-        return NextResponse.json({
-          success: true,
-          isFirstVisit: true,
-          visitCount: 1,
-          customer: {
-            id: rpcResult.customer.id,
-            name: rpcResult.customer.name,
-          },
-          reward: rpcResult.reward,
-        });
+          return NextResponse.json({
+            success: true,
+            isFirstVisit: true,
+            visitCount: 1,
+            customer: {
+              id: rpcResult.customer.id,
+              name: rpcResult.customer.name,
+            },
+            reward: rpcResult.reward,
+          });
+        }
       }
     } catch {
       // Fall through to resilient TypeScript implementation
@@ -125,8 +127,8 @@ export async function POST(request: NextRequest) {
     const merchantId = merchant.id;
 
     // Check Plan Customer Limits safely
-    let totalCustomersCount: number | null = typeof (merchant as any).customer_count === "number"
-      ? (merchant as any).customer_count
+    let totalCustomersCount: number | null = typeof merchant.customer_count === "number"
+      ? merchant.customer_count
       : null;
 
     if (totalCustomersCount === null) {
