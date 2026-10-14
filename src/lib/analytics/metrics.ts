@@ -1,4 +1,5 @@
 import type { Customer, CustomerVisit, Reward, Offer, NotificationLog } from "@/lib/types/database";
+import { formatISTDate } from "@/lib/utils/formatters";
 
 export type DateRangeFilter = "7d" | "30d" | "90d" | "all";
 
@@ -104,7 +105,7 @@ export function computeMerchantAnalytics({
   for (let i = chartDays - 1; i >= 0; i--) {
     const d = new Date(now - i * 24 * 60 * 60 * 1000);
     const dateStr = d.toISOString().slice(0, 10);
-    const displayDate = d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    const displayDate = formatISTDate(d, { month: "short", day: "numeric", year: undefined });
 
     const dayVisits = filteredVisits.filter((v) => v.visited_at.slice(0, 10) === dateStr).length;
     const dayNewCust = filteredCustomers.filter((c) => c.first_visit_at.slice(0, 10) === dateStr).length;

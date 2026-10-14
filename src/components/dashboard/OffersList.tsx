@@ -27,6 +27,7 @@ import {
 import { UpgradeOfferLimitModal } from "@/components/dashboard/UpgradeOfferLimitModal";
 import { OfferImageUploader } from "@/components/dashboard/OfferImageUploader";
 import type { Offer } from "@/lib/types/database";
+import { formatISTDate } from "@/lib/utils/formatters";
 
 interface OfferStats {
   totalSent: number;
@@ -449,14 +450,14 @@ export const OffersList: React.FC<OffersListProps> = ({
                     <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 pt-1">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        Banaya {new Date(offer.created_at).toLocaleDateString()}
+                        Banaya {formatISTDate(offer.created_at)}
                       </span>
                       {offer.start_at && (
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          Valid: {new Date(offer.start_at).toLocaleDateString()}
+                          Valid: {formatISTDate(offer.start_at)}
                           {offer.end_at
-                            ? ` - ${new Date(offer.end_at).toLocaleDateString()}`
+                            ? ` - ${formatISTDate(offer.end_at)}`
                             : ""}
                         </span>
                       )}

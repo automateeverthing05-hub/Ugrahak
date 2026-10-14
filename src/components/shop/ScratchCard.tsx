@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { Sparkles, Copy, Check, CheckCircle2 } from "lucide-react";
+import { formatISTDate } from "@/lib/utils/formatters";
 
 interface ScratchCardProps {
   rewardTitle: string;
@@ -233,7 +234,7 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
             <span>Counter par dikhayein</span>
             {expiresAt && (
               <span className="text-amber-200 text-[10px]">
-                Valid: {new Date(expiresAt).toLocaleDateString()}
+                Valid: {formatISTDate(expiresAt)}
               </span>
             )}
           </div>

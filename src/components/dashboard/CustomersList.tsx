@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Alert } from "@/components/ui/Alert";
 import type { Customer, Reward } from "@/lib/types/database";
+import { formatISTDate } from "@/lib/utils/formatters";
 
 export interface CustomerWithReward extends Customer {
   rewards?: Reward[];
@@ -263,7 +264,7 @@ export const CustomersList: React.FC<CustomersListProps> = ({
                           {cust.name}
                         </h4>
                         <span className="text-xs text-slate-500">
-                          First visited {new Date(cust.first_visit_at).toLocaleDateString()}
+                          First visited {formatISTDate(cust.first_visit_at)}
                         </span>
                       </div>
                     </div>
@@ -280,7 +281,7 @@ export const CustomersList: React.FC<CustomersListProps> = ({
                   </div>
 
                   <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
-                    <span>Last visit: {new Date(cust.last_visit_at).toLocaleDateString()}</span>
+                    <span>Last visit: {formatISTDate(cust.last_visit_at)}</span>
                     {hasActiveReward ? (
                       <span className="inline-flex items-center gap-1 text-[10px] text-amber-800 font-semibold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                         <Sparkles className="w-2.5 h-2.5 text-amber-500" />
@@ -354,11 +355,11 @@ export const CustomersList: React.FC<CustomersListProps> = ({
                         </td>
 
                         <td className="px-5 py-4 text-xs text-slate-500">
-                          {new Date(cust.first_visit_at).toLocaleDateString()}
+                          {formatISTDate(cust.first_visit_at)}
                         </td>
 
                         <td className="px-5 py-4 text-xs text-slate-500">
-                          {new Date(cust.last_visit_at).toLocaleDateString()}
+                          {formatISTDate(cust.last_visit_at)}
                         </td>
 
                         <td className="px-5 py-4">

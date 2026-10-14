@@ -89,6 +89,11 @@ export async function sendMulticastPushNotification({
 
   // Safe Mock FCM Delivery for Load Testing / Staging (never contacts Firebase or real devices)
   if (process.env.MOCK_FCM === "true") {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "CRITICAL SECURITY / CONFIG ERROR: MOCK_FCM cannot be enabled in production environment."
+      );
+    }
     // Simulate realistic async network dispatch delay (~10ms)
     await new Promise((resolve) => setTimeout(resolve, 10));
     result.successfulTokens = cleanTokens;
@@ -248,6 +253,11 @@ export async function sendPersonalizedPushNotifications(
   }
 
   if (process.env.MOCK_FCM === "true") {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "CRITICAL SECURITY / CONFIG ERROR: MOCK_FCM cannot be enabled in production environment."
+      );
+    }
     await new Promise((resolve) => setTimeout(resolve, 10));
     result.successfulTokens = validItems.map((i) => i.token.trim());
     result.totalSent = validItems.length;

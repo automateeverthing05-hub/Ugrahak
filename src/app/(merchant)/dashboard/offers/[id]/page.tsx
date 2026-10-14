@@ -12,6 +12,7 @@ import {
   Calendar,
 } from "lucide-react";
 import type { Offer, NotificationLog } from "@/lib/types/database";
+import { formatISTDate, formatISTDateTime } from "@/lib/utils/formatters";
 
 interface OfferDetailPageProps {
   params: Promise<{
@@ -109,8 +110,8 @@ export default async function OfferDetailPage({ params }: OfferDetailPageProps) 
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <Calendar className="w-4 h-4 text-slate-400" />
             <span>
-              Schedule: {new Date(offer.start_at).toLocaleDateString()}
-              {offer.end_at ? ` to ${new Date(offer.end_at).toLocaleDateString()}` : ""}
+              Schedule: {formatISTDate(offer.start_at)}
+              {offer.end_at ? ` to ${formatISTDate(offer.end_at)}` : ""}
             </span>
           </div>
         )}
@@ -184,7 +185,7 @@ export default async function OfferDetailPage({ params }: OfferDetailPageProps) 
                       )}
                     </td>
                     <td className="px-4 py-3 font-mono text-slate-600">
-                      {new Date(log.sent_at).toLocaleString()}
+                      {formatISTDateTime(log.sent_at)}
                     </td>
                     <td className="px-4 py-3 font-mono text-slate-400">
                       {log.token ? `${log.token.slice(0, 10)}...${log.token.slice(-6)}` : "-"}

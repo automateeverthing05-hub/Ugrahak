@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     try {
       const admin = createAdminClient();
       const { data, error } = await admin
-        .from("support_tickets" as any)
+        .from("support_tickets")
         .insert({
           name: trimmedName,
           business_name: trimmedBusiness,
@@ -48,13 +48,13 @@ export async function POST(req: NextRequest) {
           message: trimmedMsg,
           ip_address: ip,
           user_agent: userAgent,
-        } as any)
+        })
         .select("id")
         .maybeSingle();
 
       if (!error && data) {
         ticketSaved = true;
-        ticketId = (data as any).id;
+        ticketId = data.id;
       }
     } catch {
       // If support_tickets table is not yet migrated, fallback gracefully
@@ -72,6 +72,18 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // If database insertion failed, do not falsely claim "sent"
+    if (!ticketSaved) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "तकनीकी समस्या के कारण पूछताछ दर्ज नहीं हो सकी। कृपया सीधे WhatsApp (8758422859) या supportugrahak@gmail.com पर संदेश भेजें।",
+        },
+        { status: 500 }
+      );
+    }
+
     // Check if transactional email SMTP/API credentials exist
     const hasEmailProvider = Boolean(
       process.env.RESEND_API_KEY ||
@@ -82,7 +94,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        persisted: ticketSaved,
+        persisted: true,
         emailDispatched: hasEmailProvider,
         message:
           "आपकी पूछताछ सफलतापूर्वक दर्ज कर ली गई है। हमारी सहायता टीम (supportugrahak@gmail.com) 24–48 घंटों में आपसे संपर्क करेगी।",

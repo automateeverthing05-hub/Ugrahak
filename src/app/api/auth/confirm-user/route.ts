@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { email } = body;
+    const { email, password } = body;
 
     if (!email || typeof email !== "string" || email.length > 255 || !isValidEmail(email)) {
       return NextResponse.json(
@@ -27,8 +27,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!password || typeof password !== "string" || password.length > 72) {
+      return NextResponse.json(
+        { error: "Password credentials are required to verify account." },
+        { status: 400 }
+      );
+    }
+
     const admin = createAdminClient();
     const normalizedEmail = email.trim().toLowerCase();
+
+    // Verify credentials first using signInWithPassword to prevent unauthorized arbitrary email confirmation
+    const { data: signCheck, error: credError } = await admin.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
+    });
+
+    // If password was wrong or user doesn't exist, reject request
+    if (credError && !credError.message.toLowerCase().includes("email not confirmed")) {
+      return NextResponse.json(
+        { error: "Invalid email or password credentials." },
+        { status: 401 }
+      );
+    }
 
     // Direct O(1) user lookup in auth.users without pagination or scanning
     const { data: linkData, error: lookupError } = await admin.auth.admin.generateLink({

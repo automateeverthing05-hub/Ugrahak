@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { CheckCircle2, Ticket, Sparkles } from "lucide-react";
 import type { Reward } from "@/lib/types/database";
+import { formatISTDate } from "@/lib/utils/formatters";
 
 interface CustomerRewardsListProps {
   initialRewards: Reward[];
@@ -129,7 +130,7 @@ export const CustomerRewardsList: React.FC<CustomerRewardsListProps> = ({
                 Code: {reward.reference_code}
               </span>
               <span className="text-slate-400 text-[11px]">
-                Issued {new Date(reward.issued_at).toLocaleDateString()}
+                Issued {formatISTDate(reward.issued_at)}
               </span>
             </div>
 

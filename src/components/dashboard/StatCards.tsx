@@ -1,5 +1,6 @@
 import React from "react";
 import { Users, RotateCcw, Tag, TrendingUp } from "lucide-react";
+import { formatIndianNumber } from "@/lib/utils/formatters";
 
 interface StatCardsProps {
   totalCustomers?: number;
@@ -17,28 +18,28 @@ export const StatCards: React.FC<StatCardsProps> = ({
   const stats = [
     {
       label: "Total Customers",
-      value: totalCustomers.toLocaleString(),
+      value: formatIndianNumber(totalCustomers),
       icon: Users,
       description: "Aapki customer list me",
       color: "text-blue-600 bg-blue-50",
     },
     {
       label: "Repeat Customers",
-      value: repeatCustomers.toLocaleString(),
+      value: formatIndianNumber(repeatCustomers),
       icon: RotateCcw,
       description: "1 se zyada baar aaye",
       color: "text-emerald-600 bg-emerald-50",
     },
     {
       label: "Active Offers",
-      value: activeOffers.toLocaleString(),
+      value: formatIndianNumber(activeOffers),
       icon: Tag,
       description: "Bhejne ke liye ready",
       color: "text-indigo-600 bg-indigo-50",
     },
     {
       label: "This Month",
-      value: thisMonthVisits.toLocaleString(),
+      value: formatIndianNumber(thisMonthVisits),
       icon: TrendingUp,
       description: "Is mahine ke visits",
       color: "text-amber-600 bg-amber-50",

@@ -10,7 +10,7 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/jpg",
 ]);
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB limit (per watch-item g)
 
 /**
  * POST /api/merchant/offers/upload-image
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     // Validate size
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "Image size exceeds the 5MB limit. Please upload a smaller image." },
+        { error: "Image size exceeds the 2MB limit. Please upload a smaller image." },
         { status: 400 }
       );
     }

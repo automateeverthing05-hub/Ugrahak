@@ -30,6 +30,9 @@ const SENSITIVE_KEYS = new Set([
   "firebase_private_key",
   "secret",
   "token",
+  "fcmtoken",
+  "fcm_token",
+  "registrationtoken",
   "authorization",
   "cookie",
   "apikey",
@@ -45,6 +48,13 @@ const SENSITIVE_KEYS = new Set([
   "owner_name",
   "customername",
   "customer_name",
+  "referencecode",
+  "reference_code",
+  "vouchercode",
+  "voucher_code",
+  "rewardcode",
+  "reward_code",
+  "code",
 ]);
 
 /**

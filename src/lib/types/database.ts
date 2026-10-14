@@ -594,6 +594,51 @@ export interface Database {
           }
         ];
       };
+      support_tickets: {
+        Row: {
+          id: string;
+          name: string;
+          business_name: string | null;
+          contact_info: string;
+          topic: string;
+          message: string;
+          status: string;
+          delivery_status: string;
+          ip_address: string | null;
+          user_agent: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          business_name?: string | null;
+          contact_info: string;
+          topic?: string;
+          message: string;
+          status?: string;
+          delivery_status?: string;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          business_name?: string | null;
+          contact_info?: string;
+          topic?: string;
+          message?: string;
+          status?: string;
+          delivery_status?: string;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;

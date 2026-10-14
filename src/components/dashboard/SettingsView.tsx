@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { Merchant } from "@/lib/types/database";
+import { formatIndianNumber, formatINR } from "@/lib/utils/formatters";
 
 interface SettingsViewProps {
   merchant: (Merchant & { latitude?: number | null; longitude?: number | null; plan?: string }) | null;
@@ -242,7 +243,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   Current Plan: {currentPlan.name}
                 </span>
                 <h2 className="text-xl font-bold text-slate-900 mt-2">
-                  ₹{currentPlan.priceINR.toLocaleString()} / month
+                  {formatINR(currentPlan.priceINR)} / month
                 </h2>
               </div>
             </div>
@@ -252,8 +253,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <div className="flex items-center justify-between text-xs text-slate-600 mb-1.5 font-medium">
                 <span>Customer Quota Usage</span>
                 <span className="font-bold text-slate-900">
-                  {customerCount.toLocaleString()} /{" "}
-                  {isUnlimited ? "Unlimited" : numericLimit.toLocaleString()} (
+                  {formatIndianNumber(customerCount)} /{" "}
+                  {isUnlimited ? "Unlimited" : formatIndianNumber(numericLimit)} (
                   {usagePct}%)
                 </span>
               </div>
@@ -303,13 +304,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
                       <div className="mt-2 flex items-baseline gap-1">
                         <span className="text-2xl font-extrabold text-slate-900">
-                          ₹{plan.priceINR.toLocaleString()}
+                          {formatINR(plan.priceINR)}
                         </span>
                         <span className="text-xs text-slate-500">/mo</span>
                       </div>
 
                       <p className="text-xs text-indigo-600 font-medium mt-1">
-                        Up to {plan.customerLimit.toLocaleString()} customers
+                        Up to {formatIndianNumber(plan.customerLimit)} customers
                       </p>
 
                       <ul className="mt-4 space-y-2 text-xs text-slate-600">

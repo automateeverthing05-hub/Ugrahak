@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimitRedeem } from "@/lib/redis/rateLimiter";
 import type { Reward, Customer } from "@/lib/types/database";
+import { formatISTDateTime } from "@/lib/utils/formatters";
 
 /**
  * POST /api/merchant/redeem
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
     // 3. Check if already redeemed
     if (reward.status === "REDEEMED") {
       const redeemedDate = reward.redeemed_at
-        ? new Date(reward.redeemed_at).toLocaleString()
+        ? formatISTDateTime(reward.redeemed_at)
         : "previously";
       return NextResponse.json(
         {

@@ -65,8 +65,15 @@ export function formatISTDateTime(
 /**
  * Formats numbers into Indian Numbering System (e.g. 1,00,000)
  */
-export function formatIndianNumber(num: number | null | undefined): string {
-  if (num === null || num === undefined || isNaN(num)) return "0";
+export function formatIndianNumber(num: number | string | null | undefined): string {
+  if (num === null || num === undefined) return "0";
+  if (typeof num === "string") {
+    if (num.toLowerCase() === "unlimited") return "Unlimited";
+    const parsed = Number(num);
+    if (isNaN(parsed)) return num;
+    return parsed.toLocaleString("en-IN");
+  }
+  if (isNaN(num)) return "0";
   return num.toLocaleString("en-IN");
 }
 
@@ -77,3 +84,4 @@ export function formatINR(amount: number | null | undefined): string {
   if (amount === null || amount === undefined || isNaN(amount)) return "₹0";
   return `₹${amount.toLocaleString("en-IN")}`;
 }
+

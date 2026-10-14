@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendMulticastPushNotification } from "@/lib/firebase/admin";
 import { getBillingPeriod, checkOfferRecipientAllowance } from "@/lib/billing/plans";
 import { logger } from "@/lib/observability/logger";
+import { formatISTDate } from "@/lib/utils/formatters";
 import type {
   InactiveCustomerCampaign,
   Customer,
@@ -348,10 +349,7 @@ export async function processPendingReengagementCampaigns(): Promise<Reengagemen
       const shopName = merchant.shop_name?.trim() || "Store";
       const offerTitle = offer.title?.trim() || "Special Reward";
       const expiryText = offer.end_at
-        ? new Date(offer.end_at).toLocaleDateString("en-IN", {
-            day: "numeric",
-            month: "short",
-          })
+        ? formatISTDate(offer.end_at, { day: "numeric", month: "short" })
         : "Limited Time";
 
       const notificationTitle = `We Miss You, ${customerName}! ❤️`;

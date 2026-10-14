@@ -7,6 +7,7 @@ import { scheduleReviewRequest } from "@/lib/reviews/reviewScheduler";
 import { rateLimitCheckin } from "@/lib/redis/rateLimiter";
 import { inngest } from "@/lib/inngest/client";
 import type { Customer, Reward, Merchant } from "@/lib/types/database";
+import { formatIndianNumber } from "@/lib/utils/formatters";
 
 /**
  * Public Customer Check-in / Registration Endpoint
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
       const planConfig = getPlanConfig(merchant.plan);
       return NextResponse.json(
         {
-          error: `Your ${planConfig.name} plan supports up to ${planCheck.limit.toLocaleString()} customers. Please upgrade your plan to accept more customers.`,
+          error: `Your ${planConfig.name} plan supports up to ${formatIndianNumber(planCheck.limit)} customers. Please upgrade your plan to accept more customers.`,
         },
         { status: 403 }
       );

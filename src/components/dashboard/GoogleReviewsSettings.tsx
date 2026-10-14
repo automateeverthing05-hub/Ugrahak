@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { isValidGoogleMapsUrl } from "@/lib/utils/validation";
 import type { ReviewRequestWithCustomer } from "@/lib/reviews/reviewScheduler";
+import { formatISTDateTime } from "@/lib/utils/formatters";
 
 interface GoogleReviewsSettingsProps {
   initialGoogleMapsUrl: string | null;
@@ -304,12 +305,11 @@ export const GoogleReviewsSettings: React.FC<GoogleReviewsSettingsProps> = ({
                   <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 mt-1">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3 text-slate-400" />
-                      Scheduled: {new Date(req.scheduled_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} (
-                      {new Date(req.scheduled_at).toLocaleDateString()})
+                      Scheduled: {formatISTDateTime(req.scheduled_at)}
                     </span>
                     {req.sent_at && (
                       <span className="text-emerald-700">
-                        &bull; Sent: {new Date(req.sent_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        &bull; Sent: {formatISTDateTime(req.sent_at)}
                       </span>
                     )}
                   </div>

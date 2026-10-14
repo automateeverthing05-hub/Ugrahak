@@ -9,40 +9,32 @@ import { createClient } from "@/lib/supabase/server";
  */
 export async function GET(request: NextRequest) {
   try {
-    // 1. Authorization: Allow Vercel Cron (header 'x-vercel-cron') or CRON_SECRET or authenticated merchant (in dev)
+    // 1. Authorization: Require Bearer CRON_SECRET with constant-time comparison
     const authHeader = request.headers.get("authorization");
-    const isVercelCron = Boolean(request.headers.get("x-vercel-cron"));
     const cronSecret = process.env.CRON_SECRET;
 
-    let isAuthorized = isVercelCron;
-
-    if (cronSecret && authHeader) {
-      const expectedHeader = `Bearer ${cronSecret}`;
-      // Constant-length / timing safe check if lengths match
-      if (
-        authHeader.length === expectedHeader.length &&
-        crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedHeader))
-      ) {
-        isAuthorized = true;
-      }
+    if (!cronSecret) {
+      return NextResponse.json(
+        { error: "Server misconfiguration: CRON_SECRET is not configured." },
+        { status: 500 }
+      );
     }
 
-    // In non-production environments, also allow authenticated merchants to test-trigger the scheduler
-    if (!isAuthorized && process.env.NODE_ENV !== "production") {
-      try {
-        const supabase = await createClient();
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (user) {
-          isAuthorized = true;
-        }
-      } catch {
-        // Ignore
-      }
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: "Missing authorization header." },
+        { status: 401 }
+      );
     }
 
-    if (!isAuthorized) {
+    const expectedHeader = `Bearer ${cronSecret}`;
+    const authBuffer = Buffer.from(authHeader);
+    const expectedBuffer = Buffer.from(expectedHeader);
+
+    if (
+      authBuffer.length !== expectedBuffer.length ||
+      !crypto.timingSafeEqual(authBuffer, expectedBuffer)
+    ) {
       return NextResponse.json(
         { error: "Unauthorized cron execution." },
         { status: 401 }

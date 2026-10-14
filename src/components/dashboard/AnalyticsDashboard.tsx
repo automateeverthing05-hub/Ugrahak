@@ -16,6 +16,7 @@ import {
   Percent,
 } from "lucide-react";
 import type { Customer, CustomerVisit, Reward, Offer, NotificationLog } from "@/lib/types/database";
+import { formatIndianNumber } from "@/lib/utils/formatters";
 
 interface AnalyticsDashboardProps {
   customers: Customer[];
@@ -118,7 +119,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             </div>
           </div>
           <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">
-            {metrics.totalCustomers.toLocaleString()}
+            {formatIndianNumber(metrics.totalCustomers)}
           </h3>
           <p className="text-[11px] text-slate-500 mt-1">
             +{metrics.newCustomersInRange} new in period
@@ -152,7 +153,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             </div>
           </div>
           <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">
-            {metrics.totalVisitsInRange.toLocaleString()}
+            {formatIndianNumber(metrics.totalVisitsInRange)}
           </h3>
           <p className="text-[11px] text-slate-500 mt-1">
             {metrics.repeatVisitsInRange} repeat check-ins
@@ -282,7 +283,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   Offers Sent
                 </span>
                 <p className="text-lg sm:text-xl font-bold text-slate-900 mt-1">
-                  {metrics.totalNotificationsSent.toLocaleString()}
+                  {formatIndianNumber(metrics.totalNotificationsSent)}
                 </p>
               </div>
 

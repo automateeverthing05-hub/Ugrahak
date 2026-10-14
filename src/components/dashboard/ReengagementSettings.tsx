@@ -16,6 +16,7 @@ import {
   Info,
 } from "lucide-react";
 import type { Offer } from "@/lib/types/database";
+import { formatISTDate } from "@/lib/utils/formatters";
 
 interface ReengagementSettingsProps {
   initialIsEnabled?: boolean;
@@ -223,7 +224,7 @@ export const ReengagementSettings: React.FC<ReengagementSettingsProps> = ({
                 <option value="">-- Choose an active offer --</option>
                 {availableOffers.map((offer) => (
                   <option key={offer.id} value={offer.id}>
-                    {offer.title} {offer.end_at ? `(Expires: ${new Date(offer.end_at).toLocaleDateString()})` : ""}
+                    {offer.title} {offer.end_at ? `(Expires: ${formatISTDate(offer.end_at)})` : ""}
                   </option>
                 ))}
               </select>
@@ -253,10 +254,7 @@ export const ReengagementSettings: React.FC<ReengagementSettingsProps> = ({
                 </span>{" "}
                 (Valid till{" "}
                 {selectedOffer?.end_at
-                  ? new Date(selectedOffer.end_at).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                    })
+                  ? formatISTDate(selectedOffer.end_at, { day: "numeric", month: "short" })
                   : "Limited Time"}
                 ).
               </div>
@@ -344,11 +342,11 @@ export const ReengagementSettings: React.FC<ReengagementSettingsProps> = ({
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3 text-slate-400" />
-                      Last Visit: {new Date(camp.last_qualifying_visit_at).toLocaleDateString()}
+                      Last Visit: {formatISTDate(camp.last_qualifying_visit_at)}
                     </span>
                     {camp.sent_at && (
                       <span className="text-emerald-700">
-                        &bull; Sent: {new Date(camp.sent_at).toLocaleDateString()}
+                        &bull; Sent: {formatISTDate(camp.sent_at)}
                       </span>
                     )}
                   </div>

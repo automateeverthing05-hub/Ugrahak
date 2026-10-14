@@ -4,6 +4,7 @@ import { PLANS } from "@/lib/billing/plans";
 import { Check, ArrowRight, ShieldCheck, Sparkles, FileText, RefreshCw } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import { formatIndianNumber, formatINR } from "@/lib/utils/formatters";
 
 export const metadata: Metadata = {
   title: "मूल्य और प्लान | U-Grahak बिज़नेस",
@@ -126,13 +127,13 @@ export default function PricingPage() {
 
                   <div className="mt-3 flex items-baseline gap-1">
                     <span className="text-3xl font-extrabold text-slate-900">
-                      ₹{plan.priceINR.toLocaleString()}
+                      {formatINR(plan.priceINR)}
                     </span>
                     <span className="text-xs text-slate-500 font-medium">/ महीना</span>
                   </div>
 
                   <p className="text-xs text-indigo-600 font-semibold mt-2">
-                    {plan.customerLimit.toLocaleString()} ग्राहकों तक
+                    {formatIndianNumber(plan.customerLimit)} ग्राहकों तक
                   </p>
 
                   <ul className="mt-6 space-y-2.5 text-xs text-slate-600">

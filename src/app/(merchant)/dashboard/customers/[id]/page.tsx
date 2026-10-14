@@ -11,6 +11,7 @@ import {
 import { CustomerRewardsList } from "@/components/dashboard/CustomerRewardsList";
 import { DeleteCustomerButton } from "@/components/dashboard/DeleteCustomerButton";
 import type { Customer, Reward, CustomerVisit } from "@/lib/types/database";
+import { formatISTDate, formatISTDateTime } from "@/lib/utils/formatters";
 
 interface CustomerDetailPageProps {
   params: Promise<{
@@ -91,12 +92,12 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                First Seen {new Date(customer.first_visit_at).toLocaleDateString()}
+                First Seen {formatISTDate(customer.first_visit_at)}
               </span>
               <span className="text-slate-300">&bull;</span>
               <span className="flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5 text-slate-400" />
-                Last Visit {new Date(customer.last_visit_at).toLocaleDateString()}
+                Last Visit {formatISTDate(customer.last_visit_at)}
               </span>
             </div>
           </div>
@@ -160,7 +161,7 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
                     </div>
                   </div>
                   <span className="text-slate-500 text-[11px] font-mono">
-                    {new Date(visit.visited_at).toLocaleString()}
+                    {formatISTDateTime(visit.visited_at)}
                   </span>
                 </div>
               ))}
