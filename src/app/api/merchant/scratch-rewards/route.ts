@@ -5,6 +5,7 @@ import {
   createScratchCardReward,
   MAX_SCRATCH_REWARDS_PER_MERCHANT,
 } from "@/lib/rewards/scratchCardConfig";
+import { scratchRewardCreateOrUpdateSchema, formatZodError } from "@/lib/validation/schemas";
 
 export async function GET() {
   try {
@@ -51,28 +52,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, description, value, is_enabled } = body;
-
-    if (!name || typeof name !== "string" || !name.trim() || name.trim().length > 100) {
+    const parseResult = scratchRewardCreateOrUpdateSchema.safeParse(body);
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: "Reward name is required (maximum 100 characters)." },
+        { error: formatZodError(parseResult.error).error },
         { status: 400 }
       );
     }
 
-    if (!value || typeof value !== "string" || !value.trim() || value.trim().length > 50) {
-      return NextResponse.json(
-        { error: "Reward value is required (maximum 50 characters, e.g. 10%, ₹50)." },
-        { status: 400 }
-      );
-    }
-
-    if (description && (typeof description !== "string" || description.trim().length > 250)) {
-      return NextResponse.json(
-        { error: "Reward description cannot exceed 250 characters." },
-        { status: 400 }
-      );
-    }
+    const { name, description, value, is_enabled } = parseResult.data;
 
     const result = await createScratchCardReward(user.id, {
       name: name.trim(),

@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimitRedeem } from "@/lib/redis/rateLimiter";
 import type { Reward, Customer } from "@/lib/types/database";
 import { formatISTDateTime } from "@/lib/utils/formatters";
+import { redeemRewardSchema, formatZodError } from "@/lib/validation/schemas";
 
 /**
  * POST /api/merchant/redeem
@@ -33,16 +34,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { reference_code } = body;
-
-    if (!reference_code || typeof reference_code !== "string" || !reference_code.trim()) {
+    const parseResult = redeemRewardSchema.safeParse({
+      code: body.reference_code || body.code,
+    });
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: "Please enter a valid reward reference code." },
+        { error: formatZodError(parseResult.error).error },
         { status: 400 }
       );
     }
 
-    const cleanCode = reference_code.trim().toUpperCase();
+    const cleanCode = parseResult.data.code.toUpperCase();
     const admin = createAdminClient();
 
     // 1. Look up the reward by reference_code

@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { Offer, OfferInsert } from "@/lib/types/database";
 
 import { logger } from "@/lib/observability/logger";
+import { offerCreateOrUpdateSchema, formatZodError } from "@/lib/validation/schemas";
 
 /**
  * GET: List offers for the logged-in merchant with pagination support
@@ -92,22 +93,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, message, image_url, status = "ACTIVE", start_at, end_at } = body;
-
-    // Validation
-    if (!title || typeof title !== "string" || !title.trim() || title.trim().length > 150) {
+    const parseResult = offerCreateOrUpdateSchema.safeParse(body);
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: "Offer title is required (maximum 150 characters)." },
+        { error: formatZodError(parseResult.error).error },
         { status: 400 }
       );
     }
 
-    if (!message || typeof message !== "string" || !message.trim() || message.trim().length > 1000) {
-      return NextResponse.json(
-        { error: "Offer message is required (maximum 1000 characters)." },
-        { status: 400 }
-      );
-    }
+    const { title, message, image_url, status, start_at, end_at, start_date, end_date } = parseResult.data;
+    const finalStartAt = start_at || start_date;
+    const finalEndAt = end_at || end_date;
 
     let sanitizedImageUrl: string | null = null;
     if (image_url && typeof image_url === "string" && image_url.trim()) {
@@ -128,8 +124,8 @@ export async function POST(request: NextRequest) {
       message: message.trim(),
       image_url: sanitizedImageUrl,
       status: ["ACTIVE", "INACTIVE", "ARCHIVED"].includes(status) ? status : "ACTIVE",
-      start_at: start_at ? new Date(start_at).toISOString() : null,
-      end_at: end_at ? new Date(end_at).toISOString() : null,
+      start_at: finalStartAt ? new Date(finalStartAt).toISOString() : null,
+      end_at: finalEndAt ? new Date(finalEndAt).toISOString() : null,
     };
 
     const { data: newOffer, error: insertError } = await admin

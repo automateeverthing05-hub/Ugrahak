@@ -55,10 +55,11 @@ export const merchantProfileSchema = z
 export const signupSchema = z
   .object({
     shop_name: z.string().trim().min(1, "Shop name is required.").max(100),
-    owner_name: z.string().trim().max(100).nullable().optional(),
+    owner_name: z.string().trim().min(1, "Owner name is required.").max(100),
     phone: z.string().trim().regex(PHONE_REGEX, "Phone number must be 10-15 digits."),
     email: z.string().trim().email("Invalid email address.").max(255),
     password: z.string().min(6, "Password must be at least 6 characters.").max(100),
+    google_maps_url: googleMapsUrlSchema,
   })
   .strict();
 
@@ -85,7 +86,9 @@ export const nearbyCheckSchema = z
   .object({
     latitude: z.number().min(-90).max(90),
     longitude: z.number().min(-180).max(180),
-    slug: z.string().trim().min(1).max(100),
+    slug: z.string().trim().min(1).max(100).optional(),
+    merchant_id: z.string().regex(UUID_REGEX, "Invalid merchant UUID.").optional(),
+    customer_id: z.string().regex(UUID_REGEX, "Invalid customer UUID.").optional(),
   })
   .strict();
 
@@ -112,8 +115,10 @@ export const offerCreateOrUpdateSchema = z
     message: z.string().trim().min(1, "Offer message is required.").max(1000, "Message must be <= 1000 characters."),
     image_url: z.string().trim().url().max(1000).nullable().optional(),
     status: z.enum(["ACTIVE", "INACTIVE"]).optional().default("ACTIVE"),
-    start_date: z.string().datetime().nullable().optional(),
-    end_date: z.string().datetime().nullable().optional(),
+    start_date: z.string().nullable().optional(),
+    end_date: z.string().nullable().optional(),
+    start_at: z.string().nullable().optional(),
+    end_at: z.string().nullable().optional(),
   })
   .strict();
 
@@ -147,3 +152,29 @@ export const contactSchema = z
   .strict();
 
 export const uuidParamSchema = z.string().regex(UUID_REGEX, "Invalid UUID parameter.");
+
+/**
+ * Shared helper that formats Zod error into a friendly Hindi message and 400 response
+ */
+export function formatZodError(error: z.ZodError): { error: string } {
+  const issue = error.issues?.[0];
+  if (!issue) return { error: "गलत डेटा भेजा गया है। कृपया दोबारा जाँचें।" };
+
+  const message = issue.message;
+  // If custom friendly message is provided in schema, return it
+  if (message && message !== "Required" && !message.startsWith("Expected")) {
+    return { error: message };
+  }
+
+  const field = issue.path.join(".");
+  return { error: `फ़ील्ड '${field}' अमान्य या अनिवार्य है। कृपया सही जानकारी भरें।` };
+}
+
+export function validateBody<T>(schema: z.ZodType<T>, data: unknown): { success: true; data: T } | { success: false; error: string } {
+  const result = schema.safeParse(data);
+  if (!result.success) {
+    return { success: false, error: formatZodError(result.error).error };
+  }
+  return { success: true, data: result.data };
+}
+

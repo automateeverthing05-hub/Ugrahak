@@ -6,6 +6,7 @@ import { generateSlug } from "@/lib/utils/slugify";
 import { normalizePhone } from "@/lib/utils/referenceCode";
 import { rateLimitAuth } from "@/lib/redis/rateLimiter";
 import { logger } from "@/lib/observability/logger";
+import { signupSchema, formatZodError } from "@/lib/validation/schemas";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,44 +23,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { owner_name, shop_name, phone, email, google_maps_url, password } = body;
-
-    // 1. Validations
-    if (!owner_name || typeof owner_name !== "string" || !owner_name.trim() || owner_name.trim().length > 100) {
+    const parseResult = signupSchema.safeParse(body);
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: "Please enter your name (maximum 100 characters)." },
+        { error: formatZodError(parseResult.error).error },
         { status: 400 }
       );
     }
-
-    if (!shop_name || typeof shop_name !== "string" || !shop_name.trim() || shop_name.trim().length > 100) {
-      return NextResponse.json(
-        { error: "Please enter your shop or business name (maximum 100 characters)." },
-        { status: 400 }
-      );
-    }
-
-    const cleanPhone = normalizePhone(phone || "");
-    if (!cleanPhone || !isValidPhone(cleanPhone)) {
-      return NextResponse.json(
-        { error: "Please enter a valid 10-digit mobile number." },
-        { status: 400 }
-      );
-    }
-
-    if (!email || typeof email !== "string" || email.length > 255 || !isValidEmail(email)) {
-      return NextResponse.json(
-        { error: "Please provide a valid email address." },
-        { status: 400 }
-      );
-    }
-
-    if (!password || typeof password !== "string" || password.length > 72) {
-      return NextResponse.json(
-        { error: "Password must be between 6 and 72 characters." },
-        { status: 400 }
-      );
-    }
+    const { owner_name, shop_name, phone, email, password, google_maps_url } = parseResult.data;
+    const cleanPhone = normalizePhone(phone);
 
     const passCheck = isValidPassword(password);
     if (!passCheck.valid) {

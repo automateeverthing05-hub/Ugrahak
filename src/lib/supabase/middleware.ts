@@ -57,17 +57,27 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
-  // CSRF / Origin check for state-changing authenticated merchant API routes
+  // CSRF / Origin check for state-changing authenticated merchant & auth API routes
   if (
-    pathname.startsWith("/api/merchant/") &&
+    (pathname.startsWith("/api/merchant/") || pathname === "/api/auth/logout") &&
     ["POST", "PUT", "PATCH", "DELETE"].includes(request.method)
   ) {
     const origin = request.headers.get("origin");
-    const host = request.headers.get("host");
-    if (origin && host) {
+    const forwardedHost = request.headers.get("x-forwarded-host");
+    const host = forwardedHost || request.headers.get("host");
+    const secFetchSite = request.headers.get("sec-fetch-site");
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    const allowedHosts = host ? [host] : [];
+    if (appUrl) {
+      try {
+        allowedHosts.push(new URL(appUrl).host);
+      } catch {}
+    }
+
+    if (origin) {
       try {
         const originUrl = new URL(origin);
-        if (originUrl.host !== host) {
+        if (!allowedHosts.includes(originUrl.host)) {
           return NextResponse.json(
             { error: "Forbidden: Cross-site request rejected." },
             { status: 403 }
@@ -76,6 +86,14 @@ export async function updateSession(request: NextRequest) {
       } catch {
         return NextResponse.json(
           { error: "Forbidden: Malformed origin header." },
+          { status: 403 }
+        );
+      }
+    } else {
+      // When Origin header is absent (e.g. some browser forms/fetch), verify Sec-Fetch-Site
+      if (secFetchSite && !["same-origin", "same-site", "none"].includes(secFetchSite)) {
+        return NextResponse.json(
+          { error: "Forbidden: Cross-site request rejected." },
           { status: 403 }
         );
       }

@@ -39,7 +39,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Strict-Transport-Security",
-            value: "max-age=63072000; includeSubDomains; preload",
+            value: "max-age=63072000; includeSubDomains",
           },
           {
             key: "X-DNS-Prefetch-Control",
@@ -57,6 +57,7 @@ const nextConfig: NextConfig = {
               "frame-ancestors 'self'",
               "base-uri 'self'",
               "form-action 'self'",
+              "report-uri /api/csp-report",
             ].join("; "),
           },
         ],

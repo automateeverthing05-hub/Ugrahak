@@ -8,6 +8,7 @@ import { rateLimitCheckin } from "@/lib/redis/rateLimiter";
 import { inngest } from "@/lib/inngest/client";
 import type { Customer, Reward, Merchant } from "@/lib/types/database";
 import { formatIndianNumber } from "@/lib/utils/formatters";
+import { customerCheckinSchema, formatZodError } from "@/lib/validation/schemas";
 
 /**
  * Public Customer Check-in / Registration Endpoint
@@ -33,22 +34,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { slug, name } = body;
-
-    // 1. Input Validation
-    if (!slug || typeof slug !== "string" || !slug.trim() || slug.trim().length > 100) {
+    const parseResult = customerCheckinSchema.safeParse(body);
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: "Shop identifier (slug) is required." },
+        { error: formatZodError(parseResult.error).error },
         { status: 400 }
       );
     }
-
-    if (!name || typeof name !== "string" || !name.trim() || name.trim().length > 100) {
-      return NextResponse.json(
-        { error: "Please enter your name (maximum 100 characters)." },
-        { status: 400 }
-      );
-    }
+    const { slug, name } = parseResult.data;
 
     const admin = createAdminClient();
     const referenceCode = generateReferenceCode("AG");

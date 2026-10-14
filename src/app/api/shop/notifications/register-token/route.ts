@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimitTokenRegistration } from "@/lib/redis/rateLimiter";
+import { registerTokenSchema, formatZodError } from "@/lib/validation/schemas";
 import type { Customer, Merchant } from "@/lib/types/database";
 
 /**
@@ -22,39 +23,21 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { slug, customer_id, token, platform = "web" } = body;
-
-    // 1. Validation
-    if (!slug || typeof slug !== "string" || !slug.trim() || slug.trim().length > 100) {
+    const parseResult = registerTokenSchema.safeParse({
+      token: body.token,
+      customerId: body.customer_id || body.customerId,
+      slug: body.slug,
+    });
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: "Shop slug is required." },
+        { error: formatZodError(parseResult.error).error },
         { status: 400 }
       );
     }
 
-    if (!customer_id || typeof customer_id !== "string" || customer_id.length > 50) {
-      return NextResponse.json(
-        { error: "Customer ID is required." },
-        { status: 400 }
-      );
-    }
-
-    const trimmedToken = typeof token === "string" ? token.trim() : "";
-    if (
-      !trimmedToken ||
-      trimmedToken.length < 20 ||
-      trimmedToken.length > 500 ||
-      trimmedToken.startsWith("fcm_web_token_") ||
-      trimmedToken.startsWith("fcm_web_granted_")
-    ) {
-      return NextResponse.json(
-        { error: "A valid FCM registration token is required." },
-        { status: 400 }
-      );
-    }
-
-    const validPlatform = typeof platform === "string" && ["web", "android", "ios"].includes(platform.toLowerCase())
-      ? platform.toLowerCase()
+    const { token: trimmedToken, customerId: customer_id, slug } = parseResult.data;
+    const validPlatform = typeof body.platform === "string" && ["web", "android", "ios"].includes(body.platform.toLowerCase())
+      ? body.platform.toLowerCase()
       : "web";
 
     const admin = createAdminClient();

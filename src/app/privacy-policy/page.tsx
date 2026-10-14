@@ -107,10 +107,10 @@ export default function PrivacyPolicyPage() {
                   Customer Loyalty Check-in Data
                 </h3>
                 <ul className="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
-                  <li>Customer name (entered during QR scan)</li>
-                  <li>Customer 10-digit phone number</li>
+                  <li>Customer name (entered voluntarily during QR check-in)</li>
+                  <li>Pseudonymous device token hash (stored locally to prevent duplicate rewards and recognize returning visits without collecting phone numbers or tracking identities)</li>
                   <li>Visit history, check-in timestamps &amp; visit counts</li>
-                  <li>Scratch card reward allocations &amp; redemption codes</li>
+                  <li>Digital scratch card reward allocations &amp; redemption codes</li>
                   <li>Review request dispatch status</li>
                 </ul>
               </div>

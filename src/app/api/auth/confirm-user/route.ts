@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidEmail } from "@/lib/utils/validation";
 import { rateLimitAuth } from "@/lib/redis/rateLimiter";
+import { confirmUserSchema, formatZodError } from "@/lib/validation/schemas";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,21 +19,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { email, password } = body;
-
-    if (!email || typeof email !== "string" || email.length > 255 || !isValidEmail(email)) {
+    const parseResult = confirmUserSchema.safeParse(body);
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: "Invalid email address." },
+        { error: formatZodError(parseResult.error).error },
         { status: 400 }
       );
     }
-
-    if (!password || typeof password !== "string" || password.length > 72) {
-      return NextResponse.json(
-        { error: "Password credentials are required to verify account." },
-        { status: 400 }
-      );
-    }
+    const { email, password } = parseResult.data;
 
     // Use a separate throwaway client with session persistence disabled to verify password
     const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");

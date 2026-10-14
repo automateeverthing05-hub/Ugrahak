@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logger } from "@/lib/observability/logger";
+import { contactSchema, formatZodError } from "@/lib/validation/schemas";
 
 interface ContactSubmission {
   name: string;
@@ -12,22 +13,29 @@ interface ContactSubmission {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as ContactSubmission;
-    const { name, businessName, contact, topic, message } = body;
+    const rawBody = await req.json();
+    const parseResult = contactSchema.safeParse({
+      name: rawBody.name,
+      contact_info: rawBody.contact || rawBody.contact_info,
+      message: rawBody.message,
+      topic: rawBody.topic,
+      business_name: rawBody.businessName || rawBody.business_name,
+    });
 
-    // Validate required fields
-    if (!name?.trim() || !contact?.trim() || !message?.trim()) {
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: "कृपया नाम, संपर्क (Email/Phone) और संदेश भरें।" },
+        { error: formatZodError(parseResult.error).error },
         { status: 400 }
       );
     }
 
-    const trimmedName = name.trim();
-    const trimmedBusiness = businessName?.trim() || null;
-    const trimmedContact = contact.trim();
-    const trimmedTopic = topic?.trim() || "General Help";
-    const trimmedMsg = message.trim();
+    const {
+      name: trimmedName,
+      contact_info: trimmedContact,
+      message: trimmedMsg,
+      topic: trimmedTopic,
+      business_name: trimmedBusiness,
+    } = parseResult.data;
 
     const ip = req.headers.get("x-forwarded-for") || "unknown";
     const userAgent = req.headers.get("user-agent") || "unknown";

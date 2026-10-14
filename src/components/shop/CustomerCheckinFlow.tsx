@@ -687,10 +687,16 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
           />
         </div>
 
+        <div className="pt-1 pb-1">
+          <p className="text-[11px] text-slate-500 leading-relaxed text-center bg-slate-50 border border-slate-100 rounded-xl py-1.5 px-2">
+            ऑफ़र और इनाम पाने के लिए अनुमति दें — आप कभी भी नोटिफिकेशन बंद कर सकते हैं।
+          </p>
+        </div>
+
         <Button
           type="submit"
           isLoading={isSubmitting}
-          className="w-full mt-2 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 text-sm min-h-[48px] shadow-sm"
+          className="w-full mt-1 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 text-sm min-h-[48px] shadow-sm"
           size="lg"
         >
           <Sparkles className="w-4 h-4 text-amber-300" />
