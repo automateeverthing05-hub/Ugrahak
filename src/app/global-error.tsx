@@ -30,7 +30,7 @@ export default function GlobalError({
               कुछ अप्रत्याशित समस्या आई
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              पेज लोड करने में रुकावट आई है। चिंता न करें, आपका डेटा सुरक्षित है। कृपया पेज दोबारा लोड करके देखें।
+              पेज लोड करने में रुकावट आई है। आपने जो पहले save किया है, उस पर इसका असर नहीं पड़ना चाहिए। कृपया पेज दोबारा लोड करके देखें।
             </p>
           </div>
 
@@ -67,3 +67,4 @@ export default function GlobalError({
     </html>
   );
 }
+

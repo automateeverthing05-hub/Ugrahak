@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { Merchant, Customer, Offer, CustomerVisit } from "@/lib/types/database";
 import Link from "next/link";
+import { formatISTDate } from "@/lib/utils/formatters";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -226,7 +227,7 @@ export default async function DashboardPage() {
                             {cust.name}
                           </p>
                           <p className="text-xs text-slate-500">
-                            Pehli visit: {new Date(cust.first_visit_at).toLocaleDateString()}
+                            पहली विज़िट: {formatISTDate(cust.first_visit_at)}
                           </p>
                         </div>
                       </div>

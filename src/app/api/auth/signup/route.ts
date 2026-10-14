@@ -5,6 +5,7 @@ import { isValidEmail, isValidPassword, isValidPhone, isValidGoogleMapsUrl } fro
 import { generateSlug } from "@/lib/utils/slugify";
 import { normalizePhone } from "@/lib/utils/referenceCode";
 import { rateLimitAuth } from "@/lib/redis/rateLimiter";
+import { logger } from "@/lib/observability/logger";
 
 export async function POST(request: NextRequest) {
   try {
@@ -159,7 +160,10 @@ export async function POST(request: NextRequest) {
     );
 
     if (profileError) {
-      console.error("Merchant profile creation notice:", profileError);
+      logger.error("Merchant profile creation failed during signup", {
+        operation: "MERCHANT_SIGNUP",
+        merchantId: userId,
+      }, profileError);
     }
 
     // 5. Seed default first-visit scratch card reward for immediate QR readiness
@@ -175,7 +179,10 @@ export async function POST(request: NextRequest) {
       ]);
     } catch (seedErr) {
       // Non-blocking
-      console.warn("Default scratch reward seed notice:", seedErr);
+      logger.warn("Default scratch reward seed skipped", {
+        operation: "MERCHANT_SIGNUP",
+        merchantId: userId,
+      }, seedErr);
     }
 
     // 6. Automatically sign in server-side to establish authenticated session cookies directly
@@ -192,7 +199,10 @@ export async function POST(request: NextRequest) {
         sessionEstablished = true;
       }
     } catch (sessionErr) {
-      console.warn("Server session establishment notice (client will fallback if needed):", sessionErr);
+      logger.warn("Server session establishment notice (client will fallback)", {
+        operation: "MERCHANT_SIGNUP",
+        merchantId: userId,
+      }, sessionErr);
     }
 
     return NextResponse.json({

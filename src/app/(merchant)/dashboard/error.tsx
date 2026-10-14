@@ -35,7 +35,7 @@ export default function DashboardError({
             डैशबोर्ड लोड नहीं हो पाया
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            आपके डेटा या दुकान सेटिंग्स को कोई नुकसान नहीं हुआ है। कृपया पेज दोबारा लोड करके देखें।
+            आपने जो पहले save किया है, उस पर इसका असर नहीं पड़ना चाहिए। कृपया पेज दोबारा लोड करके देखें।
           </p>
         </div>
 
@@ -82,3 +82,4 @@ export default function DashboardError({
     </div>
   );
 }
+

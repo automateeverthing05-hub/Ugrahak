@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logger } from "@/lib/observability/logger";
 
 interface ContactSubmission {
   name: string;
@@ -60,16 +61,15 @@ export async function POST(req: NextRequest) {
       ticketSaved = false;
     }
 
-    // Always log the inquiry for auditability
-    console.info("[Support Inquiry Received]", {
-      ticketId,
-      name: trimmedName,
-      businessName: trimmedBusiness,
-      contact: trimmedContact,
-      topic: trimmedTopic,
-      message: trimmedMsg,
-      ticketSaved,
-      receivedAt: new Date().toISOString(),
+    // Safe audit logging without raw personal data (PII)
+    logger.info("Support inquiry received", {
+      operation: "CONTACT_FORM_SUBMISSION",
+      status: ticketSaved ? "PERSISTED" : "UNPERSISTED",
+      metadata: {
+        ticketId,
+        topic: trimmedTopic,
+        ticketSaved,
+      },
     });
 
     // Check if transactional email SMTP/API credentials exist

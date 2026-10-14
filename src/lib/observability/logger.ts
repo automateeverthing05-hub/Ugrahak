@@ -34,6 +34,17 @@ const SENSITIVE_KEYS = new Set([
   "cookie",
   "apikey",
   "api_key",
+  "phone",
+  "email",
+  "mobile",
+  "contact",
+  "contactinfo",
+  "contact_info",
+  "name",
+  "ownername",
+  "owner_name",
+  "customername",
+  "customer_name",
 ]);
 
 /**
