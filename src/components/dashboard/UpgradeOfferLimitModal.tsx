@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Sparkles, X, ArrowRight, Layers } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { getWhatsAppUrl } from "@/lib/constants/growth-services";
 
 interface UpgradeOfferLimitModalProps {
   isOpen: boolean;
@@ -98,7 +99,7 @@ export const UpgradeOfferLimitModal: React.FC<UpgradeOfferLimitModalProps> = ({
             View Pricing
           </Link>
           <a
-            href="https://wa.me/918758422859?text=Hi%20U-Grahak%2C%20I%20want%20to%20upgrade%20my%20store%20plan."
+            href={getWhatsAppUrl("Hi U-Grahak, I want to upgrade my store plan.")}
             target="_blank"
             rel="noopener noreferrer"
             onClick={onClose}

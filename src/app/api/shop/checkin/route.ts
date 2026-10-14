@@ -139,10 +139,9 @@ export async function POST(request: NextRequest) {
 
     const planCheck = isCustomerLimitReached(totalCustomersCount, merchant.plan);
     if (planCheck.isReached) {
-      const planConfig = getPlanConfig(merchant.plan);
       return NextResponse.json(
         {
-          error: `Your ${planConfig.name} plan supports up to ${formatIndianNumber(planCheck.limit)} customers. Plan upgrade करवाने के लिए हमें WhatsApp या email करें।`,
+          error: "अभी check-in नहीं हो पा रहा। कृपया दुकानदार को बताएँ।",
         },
         { status: 403 }
       );

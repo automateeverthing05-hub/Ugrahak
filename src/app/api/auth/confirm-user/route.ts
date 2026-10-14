@@ -34,22 +34,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const admin = createAdminClient();
+    // Use a separate throwaway client with session persistence disabled to verify password
+    const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+
+    const throwawayClient = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    });
+
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Verify credentials first using signInWithPassword to prevent unauthorized arbitrary email confirmation
-    const { data: signCheck, error: credError } = await admin.auth.signInWithPassword({
+    const { error: credError } = await throwawayClient.auth.signInWithPassword({
       email: normalizedEmail,
       password,
     });
 
-    // If password was wrong or user doesn't exist, reject request
-    if (credError && !credError.message.toLowerCase().includes("email not confirmed")) {
+    // Check if error code indicates email unconfirmed; if credentials are wrong, return generic unauthorized
+    const isUnconfirmed = credError && (
+      (credError as any).code === "email_not_confirmed" ||
+      credError.message.toLowerCase().includes("email not confirmed")
+    );
+
+    if (!isUnconfirmed) {
       return NextResponse.json(
         { error: "Invalid email or password credentials." },
         { status: 401 }
       );
     }
+
+    const admin = createAdminClient();
 
     // Direct O(1) user lookup in auth.users without pagination or scanning
     const { data: linkData, error: lookupError } = await admin.auth.admin.generateLink({
@@ -60,10 +78,9 @@ export async function POST(request: NextRequest) {
     const existingUserId = linkData?.user?.id;
 
     if (lookupError || !existingUserId) {
-      // Return generic response without confirming user existence to prevent account enumeration
       return NextResponse.json(
-        { error: "Unable to verify user account. Please check your credentials." },
-        { status: 400 }
+        { error: "Invalid email or password credentials." },
+        { status: 401 }
       );
     }
 

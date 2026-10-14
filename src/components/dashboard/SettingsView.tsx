@@ -7,6 +7,7 @@ import { ScratchCardSettings } from "@/components/dashboard/ScratchCardSettings"
 import { GoogleReviewsSettings } from "@/components/dashboard/GoogleReviewsSettings";
 import { ReengagementSettings } from "@/components/dashboard/ReengagementSettings";
 import { PLANS, getPlanConfig } from "@/lib/billing/plans";
+import { getWhatsAppUrl } from "@/lib/constants/growth-services";
 import {
   Store,
   QrCode,
@@ -330,7 +331,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                         </span>
                       ) : (
                         <a
-                          href={`https://wa.me/918758422859?text=${encodeURIComponent(`Hi U-Grahak, I want to activate the ${plan.name} plan for my store.`)}`}
+                          href={getWhatsAppUrl(`Hi U-Grahak, I want to activate the ${plan.name} plan for my store.`)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-full py-2 px-3 rounded-xl text-xs font-bold text-center inline-flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"

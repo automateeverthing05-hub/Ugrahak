@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
         notificationSent: false,
         reason: "PLAN_RESTRICTION",
         status: "PLAN_FEATURE_UNAVAILABLE",
-        message: "Nearby Offers is available on the Growth and Pro plans.",
+        message: "No nearby promotion available right now.",
       });
     }
 

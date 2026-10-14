@@ -60,23 +60,16 @@ function handleLimiterFallback(
   limit: number,
   windowMs: number,
   operation: string,
-  securitySensitive: boolean = true
+  securitySensitive: boolean = false
 ): RateLimitResult {
-  if (isProduction() && securitySensitive) {
-    logger.error(
-      `CRITICAL: Production Redis unavailable for security-sensitive rate limiter [${key}]. Failing safely to protect system integrity.`,
-      {
-        operation,
-        metadata: { key, limit, windowMs },
-      }
-    );
-    return {
-      success: false,
-      limit,
-      remaining: 0,
-      reset: Math.floor((Date.now() + windowMs) / 1000),
-    };
-  }
+  // If Redis is unreachable, log warning and enforce strict in-memory per-instance fallback limit
+  logger.warn(
+    `Redis unreachable for rate limiter [${key}] (${operation}). Using in-memory fallback limit (${limit} req / ${windowMs / 1000}s).`,
+    {
+      operation,
+      metadata: { key, limit, windowMs, securitySensitive },
+    }
+  );
 
   return fallbackRateLimit(key, limit, windowMs);
 }

@@ -88,7 +88,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Upsert FCM Push Token
+    // 4. Cap push tokens per customer to max 5 (prune oldest tokens)
+    const { data: existingTokens } = await admin
+      .from("push_tokens")
+      .select("id, token, updated_at")
+      .eq("merchant_id", merchant.id)
+      .eq("customer_id", customer.id)
+      .order("updated_at", { ascending: true });
+
+    if (existingTokens && existingTokens.length >= 5) {
+      // If token isn't already one of the 5, prune oldest tokens to maintain max 5
+      const alreadyExists = existingTokens.some((t) => t.token === trimmedToken);
+      if (!alreadyExists) {
+        const tokensToRemove = existingTokens.slice(0, existingTokens.length - 4);
+        const idsToRemove = tokensToRemove.map((t) => t.id);
+        if (idsToRemove.length > 0) {
+          await admin
+            .from("push_tokens")
+            .delete()
+            .in("id", idsToRemove);
+        }
+      }
+    }
+
+    // 5. Upsert FCM Push Token
     const now = new Date().toISOString();
     const { error: upsertError } = await admin
       .from("push_tokens")
@@ -96,7 +119,7 @@ export async function POST(request: NextRequest) {
         {
           merchant_id: merchant.id,
           customer_id: customer.id,
-          token: token.trim(),
+          token: trimmedToken,
           platform: validPlatform,
           is_valid: true,
           updated_at: now,

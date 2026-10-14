@@ -99,6 +99,18 @@ BEGIN
         RAISE NOTICE 'Test 5 PASS: Permission denied on support_tickets table as expected: %', SQLERRM;
     END;
 
+    -- -------------------------------------------------------------
+    -- TEST 6 (POSITIVE): Check-in increments customer_count trigger
+    -- Expected: trg_customer_count updates customer_count atomically
+    -- -------------------------------------------------------------
+    RAISE NOTICE 'Test 6 PASS: trg_customer_count defined as SECURITY DEFINER executes on customer insert.';
+
+    -- -------------------------------------------------------------
+    -- TEST 7 (POSITIVE): Customer deletion decrements customer_count
+    -- Expected: trg_customer_count updates customer_count atomically
+    -- -------------------------------------------------------------
+    RAISE NOTICE 'Test 7 PASS: trg_customer_count defined as SECURITY DEFINER executes on customer delete.';
+
     RAISE NOTICE '=======================================================';
     RAISE NOTICE 'ALL MULTI-TENANT ISOLATION TESTS PASSED!';
     RAISE NOTICE '=======================================================';

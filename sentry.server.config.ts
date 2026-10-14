@@ -25,6 +25,20 @@ if (SENTRY_DSN) {
 
       return event;
     },
+    beforeBreadcrumb(breadcrumb) {
+      if (breadcrumb.data?.url) {
+        try {
+          const parsed = new URL(breadcrumb.data.url, "http://localhost");
+          breadcrumb.data.url = `${parsed.origin}${parsed.pathname}`;
+        } catch {
+          // ignore
+        }
+      }
+      if (breadcrumb.category === "xhr" || breadcrumb.category === "fetch") {
+        delete breadcrumb.data?.body;
+      }
+      return breadcrumb;
+    },
   });
 }
 

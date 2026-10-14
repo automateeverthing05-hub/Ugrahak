@@ -18,6 +18,8 @@ import {
 import type { Merchant, Customer, Offer, CustomerVisit } from "@/lib/types/database";
 import Link from "next/link";
 import { formatISTDate } from "@/lib/utils/formatters";
+import { isCustomerLimitReached } from "@/lib/billing/plans";
+import { getWhatsAppUrl } from "@/lib/constants/growth-services";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -99,8 +101,33 @@ export default async function DashboardPage() {
   const thisMonthVisits = thisMonthVisitsCount || 0;
   const recentCustomers = (recentCustomersData || []) as Customer[];
 
+  const planLimitCheck = isCustomerLimitReached(totalCustomers, typedMerchant.plan);
+
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Customer Limit Full Banner for Merchant */}
+      {planLimitCheck.isReached && (
+        <div className="bg-amber-500/10 border-2 border-amber-400 rounded-2xl p-4 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div className="space-y-0.5">
+            <span className="font-extrabold text-sm flex items-center gap-1.5">
+              ⚠️ ग्राहक limit पूरी हो गई है ({totalCustomers} / {planLimitCheck.limit})
+            </span>
+            <p className="text-xs text-amber-800">
+              ग्राहक limit पूरी हो गई है। नए ग्राहक जोड़ने के लिए plan activate करवाएँ।
+            </p>
+          </div>
+          <a
+            href={getWhatsAppUrl(`Hi U-Grahak, my store (${typedMerchant.shop_name}) reached the customer limit. I want to activate an upgraded plan.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors shrink-0"
+          >
+            WhatsApp पर Plan Activate करें
+            <ArrowRight className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      )}
+
       {/* Dashboard Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200">
         <div>
