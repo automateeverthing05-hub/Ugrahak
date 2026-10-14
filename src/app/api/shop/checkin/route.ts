@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
       const planConfig = getPlanConfig(merchant.plan);
       return NextResponse.json(
         {
-          error: `Your ${planConfig.name} plan supports up to ${formatIndianNumber(planCheck.limit)} customers. Please upgrade your plan to accept more customers.`,
+          error: `Your ${planConfig.name} plan supports up to ${formatIndianNumber(planCheck.limit)} customers. Plan upgrade करवाने के लिए हमें WhatsApp या email करें।`,
         },
         { status: 403 }
       );

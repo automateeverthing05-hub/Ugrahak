@@ -195,7 +195,7 @@ export const SignupForm: React.FC = () => {
 
       {selectedPlanName && (
         <div className="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-200 text-xs text-indigo-900 leading-relaxed font-medium">
-          आपने <span className="font-bold underline">{selectedPlanName}</span> चुना है। पहले Free account बनाएँ, फिर Dashboard से {selectedPlanName} में upgrade करें।
+          आपने <span className="font-bold underline">{selectedPlanName}</span> चुना है। पहले Free account बनाएँ, फिर {selectedPlanName} प्लान एक्टिवेट करवाने के लिए हमें WhatsApp या email करें।
         </div>
       )}
 

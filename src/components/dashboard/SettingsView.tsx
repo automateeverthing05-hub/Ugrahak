@@ -329,13 +329,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                           Current Active Plan
                         </span>
                       ) : (
-                        <Link
-                          href="/pricing"
-                          className="w-full py-2 px-3 rounded-xl text-xs font-bold text-center inline-flex items-center justify-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
+                        <a
+                          href={`https://wa.me/918758422859?text=${encodeURIComponent(`Hi U-Grahak, I want to activate the ${plan.name} plan for my store.`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-2 px-3 rounded-xl text-xs font-bold text-center inline-flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
                         >
-                          <span>{plan.id === "FREE" ? "Switch to Free" : `Upgrade to ${plan.name}`}</span>
+                          <span>{plan.id === "FREE" ? "Switch to Free" : `${plan.name} एक्टिवेट करें`}</span>
                           <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
+                        </a>
                       )}
                     </div>
                   </div>
@@ -347,7 +349,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           {/* Billing Help & Policies */}
           <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <span className="text-slate-600">
-              Need billing assistance, invoice copies, or plan adjustments?
+              Paid plan के लिए हमें WhatsApp या email करें, हम आपका plan activate कर देंगे।
             </span>
             <div className="flex items-center gap-3 font-semibold text-indigo-600">
               <Link href="/refund-policy" target="_blank" className="hover:underline">

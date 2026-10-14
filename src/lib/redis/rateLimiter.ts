@@ -111,7 +111,7 @@ let authLimiter: Ratelimit | null = null;
 export async function rateLimitCheckin(identifier: string): Promise<RateLimitResult> {
   const redis = getRedisClient();
   if (!redis) {
-    return handleLimiterFallback(`checkin:${identifier}`, 60, 60_000, "RATELIMIT_CHECKIN", true);
+    return handleLimiterFallback(`checkin:${identifier}`, 60, 60_000, "RATELIMIT_CHECKIN", false);
   }
 
   if (!checkinLimiter) {
@@ -131,7 +131,7 @@ export async function rateLimitCheckin(identifier: string): Promise<RateLimitRes
       operation: "RATELIMIT_CHECKIN",
       metadata: { identifier },
     });
-    return handleLimiterFallback(`checkin:${identifier}`, 60, 60_000, "RATELIMIT_CHECKIN", true);
+    return handleLimiterFallback(`checkin:${identifier}`, 60, 60_000, "RATELIMIT_CHECKIN", false);
   }
 }
 
@@ -165,7 +165,7 @@ export async function rateLimitNearbyCheck(identifier: string): Promise<RateLimi
 export async function rateLimitTokenRegistration(identifier: string): Promise<RateLimitResult> {
   const redis = getRedisClient();
   if (!redis) {
-    return handleLimiterFallback(`token_reg:${identifier}`, 60, 60_000, "RATELIMIT_TOKEN_REG", true);
+    return handleLimiterFallback(`token_reg:${identifier}`, 60, 60_000, "RATELIMIT_TOKEN_REG", false);
   }
 
   if (!tokenRegisterLimiter) {
@@ -185,14 +185,14 @@ export async function rateLimitTokenRegistration(identifier: string): Promise<Ra
       operation: "RATELIMIT_TOKEN_REG",
       metadata: { identifier },
     });
-    return handleLimiterFallback(`token_reg:${identifier}`, 60, 60_000, "RATELIMIT_TOKEN_REG", true);
+    return handleLimiterFallback(`token_reg:${identifier}`, 60, 60_000, "RATELIMIT_TOKEN_REG", false);
   }
 }
 
 export async function rateLimitOfferSend(merchantId: string): Promise<RateLimitResult> {
   const redis = getRedisClient();
   if (!redis) {
-    return handleLimiterFallback(`offer_send:${merchantId}`, 30, 60_000, "RATELIMIT_OFFER_SEND", true);
+    return handleLimiterFallback(`offer_send:${merchantId}`, 30, 60_000, "RATELIMIT_OFFER_SEND", false);
   }
 
   if (!offerSendLimiter) {
@@ -212,7 +212,7 @@ export async function rateLimitOfferSend(merchantId: string): Promise<RateLimitR
       operation: "RATELIMIT_OFFER_SEND",
       metadata: { merchantId },
     });
-    return handleLimiterFallback(`offer_send:${merchantId}`, 30, 60_000, "RATELIMIT_OFFER_SEND", true);
+    return handleLimiterFallback(`offer_send:${merchantId}`, 30, 60_000, "RATELIMIT_OFFER_SEND", false);
   }
 }
 

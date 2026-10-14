@@ -85,6 +85,10 @@ export const UpgradeOfferLimitModal: React.FC<UpgradeOfferLimitModalProps> = ({
         </div>
 
         {/* Action Buttons */}
+        <p className="text-[11px] text-slate-500">
+          Paid plan के लिए हमें WhatsApp या email करें, हम आपका plan activate कर देंगे।
+        </p>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
           <Link
             href="/pricing"
@@ -93,14 +97,16 @@ export const UpgradeOfferLimitModal: React.FC<UpgradeOfferLimitModalProps> = ({
           >
             View Pricing
           </Link>
-          <Link
-            href="/dashboard/settings"
+          <a
+            href="https://wa.me/918758422859?text=Hi%20U-Grahak%2C%20I%20want%20to%20upgrade%20my%20store%20plan."
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={onClose}
-            className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm transition-colors shadow-sm min-h-[44px]"
+            className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-colors shadow-sm min-h-[44px]"
           >
-            <span>Upgrade Now</span>
+            <span>WhatsApp पर Upgrade करें</span>
             <ArrowRight className="w-4 h-4" />
-          </Link>
+          </a>
         </div>
       </div>
     </div>

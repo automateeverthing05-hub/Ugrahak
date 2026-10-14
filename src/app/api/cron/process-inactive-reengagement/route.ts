@@ -14,11 +14,11 @@ export async function GET(request: NextRequest) {
   try {
     // 1. Authorization: Require Bearer CRON_SECRET with constant-time comparison
     const authHeader = request.headers.get("authorization");
-    const cronSecret = process.env.CRON_SECRET;
+    const cronSecret = process.env.CRON_SECRET ? process.env.CRON_SECRET.trim() : "";
 
     if (!cronSecret) {
       return NextResponse.json(
-        { error: "Server misconfiguration: CRON_SECRET is not configured." },
+        { error: "Server misconfiguration: CRON_SECRET is not configured or empty." },
         { status: 500 }
       );
     }
