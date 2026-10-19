@@ -122,9 +122,13 @@ export const SignupForm: React.FC = () => {
         return;
       }
 
+      const redirectUrl = rawPlan && planNameMap[rawPlan]
+        ? `/dashboard/billing?plan=${encodeURIComponent(rawPlan)}&checkout=true`
+        : "/dashboard";
+
       // If session was established server-side, redirect immediately
       if (data.sessionEstablished) {
-        window.location.href = "/dashboard";
+        window.location.href = redirectUrl;
         return;
       }
 
@@ -152,20 +156,20 @@ export const SignupForm: React.FC = () => {
               password,
             });
             if (retry.data?.user) {
-              window.location.href = "/dashboard";
+              window.location.href = redirectUrl;
               return;
             }
           } catch {
             // ignore
           }
 
-          router.push("/login?message=Account+created.+Please+sign+in.");
+          router.push(`/login?message=Account+created.+Please+sign+in.&redirect=${encodeURIComponent(redirectUrl)}`);
           return;
         }
 
-        window.location.href = "/dashboard";
+        window.location.href = redirectUrl;
       } catch {
-        window.location.href = "/dashboard";
+        window.location.href = redirectUrl;
       }
     } catch {
       setError("अकाउंट बनाते समय अप्रत्याशित समस्या आई। कृपया दोबारा प्रयास करें।");
@@ -195,7 +199,7 @@ export const SignupForm: React.FC = () => {
 
       {selectedPlanName && (
         <div className="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-200 text-xs text-indigo-900 leading-relaxed font-medium">
-          आपने <span className="font-bold underline">{selectedPlanName}</span> चुना है। पहले Free account बनाएँ, फिर {selectedPlanName} प्लान एक्टिवेट करवाने के लिए हमें WhatsApp या email करें।
+          आपने <span className="font-bold underline">{selectedPlanName}</span> चुना है। अकाउंट बनते ही आप सीधे बिलिंग चेकआउट पर पहुँचेंगे जहाँ आप सुरक्षित Razorpay के ज़रिए अपना प्लान तुरंत एक्टिवेट कर सकते हैं।
         </div>
       )}
 

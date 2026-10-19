@@ -31,6 +31,7 @@ export interface Database {
           reengagement_offer_id: string | null;
           reengagement_message_template: string | null;
           reengagement_cooldown_days: number;
+          last_upgrade_popup_date: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -55,6 +56,7 @@ export interface Database {
           reengagement_offer_id?: string | null;
           reengagement_message_template?: string | null;
           reengagement_cooldown_days?: number;
+          last_upgrade_popup_date?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -79,6 +81,7 @@ export interface Database {
           reengagement_offer_id?: string | null;
           reengagement_message_template?: string | null;
           reengagement_cooldown_days?: number;
+          last_upgrade_popup_date?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -639,6 +642,56 @@ export interface Database {
         };
         Relationships: [];
       };
+      payments: {
+        Row: {
+          id: string;
+          merchant_id: string;
+          razorpay_order_id: string;
+          razorpay_payment_id: string | null;
+          plan: "STARTER" | "GROWTH" | "PRO";
+          amount_paise: number;
+          currency: string;
+          status: "CREATED" | "CAPTURED" | "FAILED" | "REFUNDED";
+          raw_payload: Record<string, unknown> | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          merchant_id: string;
+          razorpay_order_id: string;
+          razorpay_payment_id?: string | null;
+          plan: "STARTER" | "GROWTH" | "PRO";
+          amount_paise: number;
+          currency?: string;
+          status?: "CREATED" | "CAPTURED" | "FAILED" | "REFUNDED";
+          raw_payload?: Record<string, unknown> | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          merchant_id?: string;
+          razorpay_order_id?: string;
+          razorpay_payment_id?: string | null;
+          plan?: "STARTER" | "GROWTH" | "PRO";
+          amount_paise?: number;
+          currency?: string;
+          status?: "CREATED" | "CAPTURED" | "FAILED" | "REFUNDED";
+          raw_payload?: Record<string, unknown> | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payments_merchant_id_fkey";
+            columns: ["merchant_id"];
+            isOneToOne: false;
+            referencedRelation: "merchants";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -721,6 +774,10 @@ export type NotificationLogInsert = Database["public"]["Tables"]["notification_l
 
 export type NearbyOfferLog = Database["public"]["Tables"]["nearby_offer_logs"]["Row"];
 export type NearbyOfferLogInsert = Database["public"]["Tables"]["nearby_offer_logs"]["Insert"];
+
+export type Payment = Database["public"]["Tables"]["payments"]["Row"];
+export type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];
+
 
 export interface ShopPublicProfile {
   id: string;

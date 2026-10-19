@@ -48,11 +48,12 @@ export function isPushNotificationSupported(): boolean {
 
 /**
  * Safe synchronous trigger for native browser notification permission prompt.
- * Must be executed synchronously within the user gesture event loop.
+ * MUST be executed synchronously within the user gesture event loop (button click / form submit).
+ * Never await any async call before calling this function in your click handler.
  * Supports modern Promise-based and legacy callback-based browser APIs.
  */
 export function requestNativePermission(): Promise<NotificationPermission> {
-  if (!isPushNotificationSupported()) {
+  if (typeof window === "undefined" || !("Notification" in window)) {
     return Promise.resolve("default" as NotificationPermission);
   }
 
@@ -72,9 +73,10 @@ export function requestNativePermission(): Promise<NotificationPermission> {
 }
 
 /**
- * Requests native notification permission and retrieves FCM push token
+ * Requests native notification permission and retrieves FCM push token.
+ * If knownPermission is provided, skips requesting permission again to avoid breaking gesture or double prompting.
  */
-export async function requestNotificationPermissionAndToken(): Promise<{
+export async function requestNotificationPermissionAndToken(knownPermission?: NotificationPermission): Promise<{
   status: "granted" | "denied" | "default" | "unsupported" | "error";
   token?: string;
   error?: string;
@@ -87,7 +89,7 @@ export async function requestNotificationPermissionAndToken(): Promise<{
   }
 
   try {
-    let permission: NotificationPermission = Notification.permission;
+    let permission: NotificationPermission = knownPermission || Notification.permission;
     if (permission === "default") {
       permission = await requestNativePermission();
     }
@@ -135,7 +137,7 @@ export async function requestNotificationPermissionAndToken(): Promise<{
       const swUrl = `/firebase-messaging-sw.js${swParams.toString() ? `?${swParams.toString()}` : ""}`;
       registration = await navigator.serviceWorker.register(swUrl);
 
-      // Add a 3s race condition so ready check never hangs mobile browsers indefinitely
+      // Give worker a brief activation window
       await Promise.race([
         navigator.serviceWorker.ready,
         new Promise((resolve) => setTimeout(resolve, 3000)),

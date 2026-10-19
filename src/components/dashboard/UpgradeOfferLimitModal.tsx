@@ -80,34 +80,33 @@ export const UpgradeOfferLimitModal: React.FC<UpgradeOfferLimitModalProps> = ({
             <span>Paid Plan Benefits:</span>
           </div>
           <ul className="text-indigo-800 text-[11px] space-y-1 pl-5 list-disc">
-            <li><strong>Starter (₹999/mo):</strong> Send offers to up to 1,500 customers</li>
-            <li><strong>Growth (₹2,999/mo):</strong> Send offers to up to 5,000 customers + GPS Nearby Offers</li>
+            <li><strong>Starter (₹499/mo):</strong> Send offers to up to 1,500 customers</li>
+            <li><strong>Growth (₹1,499/mo):</strong> Send offers to up to 5,000 customers + GPS Nearby Offers</li>
+            <li><strong>Pro (₹2,999/mo):</strong> Send offers to up to 10,000 customers + Advanced Analytics</li>
           </ul>
         </div>
 
         {/* Action Buttons */}
         <p className="text-[11px] text-slate-500">
-          Paid plan के लिए हमें WhatsApp या email करें, हम आपका plan activate कर देंगे।
+          सुरक्षित Razorpay के ज़रिए तुरंत प्लान अपग्रेड करें।
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-          <Link
-            href="/pricing"
+          <button
+            type="button"
             onClick={onClose}
             className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 font-bold text-xs sm:text-sm transition-colors min-h-[44px]"
           >
-            View Pricing
-          </Link>
-          <a
-            href={getWhatsAppUrl("Hi U-Grahak, I want to upgrade my store plan.")}
-            target="_blank"
-            rel="noopener noreferrer"
+            बंद करें
+          </button>
+          <Link
+            href="/dashboard/billing"
             onClick={onClose}
-            className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-colors shadow-sm min-h-[44px]"
+            className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm transition-colors shadow-sm min-h-[44px]"
           >
-            <span>WhatsApp पर Upgrade करें</span>
+            <span>Plan Upgrade करें</span>
             <ArrowRight className="w-4 h-4" />
-          </a>
+          </Link>
         </div>
       </div>
     </div>

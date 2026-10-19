@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendMulticastPushNotification } from "@/lib/firebase/admin";
 import type { ReviewRequest } from "@/lib/types/database";
+import { logger } from "@/lib/observability/logger";
 
 export interface ReviewRequestWithCustomer extends ReviewRequest {
   customer?: {
@@ -90,6 +91,7 @@ export async function getMerchantReviewRequests(
 /**
  * Process all pending review requests where scheduled_at <= NOW().
  * Idempotent, server-side processing for Vercel Cron and Inngest triggers.
+ * Includes stale PROCESSING lock recovery, bounded batching, and atomic claiming.
  */
 export async function processPendingReviewRequests(): Promise<{
   processed: number;
@@ -99,17 +101,40 @@ export async function processPendingReviewRequests(): Promise<{
   details: { customerId: string; status: string; reason?: string }[];
 }> {
   const now = new Date().toISOString();
-  let pendingRequests: ReviewRequest[] = [];
-
   const admin = createAdminClient();
 
-  // 1. Fetch pending requests from Supabase
+  const summary = {
+    processed: 0,
+    sent: 0,
+    skipped: 0,
+    failed: 0,
+    details: [] as { customerId: string; status: string; reason?: string }[],
+  };
+
+  // 0. Auto-recover stale PROCESSING records:
+  // If a worker crashed or timed out mid-flight > 10 minutes ago, reset to PENDING
+  // so the invitation is not permanently stuck.
+  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+  try {
+    await admin
+      .from("review_requests")
+      .update({ status: "PENDING", updated_at: now })
+      .eq("status", "PROCESSING")
+      .lte("updated_at", tenMinutesAgo);
+  } catch {
+    // Stale lock recovery is best-effort and non-blocking
+  }
+
+  // 1. Fetch pending requests from Supabase (capped to 50 items to fit serverless execution limits)
+  let pendingRequests: ReviewRequest[] = [];
   try {
     const { data, error } = await admin
       .from("review_requests")
       .select("*")
       .eq("status", "PENDING")
-      .lte("scheduled_at", now);
+      .lte("scheduled_at", now)
+      .order("scheduled_at", { ascending: true })
+      .limit(50);
 
     if (!error && data) {
       pendingRequests = data as ReviewRequest[];
@@ -118,18 +143,14 @@ export async function processPendingReviewRequests(): Promise<{
     // Ignore read failure
   }
 
-  const summary = {
-    processed: pendingRequests.length,
-    sent: 0,
-    skipped: 0,
-    failed: 0,
-    details: [] as { customerId: string; status: string; reason?: string }[],
-  };
+  summary.processed = pendingRequests.length;
 
   for (const req of pendingRequests) {
+    let pushSentSuccess = false;
+
     try {
-      // 0. Concurrency lock: Claim request by transitioning status PENDING -> PROCESSING
-      // If another cron runner already claimed it, skip to prevent duplicate pushes
+      // 0. Concurrency lock: Claim request by transitioning status PENDING -> PROCESSING atomically
+      // If another concurrent cron or Inngest runner already claimed it, skip immediately
       const { data: claimed, error: claimErr } = await admin
         .from("review_requests")
         .update({ status: "PROCESSING", updated_at: now })
@@ -142,6 +163,7 @@ export async function processPendingReviewRequests(): Promise<{
         summary.skipped++;
         continue;
       }
+
       // 1. Fetch Merchant to check settings & Google Review URL
       const { data: merchant } = await admin
         .from("merchants")
@@ -182,10 +204,10 @@ export async function processPendingReviewRequests(): Promise<{
         continue;
       }
 
-      const reviewUrl = merchant.google_maps_url || req.review_url;
+      const reviewUrl = (merchant.google_maps_url || req.review_url || "").trim();
 
       // If merchant has no configured review URL, mark as SKIPPED
-      if (!reviewUrl || !reviewUrl.trim() || !reviewUrl.startsWith("http")) {
+      if (!reviewUrl || !reviewUrl.startsWith("http")) {
         await updateRequestStatus(
           req.id,
           "SKIPPED",
@@ -201,13 +223,21 @@ export async function processPendingReviewRequests(): Promise<{
         continue;
       }
 
-      // 2. Fetch active FCM push tokens for this customer
-      const { data: tokens } = await admin
-        .from("push_tokens")
-        .select("token")
-        .eq("merchant_id", req.merchant_id)
-        .eq("customer_id", req.customer_id)
-        .eq("is_valid", true);
+      // 2. Fetch active FCM push tokens and customer name for this customer
+      const [{ data: tokens }, { data: customerRecord }] = await Promise.all([
+        admin
+          .from("push_tokens")
+          .select("token")
+          .eq("merchant_id", req.merchant_id)
+          .eq("customer_id", req.customer_id)
+          .eq("is_valid", true),
+        admin
+          .from("customers")
+          .select("name")
+          .eq("id", req.customer_id)
+          .eq("merchant_id", req.merchant_id)
+          .maybeSingle(),
+      ]);
 
       const validTokens = (tokens || [])
         .map((t) => t.token)
@@ -229,48 +259,29 @@ export async function processPendingReviewRequests(): Promise<{
         continue;
       }
 
-      // 3. Dispatch FCM Notification
+      // 3. Dispatch Personalized FCM Notification
+      const shopName = merchant.shop_name?.trim() || "Dukaan";
+      const customerFirstName = customerRecord?.name?.trim() ? ` ${customerRecord.name.trim()}` : "";
+      const notificationTitle = `${shopName} par aapka anubhav kaisa raha? ⭐`;
+      const notificationBody = customerFirstName
+        ? `Namaste${customerFirstName}! ${shopName} visit karne ke liye dhanyawad. Kripya apna Google review dekar humari sahayata karein.`
+        : `${shopName} visit karne ke liye dhanyawad! Kripya apna anubhav Google par share karein.`;
+
       const pushResult = await sendMulticastPushNotification({
         tokens: validTokens,
-        title: "How was your experience? ⭐",
-        body: "Thanks for visiting! We'd love to hear about your experience.",
-        linkUrl: reviewUrl.trim(),
+        title: notificationTitle,
+        body: notificationBody,
+        linkUrl: reviewUrl,
         data: {
           type: "REVIEW_REQUEST",
-          url: reviewUrl.trim(),
-          click_action: reviewUrl.trim(),
+          url: reviewUrl,
+          click_action: reviewUrl,
         },
       });
 
-      // Insert notification logs for audit & history
-      for (const token of validTokens) {
-        const isSuccessful = pushResult.successfulTokens.includes(token);
-        const isInvalid = pushResult.invalidTokens.includes(token);
-        const failureObj = pushResult.failedTokens.find((f) => f.token === token);
-
-        try {
-          await admin.from("notification_logs").insert({
-            offer_id: null,
-            merchant_id: req.merchant_id,
-            customer_id: req.customer_id,
-            token,
-            status: isSuccessful ? "SENT" : isInvalid ? "INVALID_TOKEN" : "FAILED",
-            error_message: failureObj ? failureObj.error : isInvalid ? "Token invalid or expired" : null,
-            sent_at: new Date().toISOString(),
-          });
-
-          if (isInvalid) {
-            await admin
-              .from("push_tokens")
-              .update({ is_valid: false, updated_at: new Date().toISOString() })
-              .eq("token", token);
-          }
-        } catch {
-          // Ignore log failure
-        }
-      }
-
+      // 4. Record successful dispatch status IMMEDIATELY to prevent duplicate sends
       if (pushResult.totalSent > 0) {
+        pushSentSuccess = true;
         await updateRequestStatus(
           req.id,
           "SENT",
@@ -299,15 +310,56 @@ export async function processPendingReviewRequests(): Promise<{
           reason: errMessage,
         });
       }
+
+      // 5. Post-send audit logging (errors here must never alter SENT status)
+      for (const token of validTokens) {
+        const isSuccessful = pushResult.successfulTokens.includes(token);
+        const isInvalid = pushResult.invalidTokens.includes(token);
+        const failureObj = pushResult.failedTokens.find((f) => f.token === token);
+
+        try {
+          await admin.from("notification_logs").insert({
+            offer_id: null,
+            merchant_id: req.merchant_id,
+            customer_id: req.customer_id,
+            token,
+            status: isSuccessful ? "SENT" : isInvalid ? "INVALID_TOKEN" : "FAILED",
+            error_message: failureObj ? failureObj.error : isInvalid ? "Token invalid or expired" : null,
+            sent_at: new Date().toISOString(),
+          });
+
+          if (isInvalid) {
+            await admin
+              .from("push_tokens")
+              .update({ is_valid: false, updated_at: new Date().toISOString() })
+              .eq("token", token);
+          }
+        } catch (logErr) {
+          logger.warn("Non-critical notification log insert failed", {
+            operation: "REVIEW_NOTIFICATION_LOG",
+            customerId: req.customer_id,
+            merchantId: req.merchant_id,
+          });
+        }
+      }
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : "Unexpected scheduler error";
-      await updateRequestStatus(req.id, "FAILED", null, errMsg);
-      summary.failed++;
-      summary.details.push({
+      logger.error("Error processing review request", {
+        operation: "PROCESS_REVIEW_REQUEST",
         customerId: req.customer_id,
-        status: "FAILED",
-        reason: errMsg,
-      });
+        merchantId: req.merchant_id,
+      }, err);
+
+      // Only mark FAILED if notification was not already sent successfully
+      if (!pushSentSuccess) {
+        await updateRequestStatus(req.id, "FAILED", null, errMsg);
+        summary.failed++;
+        summary.details.push({
+          customerId: req.customer_id,
+          status: "FAILED",
+          reason: errMsg,
+        });
+      }
     }
   }
 
@@ -333,7 +385,11 @@ async function updateRequestStatus(
         updated_at: now,
       })
       .eq("id", id);
-  } catch {
-    // Ignore update failure
+  } catch (err) {
+    logger.error("Failed to update review request status", {
+      operation: "UPDATE_REVIEW_REQUEST_STATUS",
+      metadata: { id, status },
+    }, err);
   }
 }
+

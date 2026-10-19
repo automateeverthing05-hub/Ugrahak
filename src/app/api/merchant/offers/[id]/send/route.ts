@@ -139,6 +139,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       const { data: customers } = await admin
         .from("customers")
         .select("id, name")
+        .eq("merchant_id", user.id)
         .in("id", customerIds);
 
       if (customers) {

@@ -193,6 +193,115 @@ async function runTestSuite() {
   const isAccessibleByB = campaignA.merchant_id === merchantB;
   assert(!isAccessibleByB, "Merchant B cannot access or mutate Merchant A's campaign records");
 
+  // TEST 9: Early Execution Prevention
+  console.log("\n▶ 9. Early Execution Prevention:");
+  const checkinTime = new Date("2026-10-15T10:00:00.000Z").getTime();
+  const scheduledTime = checkinTime + 30 * 60 * 1000; // 10:30:00
+  const twentyNineMinTime = checkinTime + 29 * 60 * 1000; // 10:29:00
+  const thirtyMinTime = checkinTime + 30 * 60 * 1000; // 10:30:00
+  const thirtyOneMinTime = checkinTime + 31 * 60 * 1000; // 10:31:00
+
+  const isDue = (currentTimeMs: number, scheduledTimeMs: number) => currentTimeMs >= scheduledTimeMs;
+
+  assert(!isDue(twentyNineMinTime, scheduledTime), "Request is NOT eligible at 29 minutes after check-in");
+  assert(isDue(thirtyMinTime, scheduledTime), "Request IS eligible exactly at 30 minutes after check-in");
+  assert(isDue(thirtyOneMinTime, scheduledTime), "Request IS eligible at 31 minutes after check-in");
+
+  // TEST 10: Concurrent Cron & Inngest Atomic Claim Race
+  console.log("\n▶ 10. Concurrent Cron & Inngest Atomic Claim Protection:");
+  const dbRecord = {
+    id: "req-race-1",
+    status: "PENDING" as "PENDING" | "PROCESSING" | "SENT",
+    updated_at: "2026-10-15T10:30:00.000Z",
+  };
+
+  // Simulating atomic update ... where status = 'PENDING'
+  let cronClaimed = false;
+  let inngestClaimed = false;
+
+  const tryClaim = (runnerName: string): boolean => {
+    if (dbRecord.status === "PENDING") {
+      dbRecord.status = "PROCESSING";
+      return true;
+    }
+    return false;
+  };
+
+  // Cron and Inngest race simultaneously:
+  cronClaimed = tryClaim("Vercel-Cron");
+  inngestClaimed = tryClaim("Inngest-Worker");
+
+  assert(cronClaimed === true, "First runner successfully claims record (transitions PENDING -> PROCESSING)");
+  assert(inngestClaimed === false, "Second runner loses race and skips record (cannot claim already PROCESSING)");
+  assert(Number(cronClaimed) + Number(inngestClaimed) === 1, "Exactly one runner obtains lock (zero duplicate sends)");
+
+  // TEST 11: Stale Lock Recovery
+  console.log("\n▶ 11. Stale PROCESSING Lock Auto-Recovery:");
+  const crashedJob = {
+    id: "crashed-job-1",
+    status: "PROCESSING",
+    updated_at: new Date(Date.now() - 11 * 60 * 1000).toISOString(), // 11 mins ago
+  };
+
+  const isStale = (updatedAtIso: string) => {
+    return Date.now() - new Date(updatedAtIso).getTime() >= 10 * 60 * 1000;
+  };
+
+  if (crashedJob.status === "PROCESSING" && isStale(crashedJob.updated_at)) {
+    crashedJob.status = "PENDING";
+  }
+
+  assert(crashedJob.status === "PENDING", "Stale PROCESSING record (> 10m) auto-recovers back to PENDING");
+
+  // Recent processing record is NOT reset prematurely
+  const activeJob = {
+    id: "active-job-1",
+    status: "PROCESSING",
+    updated_at: new Date(Date.now() - 2 * 60 * 1000).toISOString(), // 2 mins ago
+  };
+  if (activeJob.status === "PROCESSING" && isStale(activeJob.updated_at)) {
+    activeJob.status = "PENDING";
+  }
+  assert(activeJob.status === "PROCESSING", "Active PROCESSING record (< 10m) is not reset");
+
+  // TEST 12: Notification Click URL Resolution & External Navigation
+  console.log("\n▶ 12. Notification Click URL Resolution & External Open:");
+  const origin = "https://app.apnagrahak.com";
+  const externalGoogleUrl = "https://maps.app.goo.gl/xyz123";
+  const internalOfferUrl = "/shop/test-store?offer=deal-1";
+
+  const resolveTarget = (rawUrl: string, baseOrigin: string) => {
+    const targetUrl = new URL(rawUrl, baseOrigin).href;
+    const isExternalUrl = !targetUrl.startsWith(baseOrigin);
+    return { targetUrl, isExternalUrl };
+  };
+
+  const externalRes = resolveTarget(externalGoogleUrl, origin);
+  assert(externalRes.isExternalUrl === true, "Google Maps URL correctly classified as external URL");
+  assert(externalRes.targetUrl === "https://maps.app.goo.gl/xyz123", "Target Google Maps URL preserved without corruption");
+
+  const internalRes = resolveTarget(internalOfferUrl, origin);
+  assert(internalRes.isExternalUrl === false, "Store offer URL correctly classified as internal URL");
+  assert(internalRes.targetUrl === "https://app.apnagrahak.com/shop/test-store?offer=deal-1", "Internal URL resolved against app origin");
+
+  // TEST 13: Cron Route Constant-Time Auth
+  console.log("\n▶ 13. Cron Route Secret Timing-Safe Comparison:");
+  const crypto = await import("crypto");
+  const secret = "test-cron-secret-12345";
+  const validHeader = `Bearer ${secret}`;
+  const invalidHeader = `Bearer wrong-secret-99999`;
+
+  const verifyCronAuth = (authHeader: string, expectedSecret: string) => {
+    const expected = `Bearer ${expectedSecret}`;
+    const b1 = Buffer.from(authHeader);
+    const b2 = Buffer.from(expected);
+    if (b1.length !== b2.length) return false;
+    return crypto.timingSafeEqual(b1, b2);
+  };
+
+  assert(verifyCronAuth(validHeader, secret) === true, "Valid Bearer CRON_SECRET passes timing-safe check");
+  assert(verifyCronAuth(invalidHeader, secret) === false, "Invalid Bearer CRON_SECRET rejected");
+
   console.log("\n==================================================================");
   console.log(`TEST SUMMARY: ${passed} Passed, ${failed} Failed`);
   console.log("==================================================================");

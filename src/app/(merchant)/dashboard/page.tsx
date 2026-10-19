@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { StatCards } from "@/components/dashboard/StatCards";
 import { QRCodeDisplay } from "@/components/dashboard/QRCodeDisplay";
 import { MerchantProfileForm } from "@/components/dashboard/MerchantProfileForm";
+import { DailyUpgradePopup } from "@/components/dashboard/DailyUpgradePopup";
 import { Card } from "@/components/ui/Card";
 import {
   Store,
@@ -20,6 +21,7 @@ import Link from "next/link";
 import { formatISTDate } from "@/lib/utils/formatters";
 import { isCustomerLimitReached } from "@/lib/billing/plans";
 import { getWhatsAppUrl } from "@/lib/constants/growth-services";
+
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -46,7 +48,7 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     supabase
       .from("merchants")
-      .select("id, shop_name, owner_name, phone, google_maps_url, slug, plan")
+      .select("id, shop_name, owner_name, phone, google_maps_url, slug, plan, last_upgrade_popup_date")
       .eq("id", user.id)
       .maybeSingle(),
     supabase
@@ -105,6 +107,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Daily upgrade popup (FREE plan, >= 100 customers, once per day IST) */}
+      <DailyUpgradePopup
+        merchantId={typedMerchant.id}
+        merchantPlan={typedMerchant.plan}
+        totalCustomers={totalCustomers}
+        lastUpgradePopupDate={(typedMerchant as unknown as Record<string, unknown>).last_upgrade_popup_date as string | null}
+      />
+
       {/* Customer Limit Full Banner for Merchant */}
       {planLimitCheck.isReached && (
         <div className="bg-amber-500/10 border-2 border-amber-400 rounded-2xl p-4 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
@@ -113,18 +123,16 @@ export default async function DashboardPage() {
               ⚠️ ग्राहक limit पूरी हो गई है ({totalCustomers} / {planLimitCheck.limit})
             </span>
             <p className="text-xs text-amber-800">
-              ग्राहक limit पूरी हो गई है। नए ग्राहक जोड़ने के लिए plan activate करवाएँ।
+              ग्राहक limit पूरी हो गई है। नए ग्राहक जोड़ने के लिए plan upgrade करें।
             </p>
           </div>
-          <a
-            href={getWhatsAppUrl(`Hi U-Grahak, my store (${typedMerchant.shop_name}) reached the customer limit. I want to activate an upgraded plan.`)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors shrink-0"
+          <Link
+            href="/dashboard/billing"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors shrink-0"
           >
-            WhatsApp पर Plan Activate करें
+            Plan Upgrade करें
             <ArrowRight className="w-3.5 h-3.5" />
-          </a>
+          </Link>
         </div>
       )}
 

@@ -148,7 +148,7 @@ export default function PricingPage() {
 
                 <div className="pt-8">
                   <Link
-                    href="/signup"
+                    href={isFree ? "/signup" : `/signup?plan=${plan.id.toLowerCase()}`}
                     className={`w-full py-3.5 px-4 rounded-2xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors min-h-[46px] ${
                       isPopular
                         ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"

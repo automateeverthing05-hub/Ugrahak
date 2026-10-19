@@ -68,12 +68,16 @@ self.addEventListener('push', (event) => {
     const image = notification.image || notification.imageUrl || data.image || data.imageUrl || undefined;
     const targetUrl = data.url || data.click_action || payload.fcmOptions?.link || '/';
 
+    const notificationTag =
+      data.tag ||
+      (data.type === 'REVIEW_REQUEST' ? 'ugrahak-review-request' : data.offer_id || 'ugrahak-notification');
+
     const options = {
       body,
       icon,
       badge: '/favicon.ico',
       image,
-      tag: data.offer_id || 'ugrahak-offer',
+      tag: notificationTag,
       renotify: true,
       requireInteraction: true,
       data: {
@@ -100,24 +104,34 @@ self.addEventListener('push', (event) => {
   }
 });
 
-// Notification Click Listener (Opens or focuses the exact offer page immediately)
+// Notification Click Listener (Opens or focuses the exact offer page or Google review URL)
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
   const rawUrl = event.notification.data?.url || '/';
   // Resolve relative path to absolute URL
   const targetUrl = new URL(rawUrl, self.location.origin).href;
+  const isExternalUrl = !targetUrl.startsWith(self.location.origin);
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // 1. Look for an existing tab with the same URL or on the shop page
+      // 1. If target is an external URL (e.g. Google Maps Review URL), open a new window directly
+      // client.navigate() to a foreign cross-origin URL is blocked by browser security specs
+      if (isExternalUrl) {
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(targetUrl);
+        }
+        return;
+      }
+
+      // 2. Look for an existing tab with the same internal URL
       for (const client of clientList) {
         if (client.url === targetUrl && 'focus' in client) {
           return client.focus();
         }
       }
 
-      // 2. If an open tab from our origin exists, navigate and focus it
+      // 3. If an open tab from our origin exists, navigate and focus it
       for (const client of clientList) {
         if ('navigate' in client && 'focus' in client) {
           client.focus();
@@ -125,7 +139,7 @@ self.addEventListener('notificationclick', (event) => {
         }
       }
 
-      // 3. Otherwise, open a new window directly with the offer URL
+      // 4. Otherwise, open a new window directly
       if (self.clients.openWindow) {
         return self.clients.openWindow(targetUrl);
       }

@@ -38,3 +38,25 @@ body {
   }
 }
 
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #ugrahak-printable-qr-poster,
+  #ugrahak-printable-qr-poster * {
+    visibility: visible;
+  }
+  #ugrahak-printable-qr-poster {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 90% !important;
+    max-width: 500px !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    border: 2px solid #0f172a !important;
+  }
+}
+
+

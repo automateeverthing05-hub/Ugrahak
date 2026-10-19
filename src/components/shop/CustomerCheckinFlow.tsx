@@ -160,24 +160,28 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   };
 
   /**
-   * Background task: Resolve FCM token & register with backend without blocking UI
+   * Background task: Resolve FCM token & register with backend without blocking UI.
+   * Accepts resolved permission to ensure we register even if browser updated permission asynchronously.
    */
-  const handleBackgroundTokenRegistration = async (customerId: string) => {
+  const handleBackgroundTokenRegistration = async (customerId: string, resolvedPermission?: NotificationPermission) => {
     try {
       if (typeof window === "undefined" || !isPushNotificationSupported()) {
         setPermissionState("unsupported");
         return;
       }
 
-      if (Notification.permission === "granted") {
+      const activePermission = resolvedPermission || Notification.permission;
+      if (activePermission === "granted") {
         setPermissionState("granted");
-        const tokenRes = await requestNotificationPermissionAndToken();
+        const tokenRes = await requestNotificationPermissionAndToken("granted");
         if (tokenRes.token) {
           setFcmToken(tokenRes.token);
           await registerPushToken(customerId, tokenRes.token);
         }
-      } else if (Notification.permission === "denied") {
+      } else if (activePermission === "denied") {
         setPermissionState("denied");
+      } else {
+        setPermissionState("default");
       }
     } catch {
       // Non-blocking background error
@@ -188,8 +192,8 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
    * DIRECT USER CLICK HANDLER: "Offers Enable Karein"
    * 1. Synchronously requests native browser notification permission on user gesture
    * 2. Parallelizes customer check-in API request
-   * 3. Instantly reveals scratch card reward upon check-in response
-   * 4. Asynchronously obtains and registers FCM token in background
+   * 3. Instantly reveals scratch card reward upon check-in response (never blocked!)
+   * 4. Asynchronously obtains and registers FCM token if permission is granted
    */
   const handleCheckinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,10 +213,8 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
       return;
     }
 
-    setName(trimmedName);
-    setIsSubmitting(true);
-
-    // 1. Synchronously initiate native browser permission prompt on this click gesture
+    // 1. Synchronously initiate native browser permission prompt on this direct user gesture
+    // NEVER put any async/await before this call.
     let permissionPromise: Promise<NotificationPermission> | null = null;
     if (typeof window !== "undefined" && isPushNotificationSupported() && Notification.permission === "default") {
       try {
@@ -221,6 +223,9 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
         // Fallback gracefully
       }
     }
+
+    setName(trimmedName);
+    setIsSubmitting(true);
 
     // 2. Dispatch check-in API request immediately
     try {
@@ -241,7 +246,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
         return;
       }
 
-      // 3. Instantly unlock scratch card and reveal reward UI
+      // 3. Instantly unlock scratch card and reveal reward UI (reward is NEVER blocked)
       setCheckinData(data);
       setIsScratchCardUnlocked(true);
       setStep("REVEALED");
@@ -253,18 +258,21 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
 
       // 4. Background non-blocking FCM token resolution & registration
       void (async () => {
+        let finalPerm: NotificationPermission = Notification.permission;
         if (permissionPromise) {
           try {
-            const perm = await permissionPromise;
-            if (perm === "granted") {
+            finalPerm = await permissionPromise;
+            if (finalPerm === "granted") {
               setPermissionState("granted");
-            } else if (perm === "denied") {
+            } else if (finalPerm === "denied") {
               setPermissionState("denied");
+            } else {
+              setPermissionState("default");
             }
           } catch {}
         }
         if (data.customer?.id) {
-          await handleBackgroundTokenRegistration(data.customer.id);
+          await handleBackgroundTokenRegistration(data.customer.id, finalPerm);
         }
       })();
     } catch (err: unknown) {
@@ -274,10 +282,19 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
   };
 
   /**
-   * STEP 3: Handle "Enable Offers" when previously blocked/denied
+   * STEP 3: Handle "Enable Offers" when previously dismissed/blocked/denied
    */
   const handleAllowOffers = async () => {
     if (isSubmitting) return;
+
+    // Trigger native permission synchronously if in default state
+    let directPermissionPromise: Promise<NotificationPermission> | null = null;
+    if (typeof window !== "undefined" && isPushNotificationSupported() && Notification.permission === "default") {
+      try {
+        directPermissionPromise = requestNativePermission();
+      } catch {}
+    }
+
     setIsSubmitting(true);
     setPermissionError(null);
     setError(null);
@@ -291,7 +308,12 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
         return;
       }
 
-      const fcmRes = await requestNotificationPermissionAndToken();
+      let perm: NotificationPermission = Notification.permission;
+      if (directPermissionPromise) {
+        perm = await directPermissionPromise;
+      }
+
+      const fcmRes = await requestNotificationPermissionAndToken(perm);
 
       if (fcmRes.status === "granted") {
         setPermissionState("granted");
@@ -306,7 +328,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
       } else if (fcmRes.status === "denied") {
         setPermissionState("denied");
         setPermissionError(
-          "Please enable Offers in your browser settings to get your reward."
+          "Notification permission is blocked in browser settings. Please click the lock icon in the browser address bar to allow offers."
         );
       } else if (fcmRes.status === "unsupported") {
         setPermissionState("unsupported");
@@ -315,7 +337,7 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
       } else {
         setPermissionState("default");
         setPermissionError(
-          "Please enable Offers in your browser settings to get your reward."
+          "Offers permission was dismissed. You can enable it anytime to receive store updates."
         );
       }
     } catch (err: unknown) {
@@ -455,10 +477,30 @@ export const CustomerCheckinFlow: React.FC<CustomerCheckinFlowProps> = ({
             <CheckCircle2 className="w-4 h-4 text-indigo-600 flex-shrink-0" />
             <span>🎁 Reward Unlock Ho Gaya • Counter par code dikhayein</span>
           </div>
+        ) : permissionState === "denied" ? (
+          <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left space-y-2 text-xs text-amber-950 shadow-xs">
+            <div className="flex items-center gap-2 font-semibold text-amber-900">
+              <ShieldAlert className="w-4 h-4 text-amber-600 flex-shrink-0" />
+              <span>Offers notifications browser me block hain</span>
+            </div>
+            <p className="text-[11px] text-amber-800 leading-relaxed">
+              Browser ke address bar me 🔒 lock icon dabakar Notification allow karein taaki future offers miss na hon.
+            </p>
+          </div>
         ) : (
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center flex items-center justify-center gap-2 text-xs font-semibold text-slate-700 shadow-xs">
-            <CheckCircle2 className="w-4 h-4 text-slate-600 flex-shrink-0" />
-            <span>Reward Unlock Ho Gaya • Checkout counter par code dikhayein</span>
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-slate-700 shadow-xs">
+            <div className="flex items-center gap-2 font-semibold">
+              <BellRing className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+              <span>Future offers pane ke liye notifications enable karein</span>
+            </div>
+            <Button
+              size="sm"
+              onClick={handleAllowOffers}
+              isLoading={isSubmitting}
+              className="w-full sm:w-auto text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shrink-0"
+            >
+              Enable Karein
+            </Button>
           </div>
         )}
 

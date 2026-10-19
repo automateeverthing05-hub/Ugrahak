@@ -151,7 +151,31 @@ export const contactSchema = z
   })
   .strict();
 
+/**
+ * 6. Billing / Subscription Routes
+ */
+export const createOrderSchema = z
+  .object({
+    plan: z.enum(["STARTER", "GROWTH", "PRO"], {
+      message: "Plan must be one of: STARTER, GROWTH, PRO",
+    }),
+  })
+  .strict();
+
+export const verifyPaymentSchema = z
+  .object({
+    orderId: z.string().trim().min(1, "orderId is required."),
+    paymentId: z.string().trim().min(1, "paymentId is required."),
+    signature: z.string().trim().min(1, "signature is required."),
+    plan: z.enum(["STARTER", "GROWTH", "PRO"], {
+      message: "Plan must be one of: STARTER, GROWTH, PRO",
+    }),
+  })
+  .strict();
+
+
 export const uuidParamSchema = z.string().regex(UUID_REGEX, "Invalid UUID parameter.");
+
 
 /**
  * Shared helper that formats Zod error into a friendly Hindi message and 400 response

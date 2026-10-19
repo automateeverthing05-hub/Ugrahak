@@ -6,8 +6,9 @@ import { QRCodeDisplay } from "@/components/dashboard/QRCodeDisplay";
 import { ScratchCardSettings } from "@/components/dashboard/ScratchCardSettings";
 import { GoogleReviewsSettings } from "@/components/dashboard/GoogleReviewsSettings";
 import { ReengagementSettings } from "@/components/dashboard/ReengagementSettings";
+import { RazorpayCheckout } from "@/components/billing/RazorpayCheckout";
 import { PLANS, getPlanConfig } from "@/lib/billing/plans";
-import { getWhatsAppUrl } from "@/lib/constants/growth-services";
+import type { PlanId } from "@/lib/billing/plans";
 import {
   Store,
   QrCode,
@@ -21,6 +22,7 @@ import {
   ArrowRight,
   ExternalLink,
   Sparkles,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import type { Merchant } from "@/lib/types/database";
@@ -38,6 +40,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   customerCount,
 }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
+  const [checkoutPlan, setCheckoutPlan] = useState<PlanId | null>(null);
+
 
   const currentPlan = getPlanConfig(merchant?.plan);
   const isUnlimited = currentPlan.customerLimit === "unlimited";
@@ -329,16 +333,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                         <span className="w-full py-2 rounded-xl text-xs font-bold text-center block bg-slate-100 text-slate-600">
                           Current Active Plan
                         </span>
-                      ) : (
-                        <a
-                          href={getWhatsAppUrl(`Hi U-Grahak, I want to activate the ${plan.name} plan for my store.`)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full py-2 px-3 rounded-xl text-xs font-bold text-center inline-flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
+                      ) : plan.id === "FREE" ? (
+                        <Link
+                          href="/contact"
+                          className="w-full py-2 px-3 rounded-xl text-xs font-bold text-center inline-flex items-center justify-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
                         >
-                          <span>{plan.id === "FREE" ? "Switch to Free" : `${plan.name} एक्टिवेट करें`}</span>
+                          <span>Switch to Free</span>
                           <ArrowRight className="w-3.5 h-3.5" />
-                        </a>
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setCheckoutPlan(plan.id as PlanId)}
+                          disabled={!merchant}
+                          className="w-full py-2 px-3 rounded-xl text-xs font-bold text-center inline-flex items-center justify-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
+                        >
+                          <span>{plan.name} एक्टिवेट करें</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
                       )}
                     </div>
                   </div>
@@ -347,12 +359,47 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
           </div>
 
+          {/* Razorpay Checkout Modal */}
+          {checkoutPlan && merchant && (
+            <div
+              className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-200 relative">
+                <button
+                  type="button"
+                  onClick={() => setCheckoutPlan(null)}
+                  className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                  aria-label="Close checkout"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                <RazorpayCheckout
+                  merchantId={merchant.id}
+                  shopName={merchant.shop_name}
+                  merchantEmail=""
+                  initialPlan={checkoutPlan}
+                  onClose={() => setCheckoutPlan(null)}
+                  onSuccess={() => {
+                    setCheckoutPlan(null);
+                    window.location.reload();
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Billing Help & Policies */}
           <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <span className="text-slate-600">
-              Paid plan के लिए हमें WhatsApp या email करें, हम आपका plan activate कर देंगे।
+              सभी भुगतान Razorpay के ज़रिए 256-bit एन्क्रिप्टेड और सुरक्षित तरीके से प्रोसेस होते हैं।
             </span>
             <div className="flex items-center gap-3 font-semibold text-indigo-600">
+              <Link href="/dashboard/billing" className="hover:underline">
+                Billing Overview
+              </Link>
+              <span className="text-slate-300">&bull;</span>
               <Link href="/refund-policy" target="_blank" className="hover:underline">
                 Refund Policy
               </Link>

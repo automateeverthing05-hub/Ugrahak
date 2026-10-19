@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     // Select standard columns first to ensure backwards compatibility if retention migration hasn't been applied yet
     const { data: merchant, error: merchantError } = await admin
       .from("merchants")
-      .select("id, shop_name, phone, google_maps_url, slug, plan")
+      .select("id, shop_name, phone, google_maps_url, slug, plan, customer_count, is_review_request_enabled")
       .eq("slug", normalizedSlug)
       .maybeSingle<Merchant>();
 
