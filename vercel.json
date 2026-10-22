@@ -2,7 +2,11 @@
   "crons": [
     {
       "path": "/api/cron/process-review-requests",
-      "schedule": "* * * * *"
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/process-inactive-reengagement",
+      "schedule": "30 4 * * *"
     }
   ]
 }

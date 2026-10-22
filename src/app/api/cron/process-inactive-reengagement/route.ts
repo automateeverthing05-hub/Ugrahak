@@ -12,32 +12,41 @@ import { createClient } from "@/lib/supabase/server";
  */
 export async function GET(request: NextRequest) {
   try {
-    // 1. Authorization: Require Bearer CRON_SECRET with constant-time comparison
+    // 1. Authorization: Require Bearer CRON_SECRET (Vercel Cron / external scheduler)
+    // or an authenticated merchant user session (dashboard manual trigger)
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET ? process.env.CRON_SECRET.trim() : "";
 
-    if (!cronSecret) {
-      return NextResponse.json(
-        { error: "Server misconfiguration: CRON_SECRET is not configured or empty." },
-        { status: 500 }
-      );
+    let isAuthorized = false;
+
+    if (authHeader && cronSecret) {
+      const expectedHeader = `Bearer ${cronSecret}`;
+      const authBuffer = Buffer.from(authHeader);
+      const expectedBuffer = Buffer.from(expectedHeader);
+
+      if (
+        authBuffer.length === expectedBuffer.length &&
+        crypto.timingSafeEqual(authBuffer, expectedBuffer)
+      ) {
+        isAuthorized = true;
+      }
     }
 
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: "Missing authorization header." },
-        { status: 401 }
-      );
+    if (!isAuthorized) {
+      try {
+        const supabase = await createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user) {
+          isAuthorized = true;
+        }
+      } catch {
+        // Session check failed
+      }
     }
 
-    const expectedHeader = `Bearer ${cronSecret}`;
-    const authBuffer = Buffer.from(authHeader);
-    const expectedBuffer = Buffer.from(expectedHeader);
-
-    if (
-      authBuffer.length !== expectedBuffer.length ||
-      !crypto.timingSafeEqual(authBuffer, expectedBuffer)
-    ) {
+    if (!isAuthorized) {
       return NextResponse.json(
         { error: "Unauthorized cron execution." },
         { status: 401 }

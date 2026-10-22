@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { generateReferenceCode } from "@/lib/utils/referenceCode";
 import { isCustomerLimitReached, getPlanConfig } from "@/lib/billing/plans";
 import { pickRandomFirstVisitReward } from "@/lib/rewards/scratchCardConfig";
-import { scheduleReviewRequest } from "@/lib/reviews/reviewScheduler";
+import { scheduleReviewRequest, processPendingReviewRequests } from "@/lib/reviews/reviewScheduler";
 import { rateLimitCheckin } from "@/lib/redis/rateLimiter";
 import { inngest } from "@/lib/inngest/client";
 import type { Customer, Reward, Merchant } from "@/lib/types/database";
@@ -234,7 +234,7 @@ export async function POST(request: NextRequest) {
       .select()
       .single<Reward>();
 
-    // Secondary analytics
+    // Secondary analytics & opportunistic review processing
     try {
       inngest
         .send({
@@ -248,6 +248,7 @@ export async function POST(request: NextRequest) {
           },
         })
         .catch(() => {});
+      processPendingReviewRequests().catch(() => {});
     } catch {
       // Safe catch
     }

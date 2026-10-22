@@ -20,7 +20,7 @@ export const processReviewRequestsFunction = inngest.createFunction(
       limit: 5,
     },
     triggers: [
-      { cron: "* * * * *" },
+      { cron: "0 * * * *" }, // Hourly periodic safety sweep in Inngest
       { event: "merchant/reviews.process" },
     ],
   },

@@ -1,6 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getMerchantReviewRequests } from "@/lib/reviews/reviewScheduler";
+import {
+  getMerchantReviewRequests,
+  processPendingReviewRequests,
+} from "@/lib/reviews/reviewScheduler";
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,6 +18,13 @@ export async function GET(request: NextRequest) {
         { error: "Unauthorized. Please sign in." },
         { status: 401 }
       );
+    }
+
+    // Opportunistically dispatch any review requests that are due (scheduled_at <= now)
+    try {
+      await processPendingReviewRequests();
+    } catch {
+      // Non-blocking best-effort sweep
     }
 
     const { searchParams } = new URL(request.url);
